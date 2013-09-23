@@ -12,7 +12,6 @@ public final class FigureHelper {
 	public static final int QUEEN = 5;
 	public static final int KING = 6;
 
-
 	private FigureHelper() {
 	};
 
@@ -20,23 +19,24 @@ public final class FigureHelper {
 		return (figureType + figureColor);
 	}
 
-	public static int figureColor(final short figureValue) {
+	public static int figureColor(final int figureValue) {
 		return (figureValue / 10) * 10;
 	}
 
-	public static int figureType(final short figureValue) {
+	public static int figureType(final int figureValue) {
 		return figureValue % 10;
 	}
 
-	public static boolean isWhite(final short figureValue) {
+	public static boolean isWhite(final int figureValue) {
 		return figureColor(figureValue) == WHITE;
 	}
 
-	public static boolean isBlack(final short figureValue) {
+	public static boolean isBlack(final int figureValue) {
 		return figureColor(figureValue) == BLACK;
 	}
 
-	public static int oppositeFigureColor(final short figureValue) {
+	public static int oppositeFigureColor(final int figureValue) {
 		return Math.abs(figureColor(figureValue) - 10);
 	}
+
 }
