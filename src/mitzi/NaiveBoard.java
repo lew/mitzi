@@ -65,14 +65,19 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public int getEnPassant() {
-		// TODO Auto-generated method stub
-		return 0;
+		return en_passant_target;
 	}
 
 	@Override
 	public boolean canCastle(int king_to) {
-		// TODO Auto-generated method stub
-		return false;
+		if ((king_to == 2 && castling[0] != 0)
+				|| (king_to == 6 && castling[1] != 0)
+				|| (king_to == 58 && castling[2] != 0)
+				|| (king_to == 62 && castling[3] != 0)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
@@ -219,12 +224,12 @@ public class NaiveBoard implements IBoard {
 			fen.append(SquareHelper.toString(en_passant_target));
 		}
 		fen.append(" ");
-		
-		//halfmove clock
+
+		// halfmove clock
 		fen.append(half_move_clock);
 		fen.append(" ");
-		
-		//fullmove clock
+
+		// fullmove clock
 		fen.append(full_move_clock);
 
 		return fen.toString();
@@ -232,20 +237,17 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public int getActiveColor() {
-		// TODO Auto-generated method stub
-		return 0;
+		return active_color;
 	}
 
 	@Override
 	public int getHalfMoveClock() {
-		// TODO Auto-generated method stub
-		return 0;
+		return half_move_clock;
 	}
 
 	@Override
 	public int getFullMoveClock() {
-		// TODO Auto-generated method stub
-		return 0;
+		return full_move_clock;
 	}
 
 }
