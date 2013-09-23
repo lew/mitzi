@@ -41,7 +41,7 @@ public interface IBoard {
 
 	/**
 	 * En passant target square. If there's no en passant target square, this is
-	 * 0. If a pawn has just made a two-square move, this is the position
+	 * -1. If a pawn has just made a two-square move, this is the position
 	 * "behind" the pawn. This is recorded regardless of whether there is a pawn
 	 * in position to make an en passant capture.
 	 * 

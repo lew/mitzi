@@ -1,5 +1,7 @@
 package mitzi;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public class NaiveBoard implements IBoard {
@@ -20,9 +22,33 @@ public class NaiveBoard implements IBoard {
 
 	private int[][] board = new int[12][12];
 
+	private int full_move_clock;
+
+	private int half_move_clock;
+
+	private int[] castling = new int[4];
+
+	private int en_passant_target;
+
+	private int active_color;
+
 	@Override
 	public void setToInitial() {
 		board = initial_board;
+
+		full_move_clock = 1;
+
+		half_move_clock = 0;
+
+		// squares c1, g1, c8 and g8
+		castling[0] = 2;
+		castling[1] = 6;
+		castling[2] = 58;
+		castling[3] = 62;
+
+		en_passant_target = -1;
+
+		active_color = FigureHelper.WHITE;
 	}
 
 	@Override
@@ -127,9 +153,9 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public String toFEN() {
-		//TODO output active color, halfmoves, etc
 		StringBuilder fen = new StringBuilder();
 
+		// piece placement
 		for (int row = 2; row < 10; row++) {
 
 			int counter = 0;
@@ -153,6 +179,53 @@ public class NaiveBoard implements IBoard {
 				fen.append("/");
 			}
 		}
+		fen.append(" ");
+
+		// active color
+		if (active_color == FigureHelper.WHITE) {
+			fen.append("w");
+		} else {
+			fen.append("b");
+		}
+		fen.append(" ");
+
+		// castling availability
+		boolean castle_flag = false;
+		if (castling[1] != 0) {
+			fen.append("K");
+			castle_flag = true;
+		}
+		if (castling[0] != 0) {
+			fen.append("Q");
+			castle_flag = true;
+		}
+		if (castling[3] != 0) {
+			fen.append("k");
+			castle_flag = true;
+		}
+		if (castling[2] != 0) {
+			fen.append("q");
+			castle_flag = true;
+		}
+		if (!castle_flag) {
+			fen.append("-");
+		}
+		fen.append(" ");
+
+		// en passant target square
+		if (en_passant_target == -1) {
+			fen.append("-");
+		} else {
+			fen.append(SquareHelper.toString(en_passant_target));
+		}
+		fen.append(" ");
+		
+		//halfmove clock
+		fen.append(half_move_clock);
+		fen.append(" ");
+		
+		//fullmove clock
+		fen.append(full_move_clock);
 
 		return fen.toString();
 	}
