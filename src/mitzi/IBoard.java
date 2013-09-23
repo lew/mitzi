@@ -12,7 +12,7 @@ public interface IBoard {
 	
 	public boolean canEnPassant(int hit_field);
 	
-	public boolean canRochade(int king_to);
+	public boolean canCastle(int king_to);
 
 	public Set<Integer> getOccupiedSquaresByColor(int color);
 
