@@ -1,17 +1,9 @@
 package mitzi;
 
-public class SquareHelper {
-
-	private static class Holder {
-		private static final SquareHelper INSTANCE = new SquareHelper();
-	}
+public final class SquareHelper {
 
 	private SquareHelper() {
 	};
-
-	public static SquareHelper getInstance() {
-		return Holder.INSTANCE;
-	}
 
 	public static int getColumn(int square) {
 		return square % 8;
