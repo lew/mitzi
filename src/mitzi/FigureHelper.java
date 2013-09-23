@@ -12,6 +12,9 @@ public final class FigureHelper {
 	public static final int QUEEN = 5;
 	public static final int KING = 6;
 
+	public static final String[] ALGEBRAIC_NAMES = { "P", "R", "N", "B", "Q",
+			"K" };
+
 	private FigureHelper() {
 	};
 
@@ -37,6 +40,20 @@ public final class FigureHelper {
 
 	public static int oppositeFigureColor(final int figureValue) {
 		return Math.abs(figureColor(figureValue) - 10);
+	}
+
+	public static String toString(final int figureValue) {
+		return ALGEBRAIC_NAMES[figureType(figureValue) - 1];
+	}
+
+	public static String toString(final int figureValue,
+			final boolean omitPawnLetter) {
+		int figure_type = figureType(figureValue);
+		if (omitPawnLetter && figure_type == PAWN) {
+			return "";
+		} else {
+			return ALGEBRAIC_NAMES[figure_type - 1];
+		}
 	}
 
 }
