@@ -1,5 +1,7 @@
 package mitzi;
 
+import java.util.Locale;
+
 public final class FigureHelper {
 
 	public static final int WHITE = 0;
@@ -43,14 +45,19 @@ public final class FigureHelper {
 	}
 
 	public static String toString(final int figureValue) {
-		return ALGEBRAIC_NAMES[figureType(figureValue) - 1];
+		return toString(figureValue, false);
 	}
 
 	public static String toString(final int figureValue,
 			final boolean omitPawnLetter) {
+
 		int figure_type = figureType(figureValue);
+		int figure_color = figureColor(figureValue);
+
 		if (omitPawnLetter && figure_type == PAWN) {
 			return "";
+		} else if (figure_color == BLACK) {
+			return ALGEBRAIC_NAMES[figure_type - 1].toLowerCase(Locale.ENGLISH);
 		} else {
 			return ALGEBRAIC_NAMES[figure_type - 1];
 		}
