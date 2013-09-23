@@ -5,10 +5,22 @@ public final class SquareHelper {
 	private SquareHelper() {
 	};
 
+	/**
+	 * Returns the integer value of the square's column. Starting with 0 at
+	 * column a and ending with 7 at column h.
+	 * 
+	 * @return the integer value of the square's column.
+	 */
 	public static int getColumn(int square) {
 		return square % 8;
 	}
 
+	/**
+	 * Returns the integer value of the square's row. Starting with 0 at row 1
+	 * and ending with 7 at row 8.
+	 * 
+	 * @return the integer value of the square's row.
+	 */
 	public static int getRow(int square) {
 		return square / 8;
 	}
@@ -52,7 +64,8 @@ public final class SquareHelper {
 	 */
 	public static String toString(int square) {
 		String[] letters = { "a", "b", "c", "d", "e", "f", "g", "h" };
-		return letters[getColumn(square)] + Integer.toString(getRow(square) + 1);
+		return letters[getColumn(square)]
+				+ Integer.toString(getRow(square) + 1);
 	}
 
 }
