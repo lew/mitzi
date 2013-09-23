@@ -38,9 +38,9 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public boolean canEnPassant(int hit_field) {
+	public int getEnPassant() {
 		// TODO Auto-generated method stub
-		return false;
+		return 0;
 	}
 
 	@Override
@@ -155,6 +155,24 @@ public class NaiveBoard implements IBoard {
 		}
 
 		return fen.toString();
+	}
+
+	@Override
+	public int getActiveColor() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getHalfMoveClock() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getFullMoveClock() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
