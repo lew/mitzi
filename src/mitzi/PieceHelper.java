@@ -20,46 +20,46 @@ public final class PieceHelper {
 	private PieceHelper() {
 	};
 
-	public static int figureValue(final int figureType, final int figureColor) {
-		return (figureType + figureColor);
+	public static int pieceValue(final int pieceType, final int pieceColor) {
+		return (pieceType + pieceColor);
 	}
 
-	public static int figureColor(final int figureValue) {
-		return (figureValue / 10) * 10;
+	public static int pieceColor(final int pieceValue) {
+		return (pieceValue / 10) * 10;
 	}
 
-	public static int figureType(final int figureValue) {
-		return figureValue % 10;
+	public static int pieceType(final int pieceValue) {
+		return pieceValue % 10;
 	}
 
-	public static boolean isWhite(final int figureValue) {
-		return figureColor(figureValue) == WHITE;
+	public static boolean isWhite(final int pieceValue) {
+		return pieceColor(pieceValue) == WHITE;
 	}
 
-	public static boolean isBlack(final int figureValue) {
-		return figureColor(figureValue) == BLACK;
+	public static boolean isBlack(final int pieceValue) {
+		return pieceColor(pieceValue) == BLACK;
 	}
 
-	public static int oppositeFigureColor(final int figureValue) {
-		return Math.abs(figureColor(figureValue) - 10);
+	public static int pieceOppositeColor(final int pieceValue) {
+		return Math.abs(pieceColor(pieceValue) - 10);
 	}
 
-	public static String toString(final int figureValue) {
-		return toString(figureValue, false);
+	public static String toString(final int pieceValue) {
+		return toString(pieceValue, false);
 	}
 
-	public static String toString(final int figureValue,
+	public static String toString(final int pieceValue,
 			final boolean omitPawnLetter) {
 
-		int figure_type = figureType(figureValue);
-		int figure_color = figureColor(figureValue);
+		int piece_type = pieceType(pieceValue);
+		int piece_color = pieceColor(pieceValue);
 
-		if (omitPawnLetter && figure_type == PAWN) {
+		if (omitPawnLetter && piece_type == PAWN) {
 			return "";
-		} else if (figure_color == BLACK) {
-			return ALGEBRAIC_NAMES[figure_type - 1].toLowerCase(Locale.ENGLISH);
+		} else if (piece_color == BLACK) {
+			return ALGEBRAIC_NAMES[piece_type - 1].toLowerCase(Locale.ENGLISH);
 		} else {
-			return ALGEBRAIC_NAMES[figure_type - 1];
+			return ALGEBRAIC_NAMES[piece_type - 1];
 		}
 	}
 

@@ -97,19 +97,19 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public int getNumberOfFiguresByColor(int color) {
+	public int getNumberOfPiecesByColor(int color) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public int getNumberOfFiguresByType(int type) {
+	public int getNumberOfPiecesByType(int type) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public int getNumberOfFiguresByColorAndType(int color, int type) {
+	public int getNumberOfPiecesByColorAndType(int color, int type) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

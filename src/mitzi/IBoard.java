@@ -68,11 +68,11 @@ public interface IBoard {
 
 	public Set<Integer> getOccupiedSquaresByColorAndType(int color, int type);
 
-	public int getNumberOfFiguresByColor(int color);
+	public int getNumberOfPiecesByColor(int color);
 
-	public int getNumberOfFiguresByType(int type);
+	public int getNumberOfPiecesByType(int type);
 
-	public int getNumberOfFiguresByColorAndType(int color, int type);
+	public int getNumberOfPiecesByColorAndType(int color, int type);
 
 	public Set<IMove> getPossibleMoves();
 
