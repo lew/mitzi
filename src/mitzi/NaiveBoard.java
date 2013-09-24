@@ -31,19 +31,19 @@ public class NaiveBoard implements IBoard {
 	private int en_passant_target;
 
 	private int active_color;
-	
-	private NaiveBoard returnCopy(){
+
+	private NaiveBoard returnCopy() {
 		NaiveBoard newBoard = new NaiveBoard();
-		
-		newBoard.active_color=active_color;
-		newBoard.en_passant_target=en_passant_target;
-		newBoard.full_move_clock=full_move_clock;
-		newBoard.half_move_clock=half_move_clock;
+
+		newBoard.active_color = active_color;
+		newBoard.en_passant_target = en_passant_target;
+		newBoard.full_move_clock = full_move_clock;
+		newBoard.half_move_clock = half_move_clock;
 		System.arraycopy(castling, 0, newBoard.castling, 0, 4);
-		
-		for(int i=1;i<12;i++)
+
+		for (int i = 2; i < 11; i++)
 			System.arraycopy(board[i], 0, newBoard.board[i], 0, 12);
-		
+
 		return newBoard;
 	}
 
@@ -103,6 +103,9 @@ public class NaiveBoard implements IBoard {
 		if (move.getPromotion() != 0) {
 			newBoard.setOnBoard(src, 0);
 			newBoard.setOnBoard(dest, move.getPromotion());
+
+			newBoard.half_move_clock++;
+
 		}
 		// If rochade
 		else if (PieceHelper.pieceType(src) == PieceHelper.KNIGHT
@@ -116,22 +119,75 @@ public class NaiveBoard implements IBoard {
 				newBoard.setOnBoard(src - 40, 0);
 			else
 				newBoard.setOnBoard(src + 30, 0);
+
+			newBoard.half_move_clock++;
+			
 		}
 		// If en passant
 		else if (PieceHelper.pieceType(src) == PieceHelper.PAWN
 				&& dest == this.getEnPassant()) {
-			newBoard.setOnBoard(dest, PieceHelper.pieceValue(PieceHelper.PAWN, active_color));
+			newBoard.setOnBoard(dest,
+					PieceHelper.pieceValue(PieceHelper.PAWN, active_color));
 			newBoard.setOnBoard(src, 0);
-			if(active_color==PieceHelper.WHITE)
-				newBoard.setOnBoard(dest-1,0);
+			if (active_color == PieceHelper.WHITE)
+				newBoard.setOnBoard(dest - 1, 0);
 			else
-				newBoard.setOnBoard(dest+1,0);
-					
-		} 
+				newBoard.setOnBoard(dest + 1, 0);
+
+			newBoard.half_move_clock = 0;
+		}
+		// Usual move
 		else {
 			newBoard.setOnBoard(dest, this.getFromBoard(src));
 			newBoard.setOnBoard(src, 0);
+
+			if (this.getFromBoard(dest) != 0
+					|| PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.PAWN)
+				newBoard.half_move_clock = 0;
+			else
+				newBoard.half_move_clock++;
+
 		}
+
+		// Change active_color after move
+		newBoard.active_color = PieceHelper.pieceOppositeColor(this
+				.getFromBoard(dest)); 
+		if (active_color == PieceHelper.BLACK)
+			newBoard.full_move_clock++;
+
+		// Update en_passant
+		if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.PAWN
+				&& Math.abs(dest - src) == 2)
+			newBoard.en_passant_target = (dest + src) / 2;
+		else
+			newBoard.en_passant_target = -1;
+		
+		// Update casteling
+		if(PieceHelper.pieceType(this.getFromBoard(src))==PieceHelper.KING)
+			if(active_color==PieceHelper.WHITE && src== 51){
+				newBoard.castling[0]=-1;
+				newBoard.castling[1]=-1;
+			}
+			else if(active_color==PieceHelper.BLACK && src== 58){
+				newBoard.castling[2]=-1;
+				newBoard.castling[3]=-1;
+			}
+		else if(PieceHelper.pieceType(this.getFromBoard(src))==PieceHelper.ROOK)
+			if(active_color==PieceHelper.WHITE)
+			{
+				if(src==81)
+					newBoard.castling[1]=-1;
+				else if(src==11)
+					newBoard.castling[0]=-1;
+			}
+			else
+			{
+				if(src==88)
+					newBoard.castling[3]=-1;
+				else if(src==18)
+					newBoard.castling[2]=-1;
+			}
+				
 
 		return newBoard;
 	}
