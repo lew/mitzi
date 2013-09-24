@@ -24,6 +24,8 @@ public class NaiveBoard implements IBoard {
 
 	private int half_move_clock;
 
+	// squares c1, g1, c8 and g8 in ICCF numeric notation
+	// do not change the squares' order or bad things will happen!
 	private int[] castling = new int[4];
 
 	private int en_passant_target;
@@ -33,13 +35,13 @@ public class NaiveBoard implements IBoard {
 	private int getFromBoard(int square) {
 		int row = SquareHelper.getRow(square);
 		int column = SquareHelper.getColumn(square);
-		return board[9 - row][2 + column];
+		return board[10 - row][1 + column];
 	}
 
 	private void setOnBoard(int square, int piece_value) {
 		int row = SquareHelper.getRow(square);
 		int column = SquareHelper.getColumn(square);
-		board[9 - row][2 + column] = piece_value;
+		board[10 - row][1 + column] = piece_value;
 	}
 
 	@Override
@@ -50,11 +52,10 @@ public class NaiveBoard implements IBoard {
 
 		half_move_clock = 0;
 
-		// squares c1, g1, c8 and g8
-		castling[0] = 2;
-		castling[1] = 6;
-		castling[2] = 58;
-		castling[3] = 62;
+		castling[0] = 31;
+		castling[1] = 71;
+		castling[2] = 38;
+		castling[3] = 78;
 
 		en_passant_target = -1;
 
@@ -80,10 +81,10 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public boolean canCastle(int king_to) {
-		if ((king_to == 2 && castling[0] != 0)
-				|| (king_to == 6 && castling[1] != 0)
-				|| (king_to == 58 && castling[2] != 0)
-				|| (king_to == 62 && castling[3] != 0)) {
+		if ((king_to == 31 && castling[0] != 0)
+				|| (king_to == 71 && castling[1] != 0)
+				|| (king_to == 38 && castling[2] != 0)
+				|| (king_to == 78 && castling[3] != 0)) {
 			return true;
 		} else {
 			return false;
