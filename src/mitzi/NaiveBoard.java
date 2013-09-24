@@ -30,6 +30,18 @@ public class NaiveBoard implements IBoard {
 
 	private int active_color;
 
+	private int getFromBoard(int square) {
+		int row = SquareHelper.getRow(square);
+		int column = SquareHelper.getColumn(square);
+		return board[9 - row][2 + column];
+	}
+
+	private void setOnBoard(int square, int piece_value) {
+		int row = SquareHelper.getRow(square);
+		int column = SquareHelper.getColumn(square);
+		board[9 - row][2 + column] = piece_value;
+	}
+
 	@Override
 	public void setToInitial() {
 		board = initial_board;
