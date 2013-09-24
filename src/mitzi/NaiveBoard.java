@@ -31,6 +31,29 @@ public class NaiveBoard implements IBoard {
 	private int en_passant_target;
 
 	private int active_color;
+	
+	private NaiveBoard returnCopy(){
+		NaiveBoard newBoard = new NaiveBoard();
+		
+		newBoard.active_color=active_color;
+		newBoard.en_passant_target=en_passant_target;
+		newBoard.full_move_clock=full_move_clock;
+		newBoard.half_move_clock=half_move_clock;
+		System.arraycopy(castling, 0, newBoard.castling, 0, 4);
+		
+		for(int i=1;i<12;i++)
+			System.arraycopy(board[i], 0, newBoard.board[i], 0, 12);
+		
+		return newBoard;
+	}
+
+	public NaiveBoard NaiveBoard(NaiveBoard board) {
+		active_color = board.active_color;
+		this.board = board.board;
+		full_move_clock = board.full_move_clock;
+
+		return board;
+	}
 
 	private int getFromBoard(int square) {
 		int row = SquareHelper.getRow(square);
@@ -70,8 +93,47 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public IBoard doMove(IMove move) {
-		// TODO Auto-generated method stub
-		return null;
+
+		NaiveBoard newBoard = this.returnCopy();
+
+		int src = move.getFromSquare();
+		int dest = move.getToSquare();
+
+		// if promotion
+		if (move.getPromotion() != 0) {
+			newBoard.setOnBoard(src, 0);
+			newBoard.setOnBoard(dest, move.getPromotion());
+		}
+		// If rochade
+		else if (PieceHelper.pieceType(src) == PieceHelper.KNIGHT
+				&& Math.abs((src - dest)) == 20) {
+			newBoard.setOnBoard(dest,
+					PieceHelper.pieceValue(PieceHelper.KING, active_color));
+			newBoard.setOnBoard(src, 0);
+			newBoard.setOnBoard((src + dest) / 2,
+					PieceHelper.pieceValue(PieceHelper.ROOK, active_color));
+			if (SquareHelper.getColumn(dest) == 3)
+				newBoard.setOnBoard(src - 40, 0);
+			else
+				newBoard.setOnBoard(src + 30, 0);
+		}
+		// If en passant
+		else if (PieceHelper.pieceType(src) == PieceHelper.PAWN
+				&& dest == this.getEnPassant()) {
+			newBoard.setOnBoard(dest, PieceHelper.pieceValue(PieceHelper.PAWN, active_color));
+			newBoard.setOnBoard(src, 0);
+			if(active_color==PieceHelper.WHITE)
+				newBoard.setOnBoard(dest-1,0);
+			else
+				newBoard.setOnBoard(dest+1,0);
+					
+		} 
+		else {
+			newBoard.setOnBoard(dest, this.getFromBoard(src));
+			newBoard.setOnBoard(src, 0);
+		}
+
+		return newBoard;
 	}
 
 	@Override
