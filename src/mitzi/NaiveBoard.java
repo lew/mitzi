@@ -46,7 +46,7 @@ public class NaiveBoard implements IBoard {
 
 		en_passant_target = -1;
 
-		active_color = FigureHelper.WHITE;
+		active_color = PieceHelper.WHITE;
 	}
 
 	@Override
@@ -171,7 +171,7 @@ public class NaiveBoard implements IBoard {
 						fen.append(counter);
 						counter = 0;
 					}
-					fen.append(FigureHelper.toString(board[row][column]));
+					fen.append(PieceHelper.toString(board[row][column]));
 				}
 				if (column == 9 && counter != 0) {
 					fen.append(counter);
@@ -185,7 +185,7 @@ public class NaiveBoard implements IBoard {
 		fen.append(" ");
 
 		// active color
-		if (active_color == FigureHelper.WHITE) {
+		if (active_color == PieceHelper.WHITE) {
 			fen.append("w");
 		} else {
 			fen.append("b");

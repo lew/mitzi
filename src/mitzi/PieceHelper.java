@@ -2,7 +2,7 @@ package mitzi;
 
 import java.util.Locale;
 
-public final class FigureHelper {
+public final class PieceHelper {
 
 	public static final int WHITE = 0;
 	public static final int BLACK = 10;
@@ -17,7 +17,7 @@ public final class FigureHelper {
 	public static final String[] ALGEBRAIC_NAMES = { "P", "R", "N", "B", "Q",
 			"K" };
 
-	private FigureHelper() {
+	private PieceHelper() {
 	};
 
 	public static int figureValue(final int figureType, final int figureColor) {
