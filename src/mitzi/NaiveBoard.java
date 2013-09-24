@@ -133,13 +133,13 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public Set<IMove> getPossibleMovesFrom() {
+	public Set<IMove> getPossibleMovesFrom(int square) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Set<IMove> getPossibleMovesTo() {
+	public Set<IMove> getPossibleMovesTo(int square) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -76,9 +76,9 @@ public interface IBoard {
 
 	public Set<IMove> getPossibleMoves();
 
-	public Set<IMove> getPossibleMovesFrom();
+	public Set<IMove> getPossibleMovesFrom(int square);
 
-	public Set<IMove> getPossibleMovesTo();
+	public Set<IMove> getPossibleMovesTo(int square);
 
 	public boolean isCheckPosition();
 
