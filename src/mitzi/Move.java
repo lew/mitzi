@@ -39,5 +39,16 @@ public class Move implements IMove {
 	public int getPromotion() {
 		return promotion;
 	}
+	
+	@Override
+	public String toString() {
+		String promote_to;
+		if (getPromotion() != 0) {
+			promote_to = PieceHelper.toString(getPromotion());
+		} else {
+			promote_to = "";
+		}
+		return SquareHelper.toString(getFromSquare()) + SquareHelper.toString(getToSquare()) + promote_to;
+	}
 
 }
