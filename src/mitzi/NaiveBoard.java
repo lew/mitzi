@@ -47,14 +47,6 @@ public class NaiveBoard implements IBoard {
 		return newBoard;
 	}
 
-	public NaiveBoard NaiveBoard(NaiveBoard board) {
-		active_color = board.active_color;
-		this.board = board.board;
-		full_move_clock = board.full_move_clock;
-
-		return board;
-	}
-
 	private int getFromBoard(int square) {
 		int row = SquareHelper.getRow(square);
 		int column = SquareHelper.getColumn(square);
