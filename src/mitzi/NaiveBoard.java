@@ -84,7 +84,7 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public IBoard doMove(IMove move) {
+	public NaiveBoard doMove(IMove move) {
 
 		NaiveBoard newBoard = this.returnCopy();
 
