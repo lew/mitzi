@@ -26,6 +26,7 @@ public class NaiveBoard implements IBoard {
 
 	// squares c1, g1, c8 and g8 in ICCF numeric notation
 	// do not change the squares' order or bad things will happen!
+	// set to -1 if castling not allowed
 	private int[] castling = new int[4];
 
 	private int en_passant_target;
@@ -100,7 +101,7 @@ public class NaiveBoard implements IBoard {
 
 		}
 		// If rochade
-		else if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.KNIGHT
+		else if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.KING
 				&& Math.abs((src - dest)) == 20) {
 			newBoard.setOnBoard(dest,
 					PieceHelper.pieceValue(PieceHelper.KING, active_color));
@@ -113,7 +114,7 @@ public class NaiveBoard implements IBoard {
 				newBoard.setOnBoard(src + 30, 0);
 
 			newBoard.half_move_clock++;
-			
+
 		}
 		// If en passant
 		else if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.PAWN
@@ -143,7 +144,7 @@ public class NaiveBoard implements IBoard {
 
 		// Change active_color after move
 		newBoard.active_color = PieceHelper.pieceOppositeColor(this
-				.getFromBoard(src)); 
+				.getFromBoard(src));
 		if (active_color == PieceHelper.BLACK)
 			newBoard.full_move_clock++;
 
@@ -153,33 +154,27 @@ public class NaiveBoard implements IBoard {
 			newBoard.en_passant_target = (dest + src) / 2;
 		else
 			newBoard.en_passant_target = -1;
-		
-		// Update casteling
-		if(PieceHelper.pieceType(this.getFromBoard(src))==PieceHelper.KING)
-			if(active_color==PieceHelper.WHITE && src== 51){
-				newBoard.castling[0]=-1;
-				newBoard.castling[1]=-1;
-			}
-			else if(active_color==PieceHelper.BLACK && src== 58){
-				newBoard.castling[2]=-1;
-				newBoard.castling[3]=-1;
-			}
-		else if(PieceHelper.pieceType(this.getFromBoard(src))==PieceHelper.ROOK)
-			if(active_color==PieceHelper.WHITE)
-			{
-				if(src==81)
-					newBoard.castling[1]=-1;
-				else if(src==11)
-					newBoard.castling[0]=-1;
-			}
-			else
-			{
-				if(src==88)
-					newBoard.castling[3]=-1;
-				else if(src==18)
-					newBoard.castling[2]=-1;
-			}
-				
+
+		// Update castling
+		if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.KING)
+			if (active_color == PieceHelper.WHITE && src == 51) {
+				newBoard.castling[0] = -1;
+				newBoard.castling[1] = -1;
+			} else if (active_color == PieceHelper.BLACK && src == 58) {
+				newBoard.castling[2] = -1;
+				newBoard.castling[3] = -1;
+			} else if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.ROOK)
+				if (active_color == PieceHelper.WHITE) {
+					if (src == 81)
+						newBoard.castling[1] = -1;
+					else if (src == 11)
+						newBoard.castling[0] = -1;
+				} else {
+					if (src == 88)
+						newBoard.castling[3] = -1;
+					else if (src == 18)
+						newBoard.castling[2] = -1;
+				}
 
 		return newBoard;
 	}
@@ -191,10 +186,10 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public boolean canCastle(int king_to) {
-		if ((king_to == 31 && castling[0] != 0)
-				|| (king_to == 71 && castling[1] != 0)
-				|| (king_to == 38 && castling[2] != 0)
-				|| (king_to == 78 && castling[3] != 0)) {
+		if ((king_to == 31 && castling[0] != -1)
+				|| (king_to == 71 && castling[1] != -1)
+				|| (king_to == 38 && castling[2] != -1)
+				|| (king_to == 78 && castling[3] != -1)) {
 			return true;
 		} else {
 			return false;
@@ -317,19 +312,19 @@ public class NaiveBoard implements IBoard {
 
 		// castling availability
 		boolean castle_flag = false;
-		if (castling[1] != 0) {
+		if (castling[1] != -1) {
 			fen.append("K");
 			castle_flag = true;
 		}
-		if (castling[0] != 0) {
+		if (castling[0] != -1) {
 			fen.append("Q");
 			castle_flag = true;
 		}
-		if (castling[3] != 0) {
+		if (castling[3] != -1) {
 			fen.append("k");
 			castle_flag = true;
 		}
-		if (castling[2] != 0) {
+		if (castling[2] != -1) {
 			fen.append("q");
 			castle_flag = true;
 		}
