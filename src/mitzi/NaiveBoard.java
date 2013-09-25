@@ -96,7 +96,7 @@ public class NaiveBoard implements IBoard {
 			newBoard.setOnBoard(src, 0);
 			newBoard.setOnBoard(dest, move.getPromotion());
 
-			newBoard.half_move_clock++;
+			newBoard.half_move_clock = 0;
 
 		}
 		// If rochade
