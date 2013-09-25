@@ -143,7 +143,7 @@ public class NaiveBoard implements IBoard {
 
 		// Change active_color after move
 		newBoard.active_color = PieceHelper.pieceOppositeColor(this
-				.getFromBoard(dest)); 
+				.getFromBoard(src)); 
 		if (active_color == PieceHelper.BLACK)
 			newBoard.full_move_clock++;
 
