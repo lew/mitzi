@@ -100,7 +100,7 @@ public class NaiveBoard implements IBoard {
 
 		}
 		// If rochade
-		else if (PieceHelper.pieceType(src) == PieceHelper.KNIGHT
+		else if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.KNIGHT
 				&& Math.abs((src - dest)) == 20) {
 			newBoard.setOnBoard(dest,
 					PieceHelper.pieceValue(PieceHelper.KING, active_color));
@@ -116,7 +116,7 @@ public class NaiveBoard implements IBoard {
 			
 		}
 		// If en passant
-		else if (PieceHelper.pieceType(src) == PieceHelper.PAWN
+		else if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.PAWN
 				&& dest == this.getEnPassant()) {
 			newBoard.setOnBoard(dest,
 					PieceHelper.pieceValue(PieceHelper.PAWN, active_color));
