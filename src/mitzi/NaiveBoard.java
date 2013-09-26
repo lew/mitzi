@@ -63,6 +63,13 @@ public class NaiveBoard implements IBoard {
 		board[10 - row][1 + column] = piece_value;
 	}
 
+	public int getOpponentsColor() {
+		if (active_color == PieceHelper.BLACK)
+			return PieceHelper.WHITE;
+		else
+			return PieceHelper.BLACK;
+	}
+
 	@Override
 	public void setToInitial() {
 		board = initial_board;
@@ -415,23 +422,181 @@ public class NaiveBoard implements IBoard {
 	public Set<IMove> getPossibleMoves() {
 		Set<IMove> total_set = new HashSet<IMove>();
 		Set<IMove> temp_set;
-		
-		//all the active squares
+
+		// all the active squares
 		Set<Integer> squares = getOccupiedSquaresByColor(active_color);
-		
-		//loop over all squares
-		for(int square : squares){
-			temp_set=getPossibleMovesFrom(square);
+
+		// loop over all squares
+		for (int square : squares) {
+			temp_set = getPossibleMovesFrom(square);
 			total_set.addAll(temp_set);
 		}
-		
+
 		return total_set;
 	}
 
 	@Override
 	public Set<IMove> getPossibleMovesFrom(int square) {
-		// TODO Auto-generated method stub
-		return null;
+		//The case, that the destination is the opponents king cannot happen.
+		
+		int type = PieceHelper.pieceType(getFromBoard(square));
+		int opp_color = getOpponentsColor();
+		List<Integer> squares;
+		Set<IMove> moves = new HashSet<IMove>();
+		Move move;		
+		
+		// Types BISHOP, QUEEN, ROOK
+		if (type == PieceHelper.BISHOP || type == PieceHelper.QUEEN
+				|| type == PieceHelper.ROOK) {
+
+			// Loop over all directions and skip not appropriate ones
+			for (Direction direction : Direction.values()) {
+
+				// Skip N,W,E,W with BISHOP and skip NE,NW,SE,SW with ROOK
+				if (((direction == Direction.NORTH
+						|| direction == Direction.EAST
+						|| direction == Direction.SOUTH || direction == Direction.WEST) && type == PieceHelper.BISHOP)
+						|| ((direction == Direction.NORTHWEST
+								|| direction == Direction.NORTHEAST
+								|| direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && type == PieceHelper.ROOK)) {
+
+					continue;
+				} else {
+					// do stuff
+					squares = SquareHelper.getAllSquaresInDirection(square,
+							direction);
+
+					for (Integer new_square : squares) {
+						if (getFromBoard(new_square) == 0
+								|| PieceHelper
+										.pieceColor(getFromBoard(new_square)) == opp_color) {
+
+							move = new Move(square, new_square);
+							moves.add(move);
+							if (getFromBoard(new_square) != 0
+									&& PieceHelper
+											.pieceColor(getFromBoard(new_square)) == opp_color)
+								break;
+						} else
+							break;
+					}
+				}
+
+			}
+
+		}
+
+		if (type == PieceHelper.PAWN) {
+
+			if (active_color == PieceHelper.BLACK) {
+				// If Pawn has not moved yet (no promotion and en passante, but
+				// 2 steps possible)
+				if (SquareHelper.getRow(square) == 7) {
+
+					if (getFromBoard(square + Direction.SOUTH.offset) == 0) {
+						move = new Move(square, square + Direction.SOUTH.offset);
+						moves.add(move);
+						if (getFromBoard(square + 2 * Direction.SOUTH.offset) == 0) {
+							move = new Move(square, square + 2
+									* Direction.SOUTH.offset);
+							moves.add(move);
+						}
+					}
+					if (getFromBoard(square + Direction.SOUTHEAST.offset) != 0
+							&& PieceHelper.pieceColor(getFromBoard(square
+									+ Direction.SOUTHEAST.offset)) == getOpponentsColor()) {
+						move = new Move(square, square
+								+ Direction.SOUTHEAST.offset);
+						moves.add(move);
+					}
+					if (getFromBoard(square + Direction.SOUTHWEST.offset) != 0
+							&& PieceHelper.pieceColor(getFromBoard(square
+									+ Direction.SOUTHWEST.offset)) == getOpponentsColor()) {
+						move = new Move(square, square
+								+ Direction.SOUTHWEST.offset);
+						moves.add(move);
+					}
+
+				}
+				// if Promotion will happen (no en passante)
+				else if (SquareHelper.getRow(square) == 2) {
+					// Restricted possible promotions to QUEEN and KNIGHT, other
+					// options useless.
+					if (getFromBoard(square + Direction.SOUTH.offset) == 0) {
+						move = new Move(square,
+								square + Direction.SOUTH.offset,
+								PieceHelper.QUEEN);
+						moves.add(move);
+						move = new Move(square,
+								square + Direction.SOUTH.offset,
+								PieceHelper.KNIGHT);
+						moves.add(move);
+					}
+					if (getFromBoard(square + Direction.SOUTHEAST.offset) != 0
+							&& PieceHelper.pieceColor(getFromBoard(square
+									+ Direction.SOUTHEAST.offset)) == getOpponentsColor()) {
+						move = new Move(square, square
+								+ Direction.SOUTHEAST.offset, PieceHelper.QUEEN);
+						moves.add(move);
+						move = new Move(square, square
+								+ Direction.SOUTHEAST.offset,
+								PieceHelper.KNIGHT);
+						moves.add(move);
+					}
+					if (getFromBoard(square + Direction.SOUTHWEST.offset) != 0
+							&& PieceHelper.pieceColor(getFromBoard(square
+									+ Direction.SOUTHWEST.offset)) == getOpponentsColor()) {
+						move = new Move(square, square
+								+ Direction.SOUTHWEST.offset, PieceHelper.QUEEN);
+						moves.add(move);
+						move = new Move(square, square
+								+ Direction.SOUTHWEST.offset,
+								PieceHelper.KNIGHT);
+						moves.add(move);
+					}
+				}
+				// Usual turn and en passente is possible, no promotion
+				else {
+					if (getFromBoard(square + Direction.SOUTH.offset) == 0) {
+						move = new Move(square, square + Direction.SOUTH.offset);
+						moves.add(move);
+					}
+					if ((getFromBoard(square + Direction.SOUTHEAST.offset) != 0 && PieceHelper
+							.pieceColor(getFromBoard(square
+									+ Direction.SOUTHEAST.offset)) == getOpponentsColor())
+							|| getFromBoard(square + Direction.SOUTHEAST.offset) == getEnPassant()) {
+						move = new Move(square, square
+								+ Direction.SOUTHEAST.offset);
+						moves.add(move);
+					}
+					if ((getFromBoard(square + Direction.SOUTHWEST.offset) != 0 && PieceHelper
+							.pieceColor(getFromBoard(square
+									+ Direction.SOUTHWEST.offset)) == getOpponentsColor())
+							|| getFromBoard(square + Direction.SOUTHWEST.offset) == getEnPassant()) {
+						move = new Move(square, square
+								+ Direction.SOUTHWEST.offset);
+						moves.add(move);
+					}
+				}
+
+			}// the same in WHITE
+			else {
+				// TODO: CONTINUE WORK HERE
+			}
+
+		}
+		if (type == PieceHelper.KING) {
+			// TODO: CONTINUE WORK HERE
+		}
+		if (type == PieceHelper.KNIGHT) {
+			squares = SquareHelper.getAllSquaresByKnightStep(square);
+			for (Integer new_square : squares) {
+				move = new Move(square, new_square);
+				moves.add(move);
+			}
+		}
+
+		return moves;
 	}
 
 	@Override
@@ -485,13 +650,15 @@ public class NaiveBoard implements IBoard {
 				}
 			}
 		}
-		
+
 		// check for knight attacks
-		List<Integer> knight_squares = SquareHelper.getAllSquaresByKnightStep(king_pos);
+		List<Integer> knight_squares = SquareHelper
+				.getAllSquaresByKnightStep(king_pos);
 		for (int square : knight_squares) {
 			int piece = getFromBoard(square);
 			if (piece != 0) {
-				if (PieceHelper.pieceColor(piece) != active_color && PieceHelper.pieceType(piece) == PieceHelper.KNIGHT) {
+				if (PieceHelper.pieceColor(piece) != active_color
+						&& PieceHelper.pieceType(piece) == PieceHelper.KNIGHT) {
 					return true;
 				}
 			}
