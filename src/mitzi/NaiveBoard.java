@@ -179,7 +179,7 @@ public class NaiveBoard implements IBoard {
 
 		// set en passant square
 		if (!fen_parts[3].equals("-")) {
-			en_passant_target = SquareHelper.toSquare(fen_parts[3]);
+			en_passant_target = SquareHelper.fromString(fen_parts[3]);
 		}
 
 		// set half move clock
