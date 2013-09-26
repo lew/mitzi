@@ -1,5 +1,8 @@
 package mitzi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * In brief, each square of the chessboard has a two-digit designation. The
  * first digit is the number of the column, from left to right from White's
@@ -43,7 +46,7 @@ public final class SquareHelper {
 	 * @return the integer value of the square
 	 */
 	public static int getSquare(int row, int column) {
-		return 10*column + row;
+		return 10 * column + row;
 	}
 
 	/**
@@ -68,6 +71,45 @@ public final class SquareHelper {
 	 */
 	public static boolean isBlack(int square) {
 		return !isWhite(square);
+	}
+
+	/**
+	 * Gives an ordered List of squares going in a straight line from the source
+	 * square.
+	 * 
+	 * @param source_square
+	 *            the square from where to start
+	 * @param direction
+	 *            one of the values SquareHelper.EAST, SquareHelper.NORTHEAST,
+	 *            SquareHelper.NORTH, …
+	 * @return the list of squares ordered from the source_square to the boards
+	 *         edge
+	 */
+	public static List<Integer> getAllSquaresInDirection(int source_square,
+			Direction direction) {
+		
+		ArrayList<Integer> square_list = new ArrayList<Integer>();
+		
+		int square = source_square += direction.value;
+		while (isValidSquare(square)) {
+			square_list.add(square);
+			square += direction.value;
+		}
+
+		return square_list;
+	}
+
+	/**
+	 * Checks if the integer value of the square is inside the board's borders.
+	 * 
+	 * @param square
+	 *            the square to be checked
+	 * @return true if the square is on the board
+	 */
+	public static boolean isValidSquare(int square) {
+		int row = getRow(square);
+		int column = getColumn(square);
+		return (row >= 1 && row <= 8 && column >= 1 && column <= 8);
 	}
 
 	/**
