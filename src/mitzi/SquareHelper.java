@@ -80,7 +80,6 @@ public final class SquareHelper {
 
 	public static int fromString(String notation) {
 		int i = 0;
-		System.out.println(notation);
 		while (letters[i].charAt(0) != notation.charAt(0)) {
 			i++;
 		}
