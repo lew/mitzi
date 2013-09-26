@@ -37,7 +37,7 @@ public class Move implements IMove {
 		squares[1] = notation.substring(2, 4);
 
 		src = SquareHelper.fromString(squares[0]);
-		dest = SquareHelper.fromString(squares[0]);
+		dest = SquareHelper.fromString(squares[1]);
 
 		if (notation.length() > 4) {
 			String promo_string = notation.substring(4, 5).toLowerCase(
