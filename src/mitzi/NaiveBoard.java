@@ -342,8 +342,7 @@ public class NaiveBoard implements IBoard {
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
 				square =SquareHelper.getSquare(i,j);
-				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type 
-						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color )
+				if (this.getFromBoard(square) > 0 && PieceHelper.pieceValue(type, color) == this.getFromBoard(square))
 					set.add(square);
 			}
 
@@ -388,8 +387,7 @@ public class NaiveBoard implements IBoard {
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
 				square =SquareHelper.getSquare(i,j);
-				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type 
-						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color )
+				if (this.getFromBoard(square) > 0 && PieceHelper.pieceValue(type, color) == this.getFromBoard(square))
 					num++;
 			}
 
