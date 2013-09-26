@@ -413,8 +413,19 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public Set<IMove> getPossibleMoves() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<IMove> total_set = new HashSet<IMove>();
+		Set<IMove> temp_set;
+		
+		//all the active squares
+		Set<Integer> squares = getOccupiedSquaresByColor(active_color);
+		
+		//loop over all squares
+		for(int square : squares){
+			temp_set=getPossibleMovesFrom(square);
+			total_set.addAll(temp_set);
+		}
+		
+		return total_set;
 	}
 
 	@Override
