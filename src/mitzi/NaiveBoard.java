@@ -27,9 +27,9 @@ public class NaiveBoard implements IBoard {
 	// squares c1, g1, c8 and g8 in ICCF numeric notation
 	// do not change the squares' order or bad things will happen!
 	// set to -1 if castling not allowed
-	private int[] castling = new int[4];
+	private int[] castling = { -1, -1, -1, -1 };
 
-	private int en_passant_target;
+	private int en_passant_target = -1;
 
 	private int active_color;
 
@@ -80,8 +80,113 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public void setToFEN(String fen) {
-		// TODO Auto-generated method stub
+		String[] fen_parts = fen.split(" ");
 
+		// populate the squares
+		String[] fen_rows = fen_parts[0].split("/");
+		char[] pieces;
+		for (int row = 1; row <= 8; row++) {
+			int offset = 0;
+			for (int column = 1; column + offset <= 8; column++) {
+				pieces = fen_rows[8 - row].toCharArray();
+				int square = (column + offset) * 10 + row;
+				switch (pieces[column - 1]) {
+				case 'P':
+					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.PAWN,
+							PieceHelper.WHITE));
+					break;
+				case 'R':
+					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.ROOK,
+							PieceHelper.WHITE));
+					break;
+				case 'N':
+					setOnBoard(square, PieceHelper.pieceValue(
+							PieceHelper.KNIGHT, PieceHelper.WHITE));
+					break;
+				case 'B':
+					setOnBoard(square, PieceHelper.pieceValue(
+							PieceHelper.BISHOP, PieceHelper.WHITE));
+					break;
+				case 'Q':
+					setOnBoard(square, PieceHelper.pieceValue(
+							PieceHelper.QUEEN, PieceHelper.WHITE));
+					break;
+				case 'K':
+					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.KING,
+							PieceHelper.WHITE));
+					break;
+				case 'p':
+					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.PAWN,
+							PieceHelper.BLACK));
+					break;
+				case 'r':
+					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.ROOK,
+							PieceHelper.BLACK));
+					break;
+				case 'n':
+					setOnBoard(square, PieceHelper.pieceValue(
+							PieceHelper.KNIGHT, PieceHelper.BLACK));
+					break;
+				case 'b':
+					setOnBoard(square, PieceHelper.pieceValue(
+							PieceHelper.BISHOP, PieceHelper.BLACK));
+					break;
+				case 'q':
+					setOnBoard(square, PieceHelper.pieceValue(
+							PieceHelper.QUEEN, PieceHelper.BLACK));
+					break;
+				case 'k':
+					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.KING,
+							PieceHelper.BLACK));
+					break;
+				default:
+					offset += Character.getNumericValue(pieces[column - 1]) - 1;
+					break;
+				}
+			}
+		}
+
+		// set active color
+		switch (fen_parts[1]) {
+		case "b":
+			active_color = PieceHelper.BLACK;
+			break;
+		case "w":
+			active_color = PieceHelper.WHITE;
+			break;
+		}
+
+		// set possible castling moves
+		if (!fen_parts[2].equals("-")) {
+			char[] castlings = fen_parts[2].toCharArray();
+			for (int i = 0; i < castlings.length; i++) {
+				switch (castlings[i]) {
+				case 'K':
+					castling[1] = 71;
+					break;
+				case 'Q':
+					castling[0] = 31;
+					break;
+				case 'k':
+					castling[3] = 78;
+					break;
+				case 'q':
+					castling[2] = 38;
+					break;
+				}
+			}
+		}
+
+		// set en passant square
+		if (!fen_parts[3].equals("-")) {
+			en_passant_target = SquareHelper.toSquare(fen_parts[3]);
+		}
+
+		// set half move clock
+		half_move_clock = Integer.parseInt(fen_parts[4]);
+
+		// set full move clock
+		full_move_clock = Integer.parseInt(fen_parts[5]);
 	}
 
 	@Override

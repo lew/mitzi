@@ -11,6 +11,8 @@ package mitzi;
  */
 public final class SquareHelper {
 
+	private static String[] letters = { "a", "b", "c", "d", "e", "f", "g", "h" };
+
 	private SquareHelper() {
 	};
 
@@ -72,9 +74,16 @@ public final class SquareHelper {
 	 * @return a string representation of the square in algebraic notation.
 	 */
 	public static String toString(int square) {
-		String[] letters = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		return letters[getColumn(square) - 1]
 				+ Integer.toString(getRow(square));
 	}
 
+	public static int toSquare(String notation) {
+		int i = 0;
+		System.out.println(notation);
+		while (letters[i].charAt(0) != notation.charAt(0)) {
+			i++;
+		}
+		return (i + 1) * 10 + Character.getNumericValue(notation.charAt(1));
+	}
 }
