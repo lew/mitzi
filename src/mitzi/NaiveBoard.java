@@ -200,7 +200,7 @@ public class NaiveBoard implements IBoard {
 		// if promotion
 		if (move.getPromotion() != 0) {
 			newBoard.setOnBoard(src, 0);
-			newBoard.setOnBoard(dest, move.getPromotion());
+			newBoard.setOnBoard(dest, PieceHelper.pieceValue(move.getPromotion(), active_color));
 
 			newBoard.half_move_clock = 0;
 
