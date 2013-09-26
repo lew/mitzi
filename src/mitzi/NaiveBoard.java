@@ -311,7 +311,7 @@ public class NaiveBoard implements IBoard {
 
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				square = 10 * i + j;
+				square =SquareHelper.getSquare(i,j);
 				if (this.getFromBoard(square) > 0 && PieceHelper.pieceColor(this.getFromBoard(square)) == color)
 					set.add(square);
 			}
@@ -326,7 +326,7 @@ public class NaiveBoard implements IBoard {
 
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				square = 10 * i + j;
+				square =SquareHelper.getSquare(i,j);
 				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type)
 					set.add(square);
 			}
@@ -341,7 +341,7 @@ public class NaiveBoard implements IBoard {
 
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				square = 10 * i + j;
+				square =SquareHelper.getSquare(i,j);
 				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type 
 						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color )
 					set.add(square);
@@ -357,7 +357,7 @@ public class NaiveBoard implements IBoard {
 		
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				square = 10 * i + j;
+				square =SquareHelper.getSquare(i,j);
 				if (this.getFromBoard(square) > 0 && PieceHelper.pieceColor(this.getFromBoard(square)) == color)
 					num++;
 			}
@@ -372,7 +372,7 @@ public class NaiveBoard implements IBoard {
 
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				square = 10 * i + j;
+				square =SquareHelper.getSquare(i,j);
 				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type)
 					num++;
 			}
@@ -387,7 +387,7 @@ public class NaiveBoard implements IBoard {
 
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				square = 10 * i + j;
+				square =SquareHelper.getSquare(i,j);
 				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type 
 						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color )
 					num++;

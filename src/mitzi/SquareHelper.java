@@ -37,6 +37,16 @@ public final class SquareHelper {
 	}
 
 	/**
+	 * Returns the square-number for a given row and column. Row 1 and column 2
+	 * results in 12.
+	 * 
+	 * @return the integer value of the square
+	 */
+	public static int getSquare(int row, int column) {
+		return 10*column + row;
+	}
+
+	/**
 	 * Check if the square is white on a traditional chess board.
 	 * 
 	 * @param square
