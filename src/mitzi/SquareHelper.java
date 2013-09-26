@@ -14,7 +14,8 @@ import java.util.List;
  */
 public final class SquareHelper {
 
-	private static String[] letters = { "a", "b", "c", "d", "e", "f", "g", "h" };
+	private static final String[] letters = { "a", "b", "c", "d", "e", "f",
+			"g", "h" };
 
 	private SquareHelper() {
 	};
@@ -87,13 +88,35 @@ public final class SquareHelper {
 	 */
 	public static List<Integer> getAllSquaresInDirection(int source_square,
 			Direction direction) {
-		
+
 		ArrayList<Integer> square_list = new ArrayList<Integer>();
-		
-		int square = source_square += direction.value;
+
+		int square = source_square += direction.offset;
 		while (isValidSquare(square)) {
 			square_list.add(square);
-			square += direction.value;
+			square += direction.offset;
+		}
+
+		return square_list;
+	}
+
+	/**
+	 * Gives a List of squares reached by a knight from the source square (in no
+	 * specific order).
+	 * 
+	 * @param source_square
+	 *            the square from where to start
+	 * @return the list of squares a knight can reach
+	 */
+	public static List<Integer> getAllSquaresByKnightStep(int source_square) {
+
+		ArrayList<Integer> square_list = new ArrayList<Integer>();
+
+		for (Direction direction : Direction.values()) {
+			int square = source_square + direction.knight_offset;
+			if (isValidSquare(square)) {
+				square_list.add(square);
+			}
 		}
 
 		return square_list;

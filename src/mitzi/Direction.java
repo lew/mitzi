@@ -1,13 +1,15 @@
 package mitzi;
 
 public enum Direction {
-	EAST(10), NORTHEAST(11), NORTH(1), NORTHWEST(-9), WEST(-10), SOUTHWEST(-11), SOUTH(
-			-1), SOUTHEAST(9);
+	EAST(10, 21), NORTHEAST(11, 12), NORTH(1, -8), NORTHWEST(-9, -19), WEST(
+			-10, -21), SOUTHWEST(-11, -12), SOUTH(-1, 8), SOUTHEAST(9, 19);
 
-	public final int value;
+	public final int offset;
+	public final int knight_offset;
 
-	Direction(int value) {
-		this.value = value;
+	Direction(int offset, int knight_offset) {
+		this.offset = offset;
+		this.knight_offset = knight_offset;
 	}
 
 }
