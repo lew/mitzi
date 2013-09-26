@@ -306,14 +306,14 @@ public class NaiveBoard implements IBoard {
 	@Override
 	public Set<Integer> getOccupiedSquaresByColor(int color) {
 
-		int num;
+		int square;
 		Set<Integer> set = new HashSet<Integer>();
 
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				num = 10 * i + j;
-				if (this.getFromBoard(num) > 0 && PieceHelper.pieceColor(this.getFromBoard(num)) == color)
-					set.add(num);
+				square = 10 * i + j;
+				if (this.getFromBoard(square) > 0 && PieceHelper.pieceColor(this.getFromBoard(square)) == color)
+					set.add(square);
 			}
 
 		return set;
@@ -321,14 +321,14 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public Set<Integer> getOccupiedSquaresByType(int type) {
-		int num;
+		int square;
 		Set<Integer> set = new HashSet<Integer>();
 
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				num = 10 * i + j;
-				if (this.getFromBoard(num) > 0 && PieceHelper.pieceType(this.getFromBoard(num)) == type)
-					set.add(num);
+				square = 10 * i + j;
+				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type)
+					set.add(square);
 			}
 
 		return set;
@@ -336,15 +336,15 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public Set<Integer> getOccupiedSquaresByColorAndType(int color, int type) {
-		int num;
+		int square;
 		Set<Integer> set = new HashSet<Integer>();
 
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
-				num = 10 * i + j;
-				if (this.getFromBoard(num) > 0 && PieceHelper.pieceType(this.getFromBoard(num)) == type 
-						&& PieceHelper.pieceColor(this.getFromBoard(num)) == color )
-					set.add(num);
+				square = 10 * i + j;
+				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type 
+						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color )
+					set.add(square);
 			}
 
 		return set;
@@ -352,20 +352,48 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public int getNumberOfPiecesByColor(int color) {
-		// TODO Auto-generated method stub
-		return 0;
+		int square;
+		int num =0;
+		
+		for (int i = 1; i < 9; i++)
+			for (int j = 1; j < 9; j++) {
+				square = 10 * i + j;
+				if (this.getFromBoard(square) > 0 && PieceHelper.pieceColor(this.getFromBoard(square)) == color)
+					num++;
+			}
+
+		return num;
 	}
 
 	@Override
 	public int getNumberOfPiecesByType(int type) {
-		// TODO Auto-generated method stub
-		return 0;
+		int square;
+		int num=0;
+
+		for (int i = 1; i < 9; i++)
+			for (int j = 1; j < 9; j++) {
+				square = 10 * i + j;
+				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type)
+					num++;
+			}
+
+		return num;
 	}
 
 	@Override
 	public int getNumberOfPiecesByColorAndType(int color, int type) {
-		// TODO Auto-generated method stub
-		return 0;
+		int square;
+		int num=0;
+
+		for (int i = 1; i < 9; i++)
+			for (int j = 1; j < 9; j++) {
+				square = 10 * i + j;
+				if (this.getFromBoard(square) > 0 && PieceHelper.pieceType(this.getFromBoard(square)) == type 
+						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color )
+					num++;
+			}
+
+		return num;
 	}
 
 	@Override
