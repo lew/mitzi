@@ -21,12 +21,6 @@ public class MitziEngine {
 		for(IMove m : moves)
 			System.out.println(m.toString());
 		
-		
-		
-	
-
-		
-		
 		System.exit(0);
 
 		
