@@ -583,28 +583,29 @@ public class NaiveBoard implements IBoard {
 				if (SquareHelper.isValidSquare(new_square)) {
 					// if the new square is empty or occupied by the opponent
 					// and no check
-					if ((getFromBoard(new_square) == 0 || PieceHelper
-							.pieceColor(getFromBoard(new_square)) != active_color)
-							&& new_board.isCheckPosition() == false)
+					if (getFromBoard(new_square) == 0
+							|| PieceHelper.pieceColor(getFromBoard(new_square)) != active_color)
 						moves.add(move);
 				}
 			}
+
 			// Castle Moves
-			// TODO: Check in the rules if it is possible to castle to a square
-			// if there is a piece of the opponent
 			int off = 0;
 			if (active_color == PieceHelper.BLACK)
 				off = 2;
 			for (int i = 0; i < 2; i++) {
 				Integer new_square = castling[i + off];
-				move = new Move(square, new_square);
-				NaiveBoard new_board = doMove(move);
-				// if the new square is empty or occupied by the opponent and no
-				// check
-				if ((getFromBoard(new_square) == 0 || PieceHelper
-						.pieceColor(getFromBoard(new_square)) != active_color)
-						&& new_board.isCheckPosition() == false)
-					moves.add(move);
+				// castling must still be possible to this side
+				if (new_square != -1) {
+					/*
+					 * TODO castling is a bit more complicated ;)
+					 * 
+					 * - all squares between king and rook must be empty
+					 * 
+					 * - king's src square, target sqare AND the square
+					 * inbetween must not be under attack
+					 */
+				}
 			}
 
 		}
