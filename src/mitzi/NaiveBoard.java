@@ -576,7 +576,37 @@ public class NaiveBoard implements IBoard {
 
 		}
 		if (type == PieceHelper.KING) {
-			// TODO: CONTINUE WORK HERE
+			for (Direction direction : Direction.values()) {
+				Integer new_square = square + direction.offset;
+				move = new Move(square, new_square);
+				NaiveBoard new_board = doMove(move);
+				if (SquareHelper.isValidSquare(new_square)) {
+					// if the new square is empty or occupied by the opponent
+					// and no check
+					if ((getFromBoard(new_square) == 0 || PieceHelper
+							.pieceColor(getFromBoard(new_square)) != active_color)
+							&& new_board.isCheckPosition() == false)
+						moves.add(move);
+				}
+			}
+			// Castle Moves
+			// TODO: Check in the rules if it is possible to castle to a square
+			// if there is a piece of the opponent
+			int off = 0;
+			if (active_color == PieceHelper.BLACK)
+				off = 2;
+			for (int i = 0; i < 2; i++) {
+				Integer new_square = castling[i + off];
+				move = new Move(square, new_square);
+				NaiveBoard new_board = doMove(move);
+				// if the new square is empty or occupied by the opponent and no
+				// check
+				if ((getFromBoard(new_square) == 0 || PieceHelper
+						.pieceColor(getFromBoard(new_square)) != active_color)
+						&& new_board.isCheckPosition() == false)
+					moves.add(move);
+			}
+
 		}
 		if (type == PieceHelper.KNIGHT) {
 			squares = SquareHelper.getAllSquaresByKnightStep(square);
