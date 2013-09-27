@@ -593,20 +593,49 @@ public class NaiveBoard implements IBoard {
 			if (active_color == PieceHelper.BLACK)
 				off = 2;
 			for (int i = 0; i < 2; i++) {
+
+				int castle_flag = 0;
 				Integer new_square = castling[i + off];
 				// castling must still be possible to this side
 				if (new_square != -1) {
-					/*
-					 * TODO castling is a bit more complicated ;)
-					 * 
-					 * - all squares between king and rook must be empty
-					 * 
-					 * - king's src square, target sqare AND the square
-					 * inbetween must not be under attack
-					 */
+					
+					Direction dir;
+					if (i == 0)
+						dir = Direction.WEST;
+					else
+						dir = Direction.EAST;
+
+					List<Integer> line = SquareHelper.getAllSquaresInDirection(
+							square, dir);
+
+					// Check each square if it is empty  if the king on it would be ckeck
+					for (Integer squ : line){
+						if (getFromBoard(squ) != 0){
+							castle_flag = 1;
+							break;
+						}
+						if(squ == new_square )
+							break;
+					}
+
+					if(castle_flag == 1 || isCheckPosition())
+						continue;
+					
+					// Check each square if the king on it would be check
+					for (Integer squ : line){
+						move = new Move(square,squ);
+						NaiveBoard board= doMove(move);
+						board.active_color = active_color; // TODO: ugly solution ! ;)
+						
+						if (board.isCheckPosition()){
+							break;
+						}
+						if(squ == new_square ) //if EVERYTHING is right, then add the move
+							moves.add(move);
+							break;
+						}		
 				}
 			}
-
 		}
 		if (type == PieceHelper.KNIGHT) {
 			squares = SquareHelper.getAllSquaresByKnightStep(square);
@@ -618,16 +647,16 @@ public class NaiveBoard implements IBoard {
 				}
 			}
 		}
-		
+
 		// remove invalid positions
 		// TODO do this in a more efficient way
 		Iterator<IMove> iter = moves.iterator();
 		while (iter.hasNext()) {
 			NaiveBoard temp_board = this.doMove(iter.next());
 			temp_board.active_color = active_color; // ugly solution…
-		    if (temp_board.isCheckPosition()) {
-		        iter.remove();
-		    }
+			if (temp_board.isCheckPosition()) {
+				iter.remove();
+			}
 		}
 
 		return moves;
@@ -650,7 +679,7 @@ public class NaiveBoard implements IBoard {
 			List<Integer> line = SquareHelper.getAllSquaresInDirection(
 					king_pos, direction);
 			// go until…
-			int iter=0;
+			int iter = 0;
 			for (int square : line) {
 				iter++;
 				// …some piece is found
@@ -659,7 +688,8 @@ public class NaiveBoard implements IBoard {
 					if (PieceHelper.pieceColor(piece) == active_color) {
 						break;
 					} else {
-						if (PieceHelper.pieceType(piece) == PieceHelper.PAWN && iter ==1) {
+						if (PieceHelper.pieceType(piece) == PieceHelper.PAWN
+								&& iter == 1) {
 							if (((direction == Direction.NORTHEAST || direction == Direction.NORTHWEST) && active_color == PieceHelper.WHITE)
 									|| ((direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && active_color == PieceHelper.BLACK)) {
 								return true;
