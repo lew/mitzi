@@ -713,6 +713,8 @@ public class NaiveBoard implements IBoard {
 							}
 						} else if (PieceHelper.pieceType(piece) == PieceHelper.QUEEN) {
 							return true;
+						} else if (PieceHelper.pieceType(piece) == PieceHelper.KING && iter==1){
+							return true;
 						}
 						break;
 					}
