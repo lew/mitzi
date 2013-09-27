@@ -2,6 +2,7 @@ package mitzi;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -579,10 +580,8 @@ public class NaiveBoard implements IBoard {
 			for (Direction direction : Direction.values()) {
 				Integer new_square = square + direction.offset;
 				move = new Move(square, new_square);
-				NaiveBoard new_board = doMove(move);
 				if (SquareHelper.isValidSquare(new_square)) {
 					// if the new square is empty or occupied by the opponent
-					// and no check
 					if (getFromBoard(new_square) == 0
 							|| PieceHelper.pieceColor(getFromBoard(new_square)) != active_color)
 						moves.add(move);
@@ -618,6 +617,17 @@ public class NaiveBoard implements IBoard {
 					moves.add(move);
 				}
 			}
+		}
+		
+		// remove invalid positions
+		// TODO do this in a more efficient way
+		Iterator<IMove> iter = moves.iterator();
+		while (iter.hasNext()) {
+			NaiveBoard temp_board = this.doMove(iter.next());
+			temp_board.active_color = active_color; // ugly solution…
+		    if (temp_board.isCheckPosition()) {
+		        iter.remove();
+		    }
 		}
 
 		return moves;
