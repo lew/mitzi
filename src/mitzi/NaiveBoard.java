@@ -589,51 +589,54 @@ public class NaiveBoard implements IBoard {
 			}
 
 			// Castle Moves
-			int off = 0;
-			if (active_color == PieceHelper.BLACK)
-				off = 2;
-			for (int i = 0; i < 2; i++) {
+			// If the King is not check now, try castle moves
+			if (!isCheckPosition()) {
+				int off = 0;
+				if (active_color == PieceHelper.BLACK)
+					off = 2;
 
-				int castle_flag = 0;
-				Integer new_square = castling[i + off];
-				// castling must still be possible to this side
-				if (new_square != -1) {
-					
-					Direction dir;
-					if (i == 0)
-						dir = Direction.WEST;
-					else
-						dir = Direction.EAST;
+				for (int i = 0; i < 2; i++) {
+					int castle_flag = 0;
+					Integer new_square = castling[i + off];
+					// castling must still be possible to this side
+					if (new_square != -1) {
 
-					List<Integer> line = SquareHelper.getAllSquaresInDirection(
-							square, dir);
+						Direction dir;
+						if (i == 0)
+							dir = Direction.WEST;
+						else
+							dir = Direction.EAST;
 
-					// Check each square if it is empty  if the king on it would be ckeck
-					for (Integer squ : line){
-						if (getFromBoard(squ) != 0){
-							castle_flag = 1;
-							break;
+						List<Integer> line = SquareHelper
+								.getAllSquaresInDirection(square, dir);
+
+						// Check each square if it is empty
+						for (Integer squ : line) {
+							if (getFromBoard(squ) != 0) {
+								castle_flag = 1;
+								break;
+							}
+							if (squ == new_square)
+								break;
 						}
-						if(squ == new_square )
-							break;
+						if (castle_flag == 1)
+							continue;
+
+						// Check each square if the king on it would be check
+						for (Integer squ : line) {
+							move = new Move(square, squ);
+							NaiveBoard board = doMove(move);
+							board.active_color = active_color; // TODO: ugly
+																// solution ! ;)
+							if (board.isCheckPosition())
+								break;
+							if (squ == new_square) { // if EVERYTHING is right,
+														// then add the move
+								moves.add(move);
+								break;
+							}
+						}
 					}
-
-					if(castle_flag == 1 || isCheckPosition())
-						continue;
-					
-					// Check each square if the king on it would be check
-					for (Integer squ : line){
-						move = new Move(square,squ);
-						NaiveBoard board= doMove(move);
-						board.active_color = active_color; // TODO: ugly solution ! ;)
-						
-						if (board.isCheckPosition()){
-							break;
-						}
-						if(squ == new_square ) //if EVERYTHING is right, then add the move
-							moves.add(move);
-							break;
-						}		
 				}
 			}
 		}
