@@ -437,14 +437,14 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public Set<IMove> getPossibleMovesFrom(int square) {
-		//The case, that the destination is the opponents king cannot happen.
-		
+		// The case, that the destination is the opponents king cannot happen.
+
 		int type = PieceHelper.pieceType(getFromBoard(square));
 		int opp_color = getOpponentsColor();
 		List<Integer> squares;
 		Set<IMove> moves = new HashSet<IMove>();
-		Move move;		
-		
+		Move move;
+
 		// Types BISHOP, QUEEN, ROOK
 		if (type == PieceHelper.BISHOP || type == PieceHelper.QUEEN
 				|| type == PieceHelper.ROOK) {
@@ -487,101 +487,91 @@ public class NaiveBoard implements IBoard {
 		}
 
 		if (type == PieceHelper.PAWN) {
+			// If Pawn has not moved yet (steps possible)
+			if ((SquareHelper.getRow(square) == 2 && active_color == PieceHelper.WHITE)
+					|| (SquareHelper.getRow(square) == 7 && active_color == PieceHelper.BLACK)) {
 
-			if (active_color == PieceHelper.BLACK) {
-				// If Pawn has not moved yet (no promotion and en passante, but
-				// 2 steps possible)
-				if (SquareHelper.getRow(square) == 7) {
-
-					if (getFromBoard(square + Direction.SOUTH.offset) == 0) {
-						move = new Move(square, square + Direction.SOUTH.offset);
-						moves.add(move);
-						if (getFromBoard(square + 2 * Direction.SOUTH.offset) == 0) {
-							move = new Move(square, square + 2
-									* Direction.SOUTH.offset);
-							moves.add(move);
-						}
-					}
-					if (getFromBoard(square + Direction.SOUTHEAST.offset) != 0
-							&& PieceHelper.pieceColor(getFromBoard(square
-									+ Direction.SOUTHEAST.offset)) == getOpponentsColor()) {
-						move = new Move(square, square
-								+ Direction.SOUTHEAST.offset);
+				if (getFromBoard(square
+						+ Direction.pawnDirection(active_color).offset) == 0) {
+					move = new Move(square, square
+							+ Direction.pawnDirection(active_color).offset);
+					moves.add(move);
+					if (getFromBoard(square + 2
+							* Direction.pawnDirection(active_color).offset) == 0) {
+						move = new Move(square, square + 2
+								* Direction.pawnDirection(active_color).offset);
 						moves.add(move);
 					}
-					if (getFromBoard(square + Direction.SOUTHWEST.offset) != 0
-							&& PieceHelper.pieceColor(getFromBoard(square
-									+ Direction.SOUTHWEST.offset)) == getOpponentsColor()) {
-						move = new Move(square, square
-								+ Direction.SOUTHWEST.offset);
-						moves.add(move);
-					}
-
 				}
-				// if Promotion will happen (no en passante)
-				else if (SquareHelper.getRow(square) == 2) {
-					// Restricted possible promotions to QUEEN and KNIGHT, other
-					// options useless.
-					if (getFromBoard(square + Direction.SOUTH.offset) == 0) {
-						move = new Move(square,
-								square + Direction.SOUTH.offset,
+
+				Set<Direction> pawn_capturing_directions = Direction
+						.pawnCapturingDirections(active_color);
+				for (Direction direction : pawn_capturing_directions) {
+					if (getFromBoard(square + direction.offset) != 0
+							&& PieceHelper.pieceColor(getFromBoard(square
+									+ direction.offset)) == getOpponentsColor()) {
+						move = new Move(square, square + direction.offset);
+						moves.add(move);
+					}
+				}
+
+			}
+			// if Promotion will happen
+			else if ((SquareHelper.getRow(square) == 7 && active_color == PieceHelper.WHITE)
+					|| (SquareHelper.getRow(square) == 2 && active_color == PieceHelper.BLACK)) {
+				if (getFromBoard(square
+						+ Direction.pawnDirection(active_color).offset) == 0) {
+					move = new Move(square, square
+							+ Direction.pawnDirection(active_color).offset,
+							PieceHelper.QUEEN);
+					moves.add(move);
+					move = new Move(square, square
+							+ Direction.pawnDirection(active_color).offset,
+							PieceHelper.KNIGHT);
+					moves.add(move);
+					move = new Move(square, square
+							+ Direction.pawnDirection(active_color).offset,
+							PieceHelper.ROOK);
+					moves.add(move);
+					move = new Move(square, square
+							+ Direction.pawnDirection(active_color).offset,
+							PieceHelper.BISHOP);
+					moves.add(move);
+				}
+				Set<Direction> pawn_capturing_directions = Direction
+						.pawnCapturingDirections(active_color);
+				for (Direction direction : pawn_capturing_directions) {
+					if (getFromBoard(square + direction.offset) != 0
+							&& PieceHelper.pieceColor(getFromBoard(square
+									+ direction.offset)) == getOpponentsColor()) {
+						move = new Move(square, square + direction.offset,
 								PieceHelper.QUEEN);
 						moves.add(move);
-						move = new Move(square,
-								square + Direction.SOUTH.offset,
+						move = new Move(square, square + direction.offset,
 								PieceHelper.KNIGHT);
-						moves.add(move);
-					}
-					if (getFromBoard(square + Direction.SOUTHEAST.offset) != 0
-							&& PieceHelper.pieceColor(getFromBoard(square
-									+ Direction.SOUTHEAST.offset)) == getOpponentsColor()) {
-						move = new Move(square, square
-								+ Direction.SOUTHEAST.offset, PieceHelper.QUEEN);
-						moves.add(move);
-						move = new Move(square, square
-								+ Direction.SOUTHEAST.offset,
-								PieceHelper.KNIGHT);
-						moves.add(move);
-					}
-					if (getFromBoard(square + Direction.SOUTHWEST.offset) != 0
-							&& PieceHelper.pieceColor(getFromBoard(square
-									+ Direction.SOUTHWEST.offset)) == getOpponentsColor()) {
-						move = new Move(square, square
-								+ Direction.SOUTHWEST.offset, PieceHelper.QUEEN);
-						moves.add(move);
-						move = new Move(square, square
-								+ Direction.SOUTHWEST.offset,
-								PieceHelper.KNIGHT);
-						moves.add(move);
-					}
-				}
-				// Usual turn and en passente is possible, no promotion
-				else {
-					if (getFromBoard(square + Direction.SOUTH.offset) == 0) {
-						move = new Move(square, square + Direction.SOUTH.offset);
-						moves.add(move);
-					}
-					if ((getFromBoard(square + Direction.SOUTHEAST.offset) != 0 && PieceHelper
-							.pieceColor(getFromBoard(square
-									+ Direction.SOUTHEAST.offset)) == getOpponentsColor())
-							|| getFromBoard(square + Direction.SOUTHEAST.offset) == getEnPassant()) {
-						move = new Move(square, square
-								+ Direction.SOUTHEAST.offset);
-						moves.add(move);
-					}
-					if ((getFromBoard(square + Direction.SOUTHWEST.offset) != 0 && PieceHelper
-							.pieceColor(getFromBoard(square
-									+ Direction.SOUTHWEST.offset)) == getOpponentsColor())
-							|| getFromBoard(square + Direction.SOUTHWEST.offset) == getEnPassant()) {
-						move = new Move(square, square
-								+ Direction.SOUTHWEST.offset);
 						moves.add(move);
 					}
 				}
 
-			}// the same in WHITE
+			}
+			// Usual turn and en passente is possible, no promotion
 			else {
-				// TODO: CONTINUE WORK HERE
+				if (getFromBoard(square
+						+ Direction.pawnDirection(active_color).offset) == 0) {
+					move = new Move(square, square
+							+ Direction.pawnDirection(active_color).offset);
+					moves.add(move);
+				}
+				Set<Direction> pawn_capturing_directions = Direction
+						.pawnCapturingDirections(active_color);
+				for (Direction direction : pawn_capturing_directions) {
+					if ((getFromBoard(square + direction.offset) != 0 && PieceHelper
+							.pieceColor(getFromBoard(square + direction.offset)) == getOpponentsColor())
+							|| getFromBoard(square + direction.offset) == getEnPassant()) {
+						move = new Move(square, square + direction.offset);
+						moves.add(move);
+					}
+				}
 			}
 
 		}
