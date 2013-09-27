@@ -581,8 +581,11 @@ public class NaiveBoard implements IBoard {
 		if (type == PieceHelper.KNIGHT) {
 			squares = SquareHelper.getAllSquaresByKnightStep(square);
 			for (Integer new_square : squares) {
-				move = new Move(square, new_square);
-				moves.add(move);
+				if (getFromBoard(new_square) == 0
+						|| PieceHelper.pieceColor(getFromBoard(new_square)) != active_color) {
+					move = new Move(square, new_square);
+					moves.add(move);
+				}
 			}
 		}
 
