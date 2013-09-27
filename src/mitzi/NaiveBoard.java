@@ -650,14 +650,16 @@ public class NaiveBoard implements IBoard {
 			List<Integer> line = SquareHelper.getAllSquaresInDirection(
 					king_pos, direction);
 			// go until…
+			int iter=0;
 			for (int square : line) {
+				iter++;
 				// …some piece is found
 				int piece = getFromBoard(square);
 				if (piece != 0) {
 					if (PieceHelper.pieceColor(piece) == active_color) {
 						break;
 					} else {
-						if (PieceHelper.pieceType(piece) == PieceHelper.PAWN) {
+						if (PieceHelper.pieceType(piece) == PieceHelper.PAWN && iter ==1) {
 							if (((direction == Direction.NORTHEAST || direction == Direction.NORTHWEST) && active_color == PieceHelper.WHITE)
 									|| ((direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && active_color == PieceHelper.BLACK)) {
 								return true;
