@@ -568,7 +568,7 @@ public class NaiveBoard implements IBoard {
 				for (Direction direction : pawn_capturing_directions) {
 					if ((getFromBoard(square + direction.offset) != 0 && PieceHelper
 							.pieceColor(getFromBoard(square + direction.offset)) == getOpponentsColor())
-							|| getFromBoard(square + direction.offset) == getEnPassant()) {
+							|| square + direction.offset == getEnPassant()) {
 						move = new Move(square, square + direction.offset);
 						moves.add(move);
 					}
