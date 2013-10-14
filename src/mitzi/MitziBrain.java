@@ -76,8 +76,34 @@ public class MitziBrain implements IBrain {
 	 * @return the value of a board
 	 */
 	private double evalBoard0(IBoard board) {
-		// TODO: the hard part....
-		return 0;
+
+		// A very very simple implementation
+		double value = 0;
+		
+		//One way to prevent copy and paste
+		double[] fig_value = { 1, 3.3, 3.3, 5, 9 };
+		int[] colors = { PieceHelper.WHITE, PieceHelper.BLACK };
+		int[] figure = { PieceHelper.PAWN, PieceHelper.BISHOP,
+				PieceHelper.KNIGHT, PieceHelper.ROOK, PieceHelper.QUEEN };
+
+		//Maybe not the most efficient way (several runs over the board)
+		for (int c = 0; c < 2; c++) {
+			for (int fig = 0; fig < 5; fig++) {
+				if (c == 0)
+					value += board.getNumberOfPiecesByColorAndType(colors[c],
+							figure[fig]) * fig_value[fig];
+				else
+					value -= board.getNumberOfPiecesByColorAndType(colors[c],
+							figure[fig]) * fig_value[fig];
+			}
+
+		}
+		
+		if(board.getActiveColor()==PieceHelper.WHITE && board.isMatePosition())
+			value -=10^6; // subtract a large number, bad for me
+		else if(board.getActiveColor()==PieceHelper.WHITE && board.isMatePosition())
+			value += 10^6; //add a large number, good for me
+		return value;
 	}
 
 	@Override
