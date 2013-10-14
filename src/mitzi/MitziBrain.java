@@ -26,8 +26,8 @@ public class MitziBrain implements IBrain {
 	private double evalBoard(IBoard board, int depth) {
 
 		// if the base case is reached
-		// TODO: We need a function for checking stalemate
-		if (depth == 0 || board.isCheckPosition() || board.isStaleMatePosition() ||board.isMatePosition() ) {
+		if (depth == 0 || board.isCheckPosition()
+				|| board.isStaleMatePosition() || board.isMatePosition()) {
 			return evalBoard0(board);
 
 		}// if the best move has to be found
@@ -79,14 +79,14 @@ public class MitziBrain implements IBrain {
 
 		// A very very simple implementation
 		double value = 0;
-		
-		//One way to prevent copy and paste
+
+		// One way to prevent copy and paste
 		double[] fig_value = { 1, 3.3, 3.3, 5, 9 };
 		int[] colors = { PieceHelper.WHITE, PieceHelper.BLACK };
 		int[] figure = { PieceHelper.PAWN, PieceHelper.BISHOP,
 				PieceHelper.KNIGHT, PieceHelper.ROOK, PieceHelper.QUEEN };
 
-		//Maybe not the most efficient way (several runs over the board)
+		// Maybe not the most efficient way (several runs over the board)
 		for (int c = 0; c < 2; c++) {
 			for (int fig = 0; fig < 5; fig++) {
 				if (c == 0)
@@ -98,11 +98,13 @@ public class MitziBrain implements IBrain {
 			}
 
 		}
-		
-		if(board.getActiveColor()==PieceHelper.WHITE && board.isMatePosition())
-			value -=10^6; // subtract a large number, bad for me
-		else if(board.getActiveColor()==PieceHelper.WHITE && board.isMatePosition())
-			value += 10^6; //add a large number, good for me
+
+		if (board.getActiveColor() == PieceHelper.WHITE
+				&& board.isMatePosition())
+			value -= 10 ^ 6; // subtract a large number, bad for me
+		else if (board.getActiveColor() == PieceHelper.WHITE
+				&& board.isMatePosition())
+			value += 10 ^ 6; // add a large number, good for me
 		return value;
 	}
 

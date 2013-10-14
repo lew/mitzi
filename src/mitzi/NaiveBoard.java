@@ -280,26 +280,27 @@ public class NaiveBoard implements IBoard {
 			newBoard.en_passant_target = -1;
 
 		// Update castling
-		if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.KING)
+		if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.KING) {
 			if (active_color == PieceHelper.WHITE && src == 51) {
 				newBoard.castling[0] = -1;
 				newBoard.castling[1] = -1;
 			} else if (active_color == PieceHelper.BLACK && src == 58) {
 				newBoard.castling[2] = -1;
 				newBoard.castling[3] = -1;
-			} else if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.ROOK)
-				if (active_color == PieceHelper.WHITE) {
-					if (src == 81)
-						newBoard.castling[1] = -1;
-					else if (src == 11)
-						newBoard.castling[0] = -1;
-				} else {
-					if (src == 88)
-						newBoard.castling[3] = -1;
-					else if (src == 18)
-						newBoard.castling[2] = -1;
-				}
-
+			}
+		} else if (PieceHelper.pieceType(this.getFromBoard(src)) == PieceHelper.ROOK) {
+			if (active_color == PieceHelper.WHITE) {
+				if (src == 81)
+					newBoard.castling[1] = -1;
+				else if (src == 11)
+					newBoard.castling[0] = -1;
+			} else {
+				if (src == 88)
+					newBoard.castling[3] = -1;
+				else if (src == 18)
+					newBoard.castling[2] = -1;
+			}
+		}
 		return newBoard;
 	}
 
@@ -713,7 +714,8 @@ public class NaiveBoard implements IBoard {
 							}
 						} else if (PieceHelper.pieceType(piece) == PieceHelper.QUEEN) {
 							return true;
-						} else if (PieceHelper.pieceType(piece) == PieceHelper.KING && iter==1){
+						} else if (PieceHelper.pieceType(piece) == PieceHelper.KING
+								&& iter == 1) {
 							return true;
 						}
 						break;
@@ -740,21 +742,21 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public boolean isMatePosition() {
-		Set<IMove> moves=getPossibleMoves();
-		if(isCheckPosition() && moves.isEmpty())
+		Set<IMove> moves = getPossibleMoves();
+		if (isCheckPosition() && moves.isEmpty())
 			return true;
 		else
 			return false;
 	}
-	
+
 	@Override
-	public boolean isStaleMatePosition(){
-		Set<IMove> moves=getPossibleMoves();
-		if(moves.isEmpty())
+	public boolean isStaleMatePosition() {
+		Set<IMove> moves = getPossibleMoves();
+		if (moves.isEmpty())
 			return true;
 		else
 			return false;
-		
+
 	}
 
 	@Override
