@@ -83,6 +83,8 @@ public interface IBoard {
 	public boolean isCheckPosition();
 
 	public boolean isMatePosition();
+	
+	public boolean isStaleMatePosition();
 
 	public boolean isPossibleMove(IMove move);
 

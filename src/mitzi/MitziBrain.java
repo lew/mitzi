@@ -27,7 +27,7 @@ public class MitziBrain implements IBrain {
 
 		// if the base case is reached
 		// TODO: We need a function for checking stalemate
-		if (depth == 0 || board.isCheckPosition() || board.isMatePosition()) {
+		if (depth == 0 || board.isCheckPosition() || board.isStaleMatePosition() ||board.isMatePosition() ) {
 			return evalBoard0(board);
 
 		}// if the best move has to be found

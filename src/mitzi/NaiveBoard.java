@@ -746,6 +746,16 @@ public class NaiveBoard implements IBoard {
 		else
 			return false;
 	}
+	
+	@Override
+	public boolean isStaleMatePosition(){
+		Set<IMove> moves=getPossibleMoves();
+		if(moves.isEmpty())
+			return true;
+		else
+			return false;
+		
+	}
 
 	@Override
 	public boolean isPossibleMove(IMove move) {
