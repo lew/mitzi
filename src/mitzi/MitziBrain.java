@@ -26,8 +26,7 @@ public class MitziBrain implements IBrain {
 	private double evalBoard(IBoard board, int depth) {
 
 		// if the base case is reached
-		if (depth == 0 || board.isCheckPosition()
-				|| board.isStaleMatePosition() || board.isMatePosition()) {
+		if (depth == 0 || board.isStaleMatePosition() || board.isMatePosition()) {
 			return evalBoard0(board);
 
 		}// if the best move has to be found
