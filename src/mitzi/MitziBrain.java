@@ -24,6 +24,8 @@ public class MitziBrain implements IBrain {
 	 * @return searches the best move and returns the value
 	 */
 	private double evalBoard(IBoard board, int depth) {
+		// TODO: there is still a problem, that the function returns a NULL -
+		// move although some are possible... especially for check positions
 
 		// if the base case is reached
 		if (depth == 0 || board.isStaleMatePosition() || board.isMatePosition()) {

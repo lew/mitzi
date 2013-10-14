@@ -743,7 +743,7 @@ public class NaiveBoard implements IBoard {
 	@Override
 	public boolean isMatePosition() {
 		Set<IMove> moves = getPossibleMoves();
-		if (isCheckPosition() && moves.isEmpty())
+		if (moves.isEmpty() && isCheckPosition())
 			return true;
 		else
 			return false;
