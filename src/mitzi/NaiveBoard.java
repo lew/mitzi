@@ -740,8 +740,11 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public boolean isMatePosition() {
-		// TODO Auto-generated method stub
-		return false;
+		Set<IMove> moves=getPossibleMoves();
+		if(isCheckPosition() && moves.isEmpty())
+			return true;
+		else
+			return false;
 	}
 
 	@Override
