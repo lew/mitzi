@@ -46,7 +46,7 @@ public class NaiveBoard implements IBoard {
 		newBoard.half_move_clock = half_move_clock;
 		System.arraycopy(castling, 0, newBoard.castling, 0, 4);
 
-		for (int i = 2; i < 11; i++)
+		for (int i = 1; i < 11; i++)
 			System.arraycopy(board[i], 0, newBoard.board[i], 0, 12);
 
 		return newBoard;
