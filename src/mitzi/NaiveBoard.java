@@ -37,6 +37,23 @@ public class NaiveBoard implements IBoard {
 
 	private int active_color;
 
+	// The following class members are used to prevent multiple computations
+	private Set<IMove> possible_moves;
+
+	private Set<Integer> occupied_squares_by_color;
+
+	private Set<Integer> occupied_squares_by_type;
+
+	private Set<Integer> occupied_squares_by_color_and_type;
+
+	private Boolean is_check; // using the class Boolean, which can be null!
+
+	private Boolean is_mate;
+
+	private Boolean is_stale_mate;
+
+	// --------------------------------------------------------
+
 	private NaiveBoard returnCopy() {
 		NaiveBoard newBoard = new NaiveBoard();
 
@@ -46,8 +63,9 @@ public class NaiveBoard implements IBoard {
 		newBoard.half_move_clock = half_move_clock;
 		System.arraycopy(castling, 0, newBoard.castling, 0, 4);
 
-		for (int i = 1; i < 11; i++)
-			System.arraycopy(board[i], 0, newBoard.board[i], 0, 12);
+		//from row and column 1,2,11,12 are 0..
+		for (int i = 2; i < 11; i++) 
+			System.arraycopy(board[i], 2, newBoard.board[i], 2, 8);
 
 		return newBoard;
 	}
@@ -324,117 +342,107 @@ public class NaiveBoard implements IBoard {
 	@Override
 	public Set<Integer> getOccupiedSquaresByColor(int color) {
 
-		int square;
-		Set<Integer> set = new HashSet<Integer>();
+		if (occupied_squares_by_color == null) {
+			int square;
+			Set<Integer> set = new HashSet<Integer>();
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color)
-					set.add(square);
-			}
-
-		return set;
+			for (int i = 1; i < 9; i++)
+				for (int j = 1; j < 9; j++) {
+					square = SquareHelper.getSquare(i, j);
+					if (this.getFromBoard(square) > 0
+							&& PieceHelper
+									.pieceColor(this.getFromBoard(square)) == color)
+						set.add(square);
+				}
+			occupied_squares_by_color = set;
+		}
+		return occupied_squares_by_color;
 	}
 
 	@Override
 	public Set<Integer> getOccupiedSquaresByType(int type) {
-		int square;
-		Set<Integer> set = new HashSet<Integer>();
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceType(this.getFromBoard(square)) == type)
-					set.add(square);
-			}
+		if (occupied_squares_by_type == null) {
+			int square;
+			Set<Integer> set = new HashSet<Integer>();
 
-		return set;
+			for (int i = 1; i < 9; i++)
+				for (int j = 1; j < 9; j++) {
+					square = SquareHelper.getSquare(i, j);
+					if (this.getFromBoard(square) > 0
+							&& PieceHelper.pieceType(this.getFromBoard(square)) == type)
+						set.add(square);
+				}
+			occupied_squares_by_type = set;
+		}
+		return occupied_squares_by_type;
 	}
 
 	@Override
 	public Set<Integer> getOccupiedSquaresByColorAndType(int color, int type) {
-		int square;
-		Set<Integer> set = new HashSet<Integer>();
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceValue(type, color) == this
-								.getFromBoard(square))
-					set.add(square);
-			}
+		if (occupied_squares_by_color_and_type == null) {
+			int square;
+			Set<Integer> set = new HashSet<Integer>();
 
-		return set;
+			for (int i = 1; i < 9; i++)
+				for (int j = 1; j < 9; j++) {
+					square = SquareHelper.getSquare(i, j);
+					if (this.getFromBoard(square) > 0
+							&& PieceHelper.pieceValue(type, color) == this
+									.getFromBoard(square))
+						set.add(square);
+				}
+
+			occupied_squares_by_color_and_type = set;
+		}
+		return occupied_squares_by_color_and_type;
 	}
 
 	@Override
 	public int getNumberOfPiecesByColor(int color) {
-		int square;
-		int num = 0;
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color)
-					num++;
-			}
-
-		return num;
+		if (occupied_squares_by_color == null)
+			occupied_squares_by_color = getOccupiedSquaresByColor(color);
+		return occupied_squares_by_color.size();
 	}
 
 	@Override
 	public int getNumberOfPiecesByType(int type) {
-		int square;
-		int num = 0;
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceType(this.getFromBoard(square)) == type)
-					num++;
-			}
-
-		return num;
+		if (occupied_squares_by_type == null)
+			occupied_squares_by_type = getOccupiedSquaresByType(type);
+		return occupied_squares_by_type.size();
 	}
 
 	@Override
 	public int getNumberOfPiecesByColorAndType(int color, int type) {
-		int square;
-		int num = 0;
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceValue(type, color) == this
-								.getFromBoard(square))
-					num++;
-			}
-
-		return num;
+		if (occupied_squares_by_color_and_type == null)
+			occupied_squares_by_color_and_type = getOccupiedSquaresByColorAndType(
+					color, type);
+		return occupied_squares_by_color_and_type.size();
 	}
 
 	@Override
 	public Set<IMove> getPossibleMoves() {
-		Set<IMove> total_set = new HashSet<IMove>();
-		Set<IMove> temp_set;
 
-		// all the active squares
-		Set<Integer> squares = getOccupiedSquaresByColor(active_color);
+		if (possible_moves == null) {
+			Set<IMove> total_set = new HashSet<IMove>();
+			Set<IMove> temp_set;
 
-		// loop over all squares
-		for (int square : squares) {
-			temp_set = getPossibleMovesFrom(square);
-			total_set.addAll(temp_set);
+			// all the active squares
+			Set<Integer> squares = getOccupiedSquaresByColor(active_color);
+
+			// loop over all squares
+			for (int square : squares) {
+				temp_set = getPossibleMovesFrom(square);
+				total_set.addAll(temp_set);
+			}
+			possible_moves = total_set;
 		}
+		return possible_moves;
 
-		return total_set;
 	}
 
 	@Override
@@ -674,89 +682,98 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public boolean isCheckPosition() {
-		Set<Integer> temp_king_pos = getOccupiedSquaresByColorAndType(
-				active_color, PieceHelper.KING);
-		int king_pos = temp_king_pos.iterator().next();
+		if (is_check == null) {
+			is_check = true;
+			Set<Integer> temp_king_pos = getOccupiedSquaresByColorAndType(
+					active_color, PieceHelper.KING);
+			int king_pos = temp_king_pos.iterator().next();
 
-		// go in each direction
-		for (Direction direction : Direction.values()) {
-			List<Integer> line = SquareHelper.getAllSquaresInDirection(
-					king_pos, direction);
-			// go until…
-			int iter = 0;
-			for (int square : line) {
-				iter++;
-				// …some piece is found
-				int piece = getFromBoard(square);
-				if (piece != 0) {
-					if (PieceHelper.pieceColor(piece) == active_color) {
-						break;
-					} else {
-						if (PieceHelper.pieceType(piece) == PieceHelper.PAWN
-								&& iter == 1) {
-							if (((direction == Direction.NORTHEAST || direction == Direction.NORTHWEST) && active_color == PieceHelper.WHITE)
-									|| ((direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && active_color == PieceHelper.BLACK)) {
+			// go in each direction
+			for (Direction direction : Direction.values()) {
+				List<Integer> line = SquareHelper.getAllSquaresInDirection(
+						king_pos, direction);
+				// go until…
+				int iter = 0;
+				for (int square : line) {
+					iter++;
+					// …some piece is found
+					int piece = getFromBoard(square);
+					if (piece != 0) {
+						if (PieceHelper.pieceColor(piece) == active_color) {
+							break;
+						} else {
+							if (PieceHelper.pieceType(piece) == PieceHelper.PAWN
+									&& iter == 1) {
+								if (((direction == Direction.NORTHEAST || direction == Direction.NORTHWEST) && active_color == PieceHelper.WHITE)
+										|| ((direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && active_color == PieceHelper.BLACK)) {
+									return true;
+								}
+							} else if (PieceHelper.pieceType(piece) == PieceHelper.ROOK) {
+								if (direction == Direction.EAST
+										|| direction == Direction.WEST
+										|| direction == Direction.NORTH
+										|| direction == Direction.SOUTH) {
+									return true;
+								}
+							} else if (PieceHelper.pieceType(piece) == PieceHelper.BISHOP) {
+								if (direction == Direction.NORTHEAST
+										|| direction == Direction.NORTHWEST
+										|| direction == Direction.SOUTHEAST
+										|| direction == Direction.SOUTHWEST) {
+									return true;
+								}
+							} else if (PieceHelper.pieceType(piece) == PieceHelper.QUEEN) {
+								return true;
+							} else if (PieceHelper.pieceType(piece) == PieceHelper.KING
+									&& iter == 1) {
 								return true;
 							}
-						} else if (PieceHelper.pieceType(piece) == PieceHelper.ROOK) {
-							if (direction == Direction.EAST
-									|| direction == Direction.WEST
-									|| direction == Direction.NORTH
-									|| direction == Direction.SOUTH) {
-								return true;
-							}
-						} else if (PieceHelper.pieceType(piece) == PieceHelper.BISHOP) {
-							if (direction == Direction.NORTHEAST
-									|| direction == Direction.NORTHWEST
-									|| direction == Direction.SOUTHEAST
-									|| direction == Direction.SOUTHWEST) {
-								return true;
-							}
-						} else if (PieceHelper.pieceType(piece) == PieceHelper.QUEEN) {
-							return true;
-						} else if (PieceHelper.pieceType(piece) == PieceHelper.KING
-								&& iter == 1) {
-							return true;
+							break;
 						}
-						break;
 					}
 				}
 			}
-		}
 
-		// check for knight attacks
-		List<Integer> knight_squares = SquareHelper
-				.getAllSquaresByKnightStep(king_pos);
-		for (int square : knight_squares) {
-			int piece = getFromBoard(square);
-			if (piece != 0) {
-				if (PieceHelper.pieceColor(piece) != active_color
-						&& PieceHelper.pieceType(piece) == PieceHelper.KNIGHT) {
-					return true;
+			// check for knight attacks
+			List<Integer> knight_squares = SquareHelper
+					.getAllSquaresByKnightStep(king_pos);
+			for (int square : knight_squares) {
+				int piece = getFromBoard(square);
+				if (piece != 0) {
+					if (PieceHelper.pieceColor(piece) != active_color
+							&& PieceHelper.pieceType(piece) == PieceHelper.KNIGHT) {
+						return true;
+					}
 				}
 			}
+			is_check = false;
 		}
+		return is_check.booleanValue();
 
-		return false;
 	}
 
 	@Override
 	public boolean isMatePosition() {
-		Set<IMove> moves = getPossibleMoves();
-		if (moves.isEmpty() && isCheckPosition())
-			return true;
-		else
-			return false;
+		if (is_mate == null) {
+			is_mate = true;
+			Set<IMove> moves = getPossibleMoves();
+			if (moves.isEmpty() && isCheckPosition())
+				return true;
+			is_mate = false;
+		}
+		return is_mate.booleanValue();
 	}
 
 	@Override
 	public boolean isStaleMatePosition() {
-		Set<IMove> moves = getPossibleMoves();
-		if (moves.isEmpty())
-			return true;
-		else
-			return false;
-
+		if (is_stale_mate == null) {
+			is_stale_mate = true;
+			Set<IMove> moves = getPossibleMoves();
+			if (moves.isEmpty())
+				return true;
+			is_stale_mate = false;
+		}
+		return is_stale_mate.booleanValue();
 	}
 
 	@Override
