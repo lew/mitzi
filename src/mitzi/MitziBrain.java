@@ -14,59 +14,51 @@ public class MitziBrain implements IBrain {
 	}
 
 	/**
-	 * Basic minimax Algorithm, like in the lecture notes. Furthermore the
-	 * function sets the variable next_move.
+	 * NegaMax with Alpha Beta Pruning. Furthermore the function sets the
+	 * variable next_move.
+	 * 
+	 * @see <a href="https://en.wikipedia.org/wiki/Negamax">Negamax</a>
 	 * 
 	 * @param board
 	 *            the current board
 	 * @param depth
 	 *            the search depth
-	 * @return searches the best move and returns the value
+	 * @param alpha
+	 * @param beta
+	 * @param side_sign
+	 *            white's turn +1, black's turn -1
+	 * @return sets the best move and returns the value
 	 */
-	private double evalBoard(IBoard board, int depth) {
+	private double evalBoard(IBoard board, int depth, double alpha,
+			double beta, int side_sign) {
 		// TODO: there is still a problem, that the function returns a NULL -
 		// move although some are possible... especially for check positions
 
 		// if the base case is reached
 		if (depth == 0 || board.isStaleMatePosition() || board.isMatePosition()) {
-			return evalBoard0(board);
+			return evalBoard0(board) * side_sign;
 
-		}// if the best move has to be found
-		else if (board.getActiveColor() == PieceHelper.WHITE) {
-			double max = -10 ^ 6; // some large negative number....
-			double val;
-			IMove best_move = null;
-
-			Set<IMove> moves = board.getPossibleMoves();
-			for (IMove move : moves) {
-				val = evalBoard(board.doMove(move), depth - 1);
-				if (max < val) {
-					max = val;
-					best_move = move;
-				}
-			}
-			next_move = best_move;
-			return max;
-
-		} // if the worst move has to be found
-		else if (board.getActiveColor() == PieceHelper.BLACK) {
-			double min = 10 ^ 6; // some large positive number....
-			double val;
-			IMove worst_move = null;
-
-			Set<IMove> moves = board.getPossibleMoves();
-			for (IMove move : moves) {
-				val = evalBoard(board.doMove(move), depth - 1);
-				if (min > val) {
-					min = val;
-					worst_move = move;
-				}
-			}
-			next_move = worst_move;
-			return min;
 		}
 
-		return 0; // cannot happen anyway.
+		double best_value = -10 ^ 6;
+		double val = 0;
+		Set<IMove> moves = board.getPossibleMoves();
+		// TODO: order moves for best alpha-beta effect
+		for (IMove move : moves) {
+			val = -evalBoard(board.doMove(move), depth - 1, -beta, -alpha,
+					-side_sign);
+			if (val >= best_value) {
+				best_value = val;
+				next_move = move;
+			}
+			alpha = Math.max(alpha, val);
+			if (alpha >= beta) {
+				break;
+			}
+		}
+
+		return best_value;
+
 	}
 
 	/**
@@ -118,10 +110,13 @@ public class MitziBrain implements IBrain {
 		// first of all, ignoring the timings and restriction to certain
 		// moves...
 
+		int side_color = -1;
+		if (board.getActiveColor() == PieceHelper.WHITE) {
+			side_color = 1;
+		}
 		@SuppressWarnings("unused")
-		double value = evalBoard(board, searchDepth); // value might be
-														// interesting for
-														// debugging
+		double value = evalBoard(board, searchDepth, -10 ^ 6, 10 ^ 6,
+				side_color); // value might be interesting for debugging
 
 		return next_move;
 	}
