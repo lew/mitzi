@@ -2,6 +2,8 @@ package mitzi;
 
 import java.util.Set;
 
+import mitzi.UCIReporter.InfoType;
+
 public class MitziBrain implements IBrain {
 
 	private IBoard board;
@@ -42,6 +44,7 @@ public class MitziBrain implements IBrain {
 
 		double best_value = -10 ^ 6;
 		double val = 0;
+		IMove poss_next_move;
 		Set<IMove> moves = board.getPossibleMoves();
 		// TODO: order moves for best alpha-beta effect
 		for (IMove move : moves) {
@@ -49,7 +52,8 @@ public class MitziBrain implements IBrain {
 					-side_sign);
 			if (val >= best_value) {
 				best_value = val;
-				next_move = move;
+				poss_next_move = move; // oh gott, denkfehler :D
+				UCIReporter.sendInfoString(Double.toString(best_value));
 			}
 			alpha = Math.max(alpha, val);
 			if (alpha >= beta) {
@@ -57,6 +61,8 @@ public class MitziBrain implements IBrain {
 			}
 		}
 
+		next_move = poss_next_move;
+			
 		return best_value;
 
 	}
