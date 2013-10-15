@@ -78,6 +78,14 @@ public class MitziBrain implements IBrain {
 	 */
 	private double evalBoard0(IBoard board) {
 
+		// check for checkmate
+		if (board.isMatePosition()) {
+			if (board.getActiveColor() == PieceHelper.WHITE)
+				return -10 ^ 6;
+			else
+				return 10 ^ 6;
+		}
+
 		// A very very simple implementation
 		double value = 0;
 
@@ -98,13 +106,6 @@ public class MitziBrain implements IBrain {
 							figure[fig]) * fig_value[fig];
 			}
 
-		}
-
-		if (board.isMatePosition()) {
-			if (board.getActiveColor() == PieceHelper.WHITE)
-				return -10 ^ 6;
-			else
-				return 10 ^ 6;
 		}
 
 		return value;
