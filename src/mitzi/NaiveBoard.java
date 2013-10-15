@@ -1,10 +1,10 @@
 package mitzi;
 
-//import java.util.ArrayList;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class NaiveBoard implements IBoard {
@@ -46,6 +46,20 @@ public class NaiveBoard implements IBoard {
 	private Boolean is_mate;
 
 	private Boolean is_stale_mate;
+
+	// the following maps takes and Integer, representing the color, type or
+	// PieceValue and returns the set of squares or the number of squares!
+	private Map<Integer, Set<Integer>> occupied_squares_by_color_and_type = new HashMap<Integer, Set<Integer>>();
+
+	private Map<Integer, Set<Integer>> occupied_squares_by_color = new HashMap<Integer, Set<Integer>>();
+
+	private Map<Integer, Set<Integer>> occupied_squares_by_type = new HashMap<Integer, Set<Integer>>();
+
+	private Map<Integer, Integer> num_occupied_squares_by_color_and_type = new HashMap<Integer, Integer>();
+
+	private Map<Integer, Integer> num_occupied_squares_by_color = new HashMap<Integer, Integer>();
+
+	private Map<Integer, Integer> num_occupied_squares_by_type = new HashMap<Integer, Integer>();
 
 	// --------------------------------------------------------
 
@@ -337,69 +351,147 @@ public class NaiveBoard implements IBoard {
 	@Override
 	public Set<Integer> getOccupiedSquaresByColor(int color) {
 
-		int square;
-		Set<Integer> set = new HashSet<Integer>();
+		if (occupied_squares_by_color.containsKey(color) == false) {
+			int square;
+			Set<Integer> set = new HashSet<Integer>();
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceColor(this.getFromBoard(square)) == color)
-					set.add(square);
-			}
-		return set;
+			for (int i = 1; i < 9; i++)
+				for (int j = 1; j < 9; j++) {
+					square = SquareHelper.getSquare(i, j);
+					if (this.getFromBoard(square) > 0
+							&& PieceHelper
+									.pieceColor(this.getFromBoard(square)) == color)
+						set.add(square);
+				}
+
+			occupied_squares_by_color.put(color, set);
+			return set;
+		}
+		return occupied_squares_by_color.get(color);
 	}
 
 	@Override
 	public Set<Integer> getOccupiedSquaresByType(int type) {
 
-		int square;
-		Set<Integer> set = new HashSet<Integer>();
+		if (occupied_squares_by_type.containsKey(type) == false) {
+			int square;
+			Set<Integer> set = new HashSet<Integer>();
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceType(this.getFromBoard(square)) == type)
-					set.add(square);
-			}
-		return set;
+			for (int i = 1; i < 9; i++)
+				for (int j = 1; j < 9; j++) {
+					square = SquareHelper.getSquare(i, j);
+					if (this.getFromBoard(square) > 0
+							&& PieceHelper.pieceType(this.getFromBoard(square)) == type)
+						set.add(square);
+				}
+
+			occupied_squares_by_type.put(type, set);
+			return set;
+		}
+		return occupied_squares_by_type.get(type);
+
 	}
 
 	@Override
 	public Set<Integer> getOccupiedSquaresByColorAndType(int color, int type) {
 
-		int square;
-		Set<Integer> set = new HashSet<Integer>();
+		if (occupied_squares_by_color_and_type.containsKey(PieceHelper
+				.pieceValue(type, color)) == false) {
+			int square;
+			Set<Integer> set = new HashSet<Integer>();
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				if (this.getFromBoard(square) > 0
-						&& PieceHelper.pieceValue(type, color) == this
-								.getFromBoard(square))
-					set.add(square);
-			}
-
-		return set;
+			for (int i = 1; i < 9; i++)
+				for (int j = 1; j < 9; j++) {
+					square = SquareHelper.getSquare(i, j);
+					if (this.getFromBoard(square) > 0
+							&& PieceHelper.pieceValue(type, color) == this
+									.getFromBoard(square))
+						set.add(square);
+				}
+			occupied_squares_by_color_and_type.put(
+					PieceHelper.pieceValue(type, color), set);
+			return set;
+		}
+		return occupied_squares_by_color_and_type.get(PieceHelper.pieceValue(
+				type, color));
 	}
 
 	@Override
 	public int getNumberOfPiecesByColor(int color) {
 
-		return getOccupiedSquaresByColor(color).size();
+		if (num_occupied_squares_by_color.containsKey(color) == false) {
+			if (occupied_squares_by_color.containsKey(color) == false) {
+				int square;
+				int num = 0;
+
+				for (int i = 1; i < 9; i++)
+					for (int j = 1; j < 9; j++) {
+						square = SquareHelper.getSquare(i, j);
+						if (this.getFromBoard(square) > 0
+								&& PieceHelper.pieceColor(this
+										.getFromBoard(square)) == color)
+							num++;
+					}
+				num_occupied_squares_by_color.put(color, num);
+				return num;
+			}
+			num_occupied_squares_by_color.put(color, occupied_squares_by_color
+					.get(color).size());
+		}
+		return num_occupied_squares_by_color.get(color);
+
 	}
 
 	@Override
 	public int getNumberOfPiecesByType(int type) {
 
-		return getOccupiedSquaresByType(type).size();
+		if (num_occupied_squares_by_type.containsKey(type) == false) {
+			if (occupied_squares_by_type.containsKey(type) == false) {
+				int square;
+				int num = 0;
+
+				for (int i = 1; i < 9; i++)
+					for (int j = 1; j < 9; j++) {
+						square = SquareHelper.getSquare(i, j);
+						if (this.getFromBoard(square) > 0
+								&& PieceHelper.pieceType(this
+										.getFromBoard(square)) == type)
+							num++;
+					}
+				num_occupied_squares_by_type.put(type, num);
+				return num;
+			}
+			num_occupied_squares_by_type.put(type, occupied_squares_by_type
+					.get(type).size());
+		}
+		return num_occupied_squares_by_type.get(type);
+
 	}
 
 	@Override
 	public int getNumberOfPiecesByColorAndType(int color, int type) {
 
-		return getOccupiedSquaresByColorAndType(color, type).size();
+		int value = PieceHelper.pieceValue(type, color);
+		if (num_occupied_squares_by_color_and_type.containsKey(value) == false) {
+			if (occupied_squares_by_color_and_type.containsKey(value) == false) {
+				int square;
+				int num = 0;
+
+				for (int i = 1; i < 9; i++)
+					for (int j = 1; j < 9; j++) {
+						square = SquareHelper.getSquare(i, j);
+						if (this.getFromBoard(square) > 0
+								&& value == this.getFromBoard(square))
+
+							num++;
+					}
+				num_occupied_squares_by_color_and_type.put(value, num);
+				return num;
+			}
+			num_occupied_squares_by_color_and_type.put(value,
+					occupied_squares_by_color_and_type.get(value).size());
+		}
+		return num_occupied_squares_by_color_and_type.get(value);
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package mitzi;
 
 import java.util.Set;
 
-import mitzi.UCIReporter.InfoType;
+//import mitzi.UCIReporter.InfoType;
 
 public class MitziBrain implements IBrain {
 
