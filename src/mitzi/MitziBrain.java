@@ -100,12 +100,13 @@ public class MitziBrain implements IBrain {
 
 		}
 
-		if (board.getActiveColor() == PieceHelper.WHITE
-				&& board.isMatePosition())
-			value -= 10 ^ 6; // subtract a large number, bad for me
-		else if (board.getActiveColor() == PieceHelper.WHITE
-				&& board.isMatePosition())
-			value += 10 ^ 6; // add a large number, good for me
+		if (board.isMatePosition()) {
+			if (board.getActiveColor() == PieceHelper.WHITE)
+				return -10 ^ 6;
+			else
+				return 10 ^ 6;
+		}
+
 		return value;
 	}
 
