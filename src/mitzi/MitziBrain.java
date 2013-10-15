@@ -44,7 +44,7 @@ public class MitziBrain implements IBrain {
 
 		double best_value = -10 ^ 6;
 		double val = 0;
-		IMove poss_next_move;
+		IMove poss_next_move = null;
 		Set<IMove> moves = board.getPossibleMoves();
 		// TODO: order moves for best alpha-beta effect
 		for (IMove move : moves) {
@@ -52,8 +52,7 @@ public class MitziBrain implements IBrain {
 					-side_sign);
 			if (val >= best_value) {
 				best_value = val;
-				poss_next_move = move; // oh gott, denkfehler :D
-				UCIReporter.sendInfoString(Double.toString(best_value));
+				poss_next_move = move; // oh gott, denkfehler :D FIXME
 			}
 			alpha = Math.max(alpha, val);
 			if (alpha >= beta) {
