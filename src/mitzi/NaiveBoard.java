@@ -728,8 +728,7 @@ public class NaiveBoard implements IBoard {
 		// TODO do this in a more efficient way
 		Iterator<IMove> iter = moves.iterator();
 		while (iter.hasNext()) {
-			IMove m = iter.next();
-			NaiveBoard temp_board = this.doMove(m);
+			NaiveBoard temp_board = this.doMove(iter.next());
 			temp_board.active_color = active_color; // ugly solution…
 			if (temp_board.isCheckPosition()) {
 				iter.remove();
