@@ -652,9 +652,10 @@ public class NaiveBoard implements IBoard {
 		if (type == PieceHelper.KING) {
 			for (Direction direction : Direction.values()) {
 				Integer new_square = square + direction.offset;
-				move = new Move(square, new_square);
-				int piece = getFromBoard(new_square);
-				if (SquareHelper.isValidSquare(new_square)) {
+
+				if (SquareHelper.isValidSquare(new_square)) {			
+					move = new Move(square, new_square);
+					int piece = getFromBoard(new_square);
 					// if the new square is empty or occupied by the opponent
 					if (piece == 0
 							|| PieceHelper.pieceColor(piece) != active_color)
