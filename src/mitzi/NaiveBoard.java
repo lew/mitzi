@@ -653,10 +653,11 @@ public class NaiveBoard implements IBoard {
 			for (Direction direction : Direction.values()) {
 				Integer new_square = square + direction.offset;
 				move = new Move(square, new_square);
+				int piece = getFromBoard(new_square);
 				if (SquareHelper.isValidSquare(new_square)) {
 					// if the new square is empty or occupied by the opponent
-					if (getFromBoard(new_square) == 0
-							|| PieceHelper.pieceColor(getFromBoard(new_square)) != active_color)
+					if (piece == 0
+							|| PieceHelper.pieceColor(piece) != active_color)
 						moves.add(move);
 				}
 			}
@@ -716,8 +717,8 @@ public class NaiveBoard implements IBoard {
 		if (type == PieceHelper.KNIGHT) {
 			squares = SquareHelper.getAllSquaresByKnightStep(square);
 			for (Integer new_square : squares) {
-				if (getFromBoard(new_square) == 0
-						|| PieceHelper.pieceColor(getFromBoard(new_square)) != active_color) {
+				int piece = getFromBoard(new_square);
+				if (piece == 0 || PieceHelper.pieceColor(piece) != active_color) {
 					move = new Move(square, new_square);
 					moves.add(move);
 				}
