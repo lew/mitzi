@@ -23,7 +23,7 @@ public class NaiveBoard implements IBoard {
 			Side.EMPTY, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
 			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
 			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
-			Side.WHITE, Side.WHITE, };
+			Side.WHITE, Side.WHITE, Side.EMPTY };
 
 	protected static Piece[] initial_piece_board = { Piece.ROOK, Piece.KNIGHT,
 			Piece.BISHOP, Piece.QUEEN, Piece.KING, Piece.BISHOP, Piece.KNIGHT,
@@ -38,18 +38,20 @@ public class NaiveBoard implements IBoard {
 			Piece.EMPTY, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN,
 			Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.ROOK,
 			Piece.KNIGHT, Piece.BISHOP, Piece.QUEEN, Piece.KING, Piece.BISHOP,
-			Piece.KNIGHT, Piece.ROOK, };
+			Piece.KNIGHT, Piece.ROOK, Piece.EMPTY };
 
-	private Side[] side_board = new Side[64];
+	private Side[] side_board = new Side[65];
 
-	private Piece[] piece_board = new Piece[64];
+	private Piece[] piece_board = new Piece[65];
 
-	protected static int[] square_to_array_index = { -1, -1, -1, -1, -1, -1,
-			-1, -1, -1, -1, -1, 56, 48, 40, 32, 24, 16, 8, 0, -1, -1, 57, 49,
-			41, 33, 25, 17, 9, 1, -1, -1, 58, 50, 42, 34, 26, 18, 10, 2, -1,
-			-1, 59, 51, 43, 35, 27, 19, 11, 3, -1, -1, 60, 52, 44, 36, 28, 20,
-			12, 4, -1, -1, 61, 53, 45, 37, 29, 21, 13, 5, -1, -1, 62, 54, 46,
-			38, 30, 22, 14, 6, -1, -1, 63, 55, 47, 39, 31, 23, 15, 7, -1, };
+	protected static int[] square_to_array_index = { 64, 64, 64, 64, 64, 64,
+			64, 64, 64, 64, 64, 56, 48, 40, 32, 24, 16, 8, 0, 64, 64, 57, 49,
+			41, 33, 25, 17, 9, 1, 64, 64, 58, 50, 42, 34, 26, 18, 10, 2, 64,
+			64, 59, 51, 43, 35, 27, 19, 11, 3, 64, 64, 60, 52, 44, 36, 28, 20,
+			12, 4, 64, 64, 61, 53, 45, 37, 29, 21, 13, 5, 64, 64, 62, 54, 46,
+			38, 30, 22, 14, 6, 64, 64, 63, 55, 47, 39, 31, 23, 15, 7, 64, 64,
+			64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+			64, 64, 64 };
 
 	private int full_move_clock;
 
@@ -90,6 +92,8 @@ public class NaiveBoard implements IBoard {
 	// --------------------------------------------------------
 
 	private int squareToArrayIndex(int square) {
+		if (square < 0)
+			return 64;
 		return square_to_array_index[square];
 	}
 
@@ -102,8 +106,8 @@ public class NaiveBoard implements IBoard {
 		newBoard.half_move_clock = half_move_clock;
 		System.arraycopy(castling, 0, newBoard.castling, 0, 4);
 
-		System.arraycopy(side_board, 0, newBoard.side_board, 0, 64);
-		System.arraycopy(piece_board, 0, newBoard.piece_board, 0, 64);
+		System.arraycopy(side_board, 0, newBoard.side_board, 0, 65);
+		System.arraycopy(piece_board, 0, newBoard.piece_board, 0, 65);
 
 		return newBoard;
 	}
@@ -485,10 +489,8 @@ public class NaiveBoard implements IBoard {
 	@Override
 	public Set<Integer> getOccupiedSquaresByColorAndType(Side color, Piece type) {
 
-		System.out.println("color: "+color);
-		System.out.println("type: "+type);
-		int value = color.ordinal()*10 + type.ordinal();
-		
+		int value = color.ordinal() * 10 + type.ordinal();
+
 		if (occupied_squares_by_color_and_type.containsKey(value) == false) {
 			int square;
 			Set<Integer> set = new HashSet<Integer>();
@@ -557,7 +559,7 @@ public class NaiveBoard implements IBoard {
 	@Override
 	public int getNumberOfPiecesByColorAndType(Side color, Piece type) {
 
-		int value = color.ordinal()*10 + type.ordinal();
+		int value = color.ordinal() * 10 + type.ordinal();
 		if (num_occupied_squares_by_color_and_type.containsKey(value) == false) {
 			if (occupied_squares_by_color_and_type.containsKey(value) == false) {
 				int square;
@@ -945,15 +947,17 @@ public class NaiveBoard implements IBoard {
 			int counter = 0;
 
 			for (int column = 0; column < 8; column++) {
-				
-				if (side_board[row*8 +column] == Side.EMPTY) {
+
+				if (side_board[row * 8 + column] == Side.EMPTY) {
 					counter++;
 				} else {
 					if (counter != 0) {
 						fen.append(counter);
 						counter = 0;
 					}
-					fen.append(PieceHelper.toString(side_board[row*8 +column], piece_board[row*8 +column]));
+					fen.append(PieceHelper.toString(
+							side_board[row * 8 + column], piece_board[row * 8
+									+ column]));
 				}
 				if (column == 7 && counter != 0) {
 					fen.append(counter);
