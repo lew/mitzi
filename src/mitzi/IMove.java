@@ -19,6 +19,8 @@ public interface IMove {
 	 * @return the promotion of the pawn. 0 if no promotion.
 	 */
 	public int getPromotion();
+	
+	public boolean equals(IMove move);
 
 	public String toString();
 

@@ -61,7 +61,9 @@ public interface IBoard {
 	 *      href="http://www.fide.com/fide/handbook?id=124&view=article">FIDE Rule 3.8</a>
 	 */
 	public boolean canCastle(int king_to);
-
+	
+	public Boolean ColorCanCastle(int color);
+	
 	public Set<Integer> getOccupiedSquaresByColor(int color);
 
 	public Set<Integer> getOccupiedSquaresByType(int type);

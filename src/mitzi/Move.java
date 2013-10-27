@@ -1,6 +1,7 @@
 package mitzi;
 
 import java.util.Locale;
+import java.util.Set;
 
 public class Move implements IMove {
 
@@ -83,4 +84,23 @@ public class Move implements IMove {
 				+ SquareHelper.toString(getToSquare()) + promote_to;
 	}
 
+	/**
+	 * 
+	 * Checks if a move is in a given List of moves
+	 * 
+	 * @param moves List of moves
+	 * @param move	the move to be searched
+	 * @return true if move is in moves, else false
+	 */
+	public static Boolean MovesListIncludesMove(Set<Move> moves, Move move) {
+		return moves.contains(move);
+
+	}
+
+	@Override
+	public boolean equals(IMove move){
+		if(move.getFromSquare() == src && move.getToSquare() == dest && move.getPromotion() == promotion)
+			return true;
+		return false;
+	}
 }

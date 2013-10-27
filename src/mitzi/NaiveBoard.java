@@ -349,6 +349,82 @@ public class NaiveBoard implements IBoard {
 		}
 	}
 
+	
+	//TODO: replace in getPossibleMoves this part.
+	@Override
+	public Boolean ColorCanCastle(int color) {
+
+		//Set the right color
+		if(active_color!=color);
+			active_color=getOpponentsColor();
+		
+		//check for castling
+		if (!isCheckPosition()) {
+			Move move;
+			int off = 0;
+			int square = 51;
+			
+			if (color == PieceHelper.BLACK) {
+				off = 2;
+				square = 58;
+			}
+
+			for (int i = 0; i < 2; i++) {
+				int castle_flag = 0;
+				Integer new_square = castling[i + off];
+				// castling must still be possible to this side
+				if (new_square != -1) {
+
+					Direction dir;
+					if (i == 0)
+						dir = Direction.WEST;
+					else
+						dir = Direction.EAST;
+
+					List<Integer> line = SquareHelper.getAllSquaresInDirection(
+							square, dir);
+
+					// Check each square if it is empty
+					for (Integer squ : line) {
+						if (getFromBoard(squ) != 0) {
+							castle_flag = 1;
+							break;
+						}
+						if (squ == new_square)
+							break;
+					}
+					if (castle_flag == 1)
+						continue;
+
+					// Check each square if the king on it would be check
+					for (Integer squ : line) {
+						move = new Move(square, squ);
+						NaiveBoard board = doMove(move);
+						board.active_color = active_color; // TODO: ugly
+															// solution ! ;)
+						if (board.isCheckPosition())
+							break;
+						if (squ == new_square) {
+							// If the end is reached, then stop checking.
+							
+							//undoing change of color
+							if(active_color==color)
+								active_color=getOpponentsColor();
+ 							
+							return true;
+						}
+					}
+				}
+			}
+		}
+
+		//undoing change of color
+		if(active_color==color)
+			active_color=getOpponentsColor();
+		
+		return false;
+	}
+
 	@Override
 	public Set<Integer> getOccupiedSquaresByColor(int color) {
 
@@ -653,7 +729,7 @@ public class NaiveBoard implements IBoard {
 			for (Direction direction : Direction.values()) {
 				Integer new_square = square + direction.offset;
 
-				if (SquareHelper.isValidSquare(new_square)) {			
+				if (SquareHelper.isValidSquare(new_square)) {
 					move = new Move(square, new_square);
 					int piece = getFromBoard(new_square);
 					// if the new square is empty or occupied by the opponent
