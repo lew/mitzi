@@ -16,9 +16,9 @@ public interface IMove {
 
 	/**
 	 * 
-	 * @return the promotion of the pawn. 0 if no promotion.
+	 * @return the promotion of the pawn. EMPTY if no promotion.
 	 */
-	public int getPromotion();
+	public Piece getPromotion();
 	
 	public boolean equals(IMove move);
 
