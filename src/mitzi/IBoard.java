@@ -20,7 +20,7 @@ public interface IBoard {
 
 	public IBoard doMove(IMove move);
 
-	public int getActiveColor();
+	public Side getActiveColor();
 
 	/**
 	 * This is the number of halfmoves since the last pawn advance or capture.
@@ -62,19 +62,19 @@ public interface IBoard {
 	 */
 	public boolean canCastle(int king_to);
 	
-	public Boolean ColorCanCastle(int color);
+	public Boolean colorCanCastle(Side color);
 	
-	public Set<Integer> getOccupiedSquaresByColor(int color);
+	public Set<Integer> getOccupiedSquaresByColor(Side color);
 
-	public Set<Integer> getOccupiedSquaresByType(int type);
+	public Set<Integer> getOccupiedSquaresByType(Piece type);
 
-	public Set<Integer> getOccupiedSquaresByColorAndType(int color, int type);
+	public Set<Integer> getOccupiedSquaresByColorAndType(Side color, Piece type);
 
-	public int getNumberOfPiecesByColor(int color);
+	public int getNumberOfPiecesByColor(Side color);
 
-	public int getNumberOfPiecesByType(int type);
+	public int getNumberOfPiecesByType(Piece type);
 
-	public int getNumberOfPiecesByColorAndType(int color, int type);
+	public int getNumberOfPiecesByColorAndType(Side color, Piece type);
 
 	public Set<IMove> getPossibleMoves();
 

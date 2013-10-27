@@ -77,15 +77,15 @@ public class NaiveBoard implements IBoard {
 	// PieceValue and returns the set of squares or the number of squares!
 	private Map<Integer, Set<Integer>> occupied_squares_by_color_and_type = new HashMap<Integer, Set<Integer>>();
 
-	private Map<Integer, Set<Integer>> occupied_squares_by_color = new HashMap<Integer, Set<Integer>>();
+	private Map<Side, Set<Integer>> occupied_squares_by_color = new HashMap<Side, Set<Integer>>();
 
-	private Map<Integer, Set<Integer>> occupied_squares_by_type = new HashMap<Integer, Set<Integer>>();
+	private Map<Piece, Set<Integer>> occupied_squares_by_type = new HashMap<Piece, Set<Integer>>();
 
 	private Map<Integer, Integer> num_occupied_squares_by_color_and_type = new HashMap<Integer, Integer>();
 
-	private Map<Integer, Integer> num_occupied_squares_by_color = new HashMap<Integer, Integer>();
+	private Map<Side, Integer> num_occupied_squares_by_color = new HashMap<Side, Integer>();
 
-	private Map<Integer, Integer> num_occupied_squares_by_type = new HashMap<Integer, Integer>();
+	private Map<Piece, Integer> num_occupied_squares_by_type = new HashMap<Piece, Integer>();
 
 	// --------------------------------------------------------
 
@@ -364,22 +364,22 @@ public class NaiveBoard implements IBoard {
 		}
 	}
 
-	
-	//TODO: replace in getPossibleMoves this part.
+	// TODO: replace in getPossibleMoves this part.
 	@Override
-	public Boolean ColorCanCastle(int color) {
+	public Boolean colorCanCastle(Side color) {
 
-		//Set the right color
-		if(active_color!=color);
-			active_color=getOpponentsColor();
-		
-		//check for castling
+		// Set the right color
+		if (active_color != color)
+			;
+		active_color = getOpponentsColor();
+
+		// check for castling
 		if (!isCheckPosition()) {
 			Move move;
 			int off = 0;
 			int square = 51;
-			
-			if (color == PieceHelper.BLACK) {
+
+			if (color == Side.BLACK) {
 				off = 2;
 				square = 58;
 			}
@@ -401,7 +401,7 @@ public class NaiveBoard implements IBoard {
 
 					// Check each square if it is empty
 					for (Integer squ : line) {
-						if (getFromBoard(squ) != 0) {
+						if (getSideFromBoard(squ) != Side.EMPTY) {
 							castle_flag = 1;
 							break;
 						}
@@ -415,17 +415,17 @@ public class NaiveBoard implements IBoard {
 					for (Integer squ : line) {
 						move = new Move(square, squ);
 						NaiveBoard board = doMove(move);
-						board.active_color = active_color; // TODO: ugly
-															// solution ! ;)
+						board.active_color = active_color;
+
 						if (board.isCheckPosition())
 							break;
 						if (squ == new_square) {
 							// If the end is reached, then stop checking.
-							
-							//undoing change of color
-							if(active_color==color)
-								active_color=getOpponentsColor();
- 							
+
+							// undoing change of color
+							if (active_color == color)
+								active_color = getOpponentsColor();
+
 							return true;
 						}
 					}
@@ -433,15 +433,15 @@ public class NaiveBoard implements IBoard {
 			}
 		}
 
-		//undoing change of color
-		if(active_color==color)
-			active_color=getOpponentsColor();
-		
+		// undoing change of color
+		if (active_color == color)
+			active_color = getOpponentsColor();
+
 		return false;
 	}
 
 	@Override
-	public Set<Integer> getOccupiedSquaresByColor(int color) {
+	public Set<Integer> getOccupiedSquaresByColor(Side color) {
 
 		if (occupied_squares_by_color.containsKey(color) == false) {
 			int square;
@@ -450,10 +450,9 @@ public class NaiveBoard implements IBoard {
 			for (int i = 1; i < 9; i++)
 				for (int j = 1; j < 9; j++) {
 					square = SquareHelper.getSquare(i, j);
-					if (this.getFromBoard(square) > 0
-							&& PieceHelper
-									.pieceColor(this.getFromBoard(square)) == color)
+					if (getSideFromBoard(square) == color)
 						set.add(square);
+
 				}
 
 			occupied_squares_by_color.put(color, set);
@@ -463,7 +462,7 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public Set<Integer> getOccupiedSquaresByType(int type) {
+	public Set<Integer> getOccupiedSquaresByType(Piece type) {
 
 		if (occupied_squares_by_type.containsKey(type) == false) {
 			int square;
@@ -472,8 +471,7 @@ public class NaiveBoard implements IBoard {
 			for (int i = 1; i < 9; i++)
 				for (int j = 1; j < 9; j++) {
 					square = SquareHelper.getSquare(i, j);
-					if (this.getFromBoard(square) > 0
-							&& PieceHelper.pieceType(this.getFromBoard(square)) == type)
+					if (getPieceFromBoard(square) == type)
 						set.add(square);
 				}
 
@@ -485,9 +483,9 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public Set<Integer> getOccupiedSquaresByColorAndType(int color, int type) {
+	public Set<Integer> getOccupiedSquaresByColorAndType(Side color, Piece type) {
 
-		int value = PieceHelper.pieceValue(type, color);
+		int value = color.ordinal() + type.ordinal();
 		if (occupied_squares_by_color_and_type.containsKey(value) == false) {
 			int square;
 			Set<Integer> set = new HashSet<Integer>();
@@ -495,7 +493,8 @@ public class NaiveBoard implements IBoard {
 			for (int i = 1; i < 9; i++)
 				for (int j = 1; j < 9; j++) {
 					square = SquareHelper.getSquare(i, j);
-					if (value == this.getFromBoard(square))
+					if (color == getSideFromBoard(square)
+							&& type == getPieceFromBoard(square))
 						set.add(square);
 				}
 			occupied_squares_by_color_and_type.put(value, set);
@@ -505,7 +504,7 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public int getNumberOfPiecesByColor(int color) {
+	public int getNumberOfPiecesByColor(Side color) {
 
 		if (num_occupied_squares_by_color.containsKey(color) == false) {
 			if (occupied_squares_by_color.containsKey(color) == false) {
@@ -515,9 +514,7 @@ public class NaiveBoard implements IBoard {
 				for (int i = 1; i < 9; i++)
 					for (int j = 1; j < 9; j++) {
 						square = SquareHelper.getSquare(i, j);
-						if (this.getFromBoard(square) > 0
-								&& PieceHelper.pieceColor(this
-										.getFromBoard(square)) == color)
+						if (getSideFromBoard(square) == color)
 							num++;
 					}
 				num_occupied_squares_by_color.put(color, num);
@@ -531,7 +528,7 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public int getNumberOfPiecesByType(int type) {
+	public int getNumberOfPiecesByType(Piece type) {
 
 		if (num_occupied_squares_by_type.containsKey(type) == false) {
 			if (occupied_squares_by_type.containsKey(type) == false) {
@@ -541,9 +538,7 @@ public class NaiveBoard implements IBoard {
 				for (int i = 1; i < 9; i++)
 					for (int j = 1; j < 9; j++) {
 						square = SquareHelper.getSquare(i, j);
-						if (this.getFromBoard(square) > 0
-								&& PieceHelper.pieceType(this
-										.getFromBoard(square)) == type)
+						if (getPieceFromBoard(square) == type)
 							num++;
 					}
 				num_occupied_squares_by_type.put(type, num);
@@ -557,9 +552,9 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public int getNumberOfPiecesByColorAndType(int color, int type) {
+	public int getNumberOfPiecesByColorAndType(Side color, Piece type) {
 
-		int value = PieceHelper.pieceValue(type, color);
+		int value = color.ordinal() + type.ordinal();
 		if (num_occupied_squares_by_color_and_type.containsKey(value) == false) {
 			if (occupied_squares_by_color_and_type.containsKey(value) == false) {
 				int square;
@@ -568,7 +563,8 @@ public class NaiveBoard implements IBoard {
 				for (int i = 1; i < 9; i++)
 					for (int j = 1; j < 9; j++) {
 						square = SquareHelper.getSquare(i, j);
-						if (value == this.getFromBoard(square))
+						if (color == getSideFromBoard(square)
+								&& type == getPieceFromBoard(square))
 							num++;
 					}
 				num_occupied_squares_by_color_and_type.put(value, num);
@@ -605,15 +601,14 @@ public class NaiveBoard implements IBoard {
 	public Set<IMove> getPossibleMovesFrom(int square) {
 		// The case, that the destination is the opponents king cannot happen.
 
-		int type = PieceHelper.pieceType(getFromBoard(square));
-		int opp_color = getOpponentsColor();
+		Piece type = getPieceFromBoard(square);
+		Side opp_color = getOpponentsColor();
 		List<Integer> squares;
 		Set<IMove> moves = new HashSet<IMove>();
 		Move move;
 
 		// Types BISHOP, QUEEN, ROOK
-		if (type == PieceHelper.BISHOP || type == PieceHelper.QUEEN
-				|| type == PieceHelper.ROOK) {
+		if (type == Piece.BISHOP || type == Piece.QUEEN || type == Piece.ROOK) {
 
 			// Loop over all directions and skip not appropriate ones
 			for (Direction direction : Direction.values()) {
@@ -621,10 +616,10 @@ public class NaiveBoard implements IBoard {
 				// Skip N,W,E,W with BISHOP and skip NE,NW,SE,SW with ROOK
 				if (((direction == Direction.NORTH
 						|| direction == Direction.EAST
-						|| direction == Direction.SOUTH || direction == Direction.WEST) && type == PieceHelper.BISHOP)
+						|| direction == Direction.SOUTH || direction == Direction.WEST) && type == Piece.BISHOP)
 						|| ((direction == Direction.NORTHWEST
 								|| direction == Direction.NORTHEAST
-								|| direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && type == PieceHelper.ROOK)) {
+								|| direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && type == Piece.ROOK)) {
 
 					continue;
 				} else {
@@ -633,14 +628,14 @@ public class NaiveBoard implements IBoard {
 							direction);
 
 					for (Integer new_square : squares) {
-						int piece = getFromBoard(new_square);
-						if (piece == 0
-								|| PieceHelper.pieceColor(piece) == opp_color) {
+						Piece piece = getPieceFromBoard(new_square);
+						Side color = getSideFromBoard(new_square);
+						if (piece == Piece.EMPTY || color == opp_color) {
 
 							move = new Move(square, new_square);
 							moves.add(move);
-							if (piece != 0
-									&& PieceHelper.pieceColor(piece) == opp_color)
+							if (piece != Piece.EMPTY && color == opp_color)
+								// not possible to go further
 								break;
 						} else
 							break;
@@ -651,18 +646,18 @@ public class NaiveBoard implements IBoard {
 
 		}
 
-		if (type == PieceHelper.PAWN) {
+		if (type == Piece.PAWN) {
 			// If Pawn has not moved yet (steps possible)
-			if ((SquareHelper.getRow(square) == 2 && active_color == PieceHelper.WHITE)
-					|| (SquareHelper.getRow(square) == 7 && active_color == PieceHelper.BLACK)) {
+			if ((SquareHelper.getRow(square) == 2 && active_color == Side.WHITE)
+					|| (SquareHelper.getRow(square) == 7 && active_color == Side.BLACK)) {
 
-				if (getFromBoard(square
-						+ Direction.pawnDirection(active_color).offset) == 0) {
+				if (getSideFromBoard(square
+						+ Direction.pawnDirection(active_color).offset) == Side.EMPTY) {
 					move = new Move(square, square
 							+ Direction.pawnDirection(active_color).offset);
 					moves.add(move);
-					if (getFromBoard(square + 2
-							* Direction.pawnDirection(active_color).offset) == 0) {
+					if (getSideFromBoard(square + 2
+							* Direction.pawnDirection(active_color).offset) == Side.EMPTY) {
 						move = new Move(square, square + 2
 								* Direction.pawnDirection(active_color).offset);
 						moves.add(move);
@@ -672,9 +667,7 @@ public class NaiveBoard implements IBoard {
 				Set<Direction> pawn_capturing_directions = Direction
 						.pawnCapturingDirections(active_color);
 				for (Direction direction : pawn_capturing_directions) {
-					if (getFromBoard(square + direction.offset) != 0
-							&& PieceHelper.pieceColor(getFromBoard(square
-									+ direction.offset)) == getOpponentsColor()) {
+					if (getSideFromBoard(square + direction.offset) == getOpponentsColor()) {
 						move = new Move(square, square + direction.offset);
 						moves.add(move);
 					}
@@ -682,38 +675,36 @@ public class NaiveBoard implements IBoard {
 
 			}
 			// if Promotion will happen
-			else if ((SquareHelper.getRow(square) == 7 && active_color == PieceHelper.WHITE)
-					|| (SquareHelper.getRow(square) == 2 && active_color == PieceHelper.BLACK)) {
-				if (getFromBoard(square
-						+ Direction.pawnDirection(active_color).offset) == 0) {
+			else if ((SquareHelper.getRow(square) == 7 && active_color == Side.WHITE)
+					|| (SquareHelper.getRow(square) == 2 && active_color == Side.BLACK)) {
+				if (getSideFromBoard(square
+						+ Direction.pawnDirection(active_color).offset) == Side.EMPTY) {
 					move = new Move(square, square
 							+ Direction.pawnDirection(active_color).offset,
-							PieceHelper.QUEEN);
+							Piece.QUEEN);
 					moves.add(move);
 					move = new Move(square, square
 							+ Direction.pawnDirection(active_color).offset,
-							PieceHelper.KNIGHT);
+							Piece.KNIGHT);
 					moves.add(move);
-					move = new Move(square, square
-							+ Direction.pawnDirection(active_color).offset,
-							PieceHelper.ROOK);
-					moves.add(move);
-					move = new Move(square, square
-							+ Direction.pawnDirection(active_color).offset,
-							PieceHelper.BISHOP);
-					moves.add(move);
+					/*
+					 * A Queen is always better then a rook or a bishop move =
+					 * new Move(square, square +
+					 * Direction.pawnDirection(active_color).offset,
+					 * Piece.ROOK); moves.add(move); move = new Move(square,
+					 * square + Direction.pawnDirection(active_color).offset,
+					 * Piece.BISHOP); moves.add(move);
+					 */
 				}
 				Set<Direction> pawn_capturing_directions = Direction
 						.pawnCapturingDirections(active_color);
 				for (Direction direction : pawn_capturing_directions) {
-					if (getFromBoard(square + direction.offset) != 0
-							&& PieceHelper.pieceColor(getFromBoard(square
-									+ direction.offset)) == getOpponentsColor()) {
+					if (getSideFromBoard(square + direction.offset) == getOpponentsColor()) {
 						move = new Move(square, square + direction.offset,
-								PieceHelper.QUEEN);
+								Piece.QUEEN);
 						moves.add(move);
 						move = new Move(square, square + direction.offset,
-								PieceHelper.KNIGHT);
+								Piece.KNIGHT);
 						moves.add(move);
 					}
 				}
@@ -721,8 +712,8 @@ public class NaiveBoard implements IBoard {
 			}
 			// Usual turn and en passente is possible, no promotion
 			else {
-				if (getFromBoard(square
-						+ Direction.pawnDirection(active_color).offset) == 0) {
+				if (getSideFromBoard(square
+						+ Direction.pawnDirection(active_color).offset) == Side.EMPTY) {
 					move = new Move(square, square
 							+ Direction.pawnDirection(active_color).offset);
 					moves.add(move);
@@ -730,8 +721,7 @@ public class NaiveBoard implements IBoard {
 				Set<Direction> pawn_capturing_directions = Direction
 						.pawnCapturingDirections(active_color);
 				for (Direction direction : pawn_capturing_directions) {
-					if ((getFromBoard(square + direction.offset) != 0 && PieceHelper
-							.pieceColor(getFromBoard(square + direction.offset)) == getOpponentsColor())
+					if ((getSideFromBoard(square + direction.offset) == getOpponentsColor())
 							|| square + direction.offset == getEnPassant()) {
 						move = new Move(square, square + direction.offset);
 						moves.add(move);
@@ -740,16 +730,15 @@ public class NaiveBoard implements IBoard {
 			}
 
 		}
-		if (type == PieceHelper.KING) {
+		if (type == Piece.KING) {
 			for (Direction direction : Direction.values()) {
 				Integer new_square = square + direction.offset;
 
 				if (SquareHelper.isValidSquare(new_square)) {
 					move = new Move(square, new_square);
-					int piece = getFromBoard(new_square);
+					Side side = getSideFromBoard(new_square);
 					// if the new square is empty or occupied by the opponent
-					if (piece == 0
-							|| PieceHelper.pieceColor(piece) != active_color)
+					if (side != active_color)
 						moves.add(move);
 				}
 			}
@@ -758,7 +747,7 @@ public class NaiveBoard implements IBoard {
 			// If the King is not check now, try castle moves
 			if (!isCheckPosition()) {
 				int off = 0;
-				if (active_color == PieceHelper.BLACK)
+				if (active_color == Side.BLACK)
 					off = 2;
 
 				for (int i = 0; i < 2; i++) {
@@ -778,7 +767,7 @@ public class NaiveBoard implements IBoard {
 
 						// Check each square if it is empty
 						for (Integer squ : line) {
-							if (getFromBoard(squ) != 0) {
+							if (getSideFromBoard(squ) != Side.EMPTY) {
 								castle_flag = 1;
 								break;
 							}
@@ -796,8 +785,8 @@ public class NaiveBoard implements IBoard {
 																// solution ! ;)
 							if (board.isCheckPosition())
 								break;
-							if (squ == new_square) { // if EVERYTHING is right,
-														// then add the move
+							if (squ == new_square) {
+								// if everything is right, then add the move
 								moves.add(move);
 								break;
 							}
@@ -806,11 +795,11 @@ public class NaiveBoard implements IBoard {
 				}
 			}
 		}
-		if (type == PieceHelper.KNIGHT) {
+		if (type == Piece.KNIGHT) {
 			squares = SquareHelper.getAllSquaresByKnightStep(square);
 			for (Integer new_square : squares) {
-				int piece = getFromBoard(new_square);
-				if (piece == 0 || PieceHelper.pieceColor(piece) != active_color) {
+				Side side = getSideFromBoard(new_square);
+				if (side != active_color) {
 					move = new Move(square, new_square);
 					moves.add(move);
 				}
@@ -843,7 +832,7 @@ public class NaiveBoard implements IBoard {
 		if (is_check == null) {
 			is_check = true;
 			Set<Integer> temp_king_pos = getOccupiedSquaresByColorAndType(
-					active_color, PieceHelper.KING);
+					active_color, Piece.KING);
 			int king_pos = temp_king_pos.iterator().next();
 
 			// go in each direction
@@ -855,35 +844,34 @@ public class NaiveBoard implements IBoard {
 				for (int square : line) {
 					iter++;
 					// …some piece is found
-					int piece = getFromBoard(square);
-					if (piece != 0) {
-						if (PieceHelper.pieceColor(piece) == active_color) {
+					Piece piece = getPieceFromBoard(square);
+					Side side = getSideFromBoard(square);
+					if (piece != Piece.EMPTY) {
+						if (side == active_color) {
 							break;
 						} else {
-							if (PieceHelper.pieceType(piece) == PieceHelper.PAWN
-									&& iter == 1) {
-								if (((direction == Direction.NORTHEAST || direction == Direction.NORTHWEST) && active_color == PieceHelper.WHITE)
-										|| ((direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && active_color == PieceHelper.BLACK)) {
+							if (piece == Piece.PAWN && iter == 1) {
+								if (((direction == Direction.NORTHEAST || direction == Direction.NORTHWEST) && active_color == Side.WHITE)
+										|| ((direction == Direction.SOUTHEAST || direction == Direction.SOUTHWEST) && active_color == Side.BLACK)) {
 									return true;
 								}
-							} else if (PieceHelper.pieceType(piece) == PieceHelper.ROOK) {
+							} else if (piece == Piece.ROOK) {
 								if (direction == Direction.EAST
 										|| direction == Direction.WEST
 										|| direction == Direction.NORTH
 										|| direction == Direction.SOUTH) {
 									return true;
 								}
-							} else if (PieceHelper.pieceType(piece) == PieceHelper.BISHOP) {
+							} else if (piece == Piece.BISHOP) {
 								if (direction == Direction.NORTHEAST
 										|| direction == Direction.NORTHWEST
 										|| direction == Direction.SOUTHEAST
 										|| direction == Direction.SOUTHWEST) {
 									return true;
 								}
-							} else if (PieceHelper.pieceType(piece) == PieceHelper.QUEEN) {
+							} else if (piece == Piece.QUEEN) {
 								return true;
-							} else if (PieceHelper.pieceType(piece) == PieceHelper.KING
-									&& iter == 1) {
+							} else if (piece == Piece.KING && iter == 1) {
 								return true;
 							}
 							break;
@@ -896,10 +884,10 @@ public class NaiveBoard implements IBoard {
 			List<Integer> knight_squares = SquareHelper
 					.getAllSquaresByKnightStep(king_pos);
 			for (int square : knight_squares) {
-				int piece = getFromBoard(square);
-				if (piece != 0) {
-					if (PieceHelper.pieceColor(piece) != active_color
-							&& PieceHelper.pieceType(piece) == PieceHelper.KNIGHT) {
+				Piece piece = getPieceFromBoard(square);
+				Side side = getSideFromBoard(square);
+				if (piece != Piece.EMPTY) {
+					if (side != active_color && piece == Piece.KNIGHT) {
 						return true;
 					}
 				}
@@ -975,7 +963,7 @@ public class NaiveBoard implements IBoard {
 		fen.append(" ");
 
 		// active color
-		if (active_color == PieceHelper.WHITE) {
+		if (active_color == Piece.WHITE) {
 			fen.append("w");
 		} else {
 			fen.append("b");
@@ -1024,7 +1012,7 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public int getActiveColor() {
+	public Side getActiveColor() {
 		return active_color;
 	}
 
