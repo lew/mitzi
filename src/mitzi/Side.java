@@ -1,7 +1,7 @@
 package mitzi;
 
 public enum Side {
-	BLACK, WHITE, EMPTY;
+	BLACK, WHITE;
 
 	public static Side getOppositeSide(Side side) {
 		switch (side) {
@@ -10,7 +10,7 @@ public enum Side {
 		case WHITE:
 			return BLACK;
 		default:
-			return EMPTY;
+			return null;
 		}
 	}
 }

@@ -55,11 +55,11 @@ public class MitziBrain implements IBrain {
 				poss_next_move = move; // oh gott, denkfehler :D FIXME
 			}
 			alpha = Math.max(alpha, val);
+			//System.out.println("Depth: " + depth + " Next_move: " + move	+ " Value: " + best_value);
 			if (alpha >= beta) {
 				break;
 			}
 		}
-
 		next_move = poss_next_move;
 
 		return best_value;
@@ -87,18 +87,18 @@ public class MitziBrain implements IBrain {
 		double value = 0;
 
 		// One way to prevent copy and paste
-		double[] fig_value = { 1, 5, 3.3, 3.3, 9};
+		double[] fig_value = { 1, 5, 3.3, 3.3, 9 };
 
 		// Maybe not the most efficient way (several runs over the board)
 		for (Side c : Side.values()) {
 			for (Piece fig : Piece.values()) {
-				if (fig != Piece.EMPTY && fig!= Piece.KING) {
+				if (fig != Piece.KING) {
 					if (c == Side.WHITE)
 						value += board.getNumberOfPiecesByColorAndType(c, fig)
 								* fig_value[fig.ordinal()];
-					else
+					else if (c == Side.BLACK)
 						value -= board.getNumberOfPiecesByColorAndType(c, fig)
-						* fig_value[fig.ordinal()];
+								* fig_value[fig.ordinal()];
 				}
 			}
 
@@ -121,7 +121,7 @@ public class MitziBrain implements IBrain {
 		@SuppressWarnings("unused")
 		double value = evalBoard(board, searchDepth, -10 ^ 6, 10 ^ 6,
 				side_color); // value might be interesting for debugging
-
+		System.out.println("");
 		return next_move;
 	}
 

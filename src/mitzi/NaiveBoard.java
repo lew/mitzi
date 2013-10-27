@@ -1,6 +1,6 @@
 package mitzi;
 
-import java.awt.Color;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,32 +13,24 @@ public class NaiveBoard implements IBoard {
 	protected static Side[] initial_side_board = { Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
-			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.EMPTY,
-			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
-			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
-			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
-			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
-			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
-			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
-			Side.EMPTY, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
+			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, null, null, null,
+			null, null, null, null, null, null, null, null, null, null, null,
+			null, null, null, null, null, null, null, null, null, null, null,
+			null, null, null, null, null, null, null, Side.WHITE, Side.WHITE,
 			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
 			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
-			Side.WHITE, Side.WHITE, Side.EMPTY };
+			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, null };
 
 	protected static Piece[] initial_piece_board = { Piece.ROOK, Piece.KNIGHT,
 			Piece.BISHOP, Piece.QUEEN, Piece.KING, Piece.BISHOP, Piece.KNIGHT,
 			Piece.ROOK, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN,
-			Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.EMPTY,
-			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
-			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
-			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
-			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
-			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
-			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
-			Piece.EMPTY, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN,
-			Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.ROOK,
-			Piece.KNIGHT, Piece.BISHOP, Piece.QUEEN, Piece.KING, Piece.BISHOP,
-			Piece.KNIGHT, Piece.ROOK, Piece.EMPTY };
+			Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN, null, null, null,
+			null, null, null, null, null, null, null, null, null, null, null,
+			null, null, null, null, null, null, null, null, null, null, null,
+			null, null, null, null, null, null, null, Piece.PAWN, Piece.PAWN,
+			Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN,
+			Piece.PAWN, Piece.ROOK, Piece.KNIGHT, Piece.BISHOP, Piece.QUEEN,
+			Piece.KING, Piece.BISHOP, Piece.KNIGHT, Piece.ROOK, null };
 
 	private Side[] side_board = new Side[65];
 
@@ -155,8 +147,9 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public void setToFEN(String fen) {
-		side_board = new Side[64];
-		piece_board = new Piece[64];
+		side_board = new Side[65];
+		piece_board = new Piece[65];
+
 		castling[0] = -1;
 		castling[1] = -1;
 		castling[2] = -1;
@@ -272,8 +265,8 @@ public class NaiveBoard implements IBoard {
 		Piece piece = getPieceFromBoard(src);
 
 		// if promotion
-		if (move.getPromotion() != Piece.EMPTY) {
-			newBoard.setOnBoard(src, Side.EMPTY, Piece.EMPTY);
+		if (move.getPromotion() != null) {
+			newBoard.setOnBoard(src, null, null);
 			newBoard.setOnBoard(dest, active_color, move.getPromotion());
 
 			newBoard.half_move_clock = 0;
@@ -281,12 +274,12 @@ public class NaiveBoard implements IBoard {
 		// If castling
 		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
 			newBoard.setOnBoard(dest, active_color, Piece.KING);
-			newBoard.setOnBoard(src, Side.EMPTY, Piece.EMPTY);
+			newBoard.setOnBoard(src, null, null);
 			newBoard.setOnBoard((src + dest) / 2, active_color, Piece.ROOK);
 			if (SquareHelper.getColumn(dest) == 3)
-				newBoard.setOnBoard(src - 40, Side.EMPTY, Piece.EMPTY);
+				newBoard.setOnBoard(src - 40, null, null);
 			else
-				newBoard.setOnBoard(src + 30, Side.EMPTY, Piece.EMPTY);
+				newBoard.setOnBoard(src + 30, null, null);
 
 			newBoard.half_move_clock++;
 
@@ -294,21 +287,20 @@ public class NaiveBoard implements IBoard {
 		// If en passant
 		else if (piece == Piece.PAWN && dest == this.getEnPassant()) {
 			newBoard.setOnBoard(dest, active_color, Piece.PAWN);
-			newBoard.setOnBoard(src, Side.EMPTY, Piece.EMPTY);
+			newBoard.setOnBoard(src, null, null);
 			if (active_color == Side.WHITE)
-				newBoard.setOnBoard(dest - 1, Side.EMPTY, Piece.EMPTY);
+				newBoard.setOnBoard(dest - 1, null, null);
 			else
-				newBoard.setOnBoard(dest + 1, Side.EMPTY, Piece.EMPTY);
+				newBoard.setOnBoard(dest + 1, null, null);
 
 			newBoard.half_move_clock = 0;
 		}
 		// Usual move
 		else {
 			newBoard.setOnBoard(dest, side, piece);
-			newBoard.setOnBoard(src, Side.EMPTY, Piece.EMPTY);
+			newBoard.setOnBoard(src, null, null);
 
-			if (this.getSideFromBoard(dest) != Side.EMPTY
-					|| piece == Piece.PAWN)
+			if (this.getSideFromBoard(dest) != null || piece == Piece.PAWN)
 				newBoard.half_move_clock = 0;
 			else
 				newBoard.half_move_clock++;
@@ -405,7 +397,7 @@ public class NaiveBoard implements IBoard {
 
 					// Check each square if it is empty
 					for (Integer squ : line) {
-						if (getSideFromBoard(squ) != Side.EMPTY) {
+						if (getSideFromBoard(squ) != null) {
 							castle_flag = 1;
 							break;
 						}
@@ -635,11 +627,11 @@ public class NaiveBoard implements IBoard {
 					for (Integer new_square : squares) {
 						Piece piece = getPieceFromBoard(new_square);
 						Side color = getSideFromBoard(new_square);
-						if (piece == Piece.EMPTY || color == opp_color) {
+						if (piece == null || color == opp_color) {
 
 							move = new Move(square, new_square);
 							moves.add(move);
-							if (piece != Piece.EMPTY && color == opp_color)
+							if (piece != null && color == opp_color)
 								// not possible to go further
 								break;
 						} else
@@ -657,12 +649,12 @@ public class NaiveBoard implements IBoard {
 					|| (SquareHelper.getRow(square) == 7 && active_color == Side.BLACK)) {
 
 				if (getSideFromBoard(square
-						+ Direction.pawnDirection(active_color).offset) == Side.EMPTY) {
+						+ Direction.pawnDirection(active_color).offset) == null) {
 					move = new Move(square, square
 							+ Direction.pawnDirection(active_color).offset);
 					moves.add(move);
 					if (getSideFromBoard(square + 2
-							* Direction.pawnDirection(active_color).offset) == Side.EMPTY) {
+							* Direction.pawnDirection(active_color).offset) == null) {
 						move = new Move(square, square + 2
 								* Direction.pawnDirection(active_color).offset);
 						moves.add(move);
@@ -683,7 +675,7 @@ public class NaiveBoard implements IBoard {
 			else if ((SquareHelper.getRow(square) == 7 && active_color == Side.WHITE)
 					|| (SquareHelper.getRow(square) == 2 && active_color == Side.BLACK)) {
 				if (getSideFromBoard(square
-						+ Direction.pawnDirection(active_color).offset) == Side.EMPTY) {
+						+ Direction.pawnDirection(active_color).offset) == null) {
 					move = new Move(square, square
 							+ Direction.pawnDirection(active_color).offset,
 							Piece.QUEEN);
@@ -718,7 +710,7 @@ public class NaiveBoard implements IBoard {
 			// Usual turn and en passente is possible, no promotion
 			else {
 				if (getSideFromBoard(square
-						+ Direction.pawnDirection(active_color).offset) == Side.EMPTY) {
+						+ Direction.pawnDirection(active_color).offset) == null) {
 					move = new Move(square, square
 							+ Direction.pawnDirection(active_color).offset);
 					moves.add(move);
@@ -772,7 +764,7 @@ public class NaiveBoard implements IBoard {
 
 						// Check each square if it is empty
 						for (Integer squ : line) {
-							if (getSideFromBoard(squ) != Side.EMPTY) {
+							if (getSideFromBoard(squ) != null) {
 								castle_flag = 1;
 								break;
 							}
@@ -851,7 +843,7 @@ public class NaiveBoard implements IBoard {
 					// …some piece is found
 					Piece piece = getPieceFromBoard(square);
 					Side side = getSideFromBoard(square);
-					if (piece != Piece.EMPTY) {
+					if (piece != null) {
 						if (side == active_color) {
 							break;
 						} else {
@@ -891,7 +883,7 @@ public class NaiveBoard implements IBoard {
 			for (int square : knight_squares) {
 				Piece piece = getPieceFromBoard(square);
 				Side side = getSideFromBoard(square);
-				if (piece != Piece.EMPTY) {
+				if (piece != null) {
 					if (side != active_color && piece == Piece.KNIGHT) {
 						return true;
 					}
@@ -948,7 +940,7 @@ public class NaiveBoard implements IBoard {
 
 			for (int column = 0; column < 8; column++) {
 
-				if (side_board[row * 8 + column] == Side.EMPTY) {
+				if (side_board[row * 8 + column] == null) {
 					counter++;
 				} else {
 					if (counter != 0) {

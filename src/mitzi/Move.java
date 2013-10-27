@@ -28,7 +28,7 @@ public class Move implements IMove {
 	}
 
 	public Move(int src, int dest) {
-		this(src, dest, Piece.EMPTY);
+		this(src, dest, null);
 	}
 
 	public Move(String notation) {
@@ -53,7 +53,7 @@ public class Move implements IMove {
 				promotion = Piece.BISHOP;
 			}
 		} else {
-			promotion = Piece.EMPTY;
+			promotion = null;
 		}
 	}
 
@@ -75,7 +75,7 @@ public class Move implements IMove {
 	@Override
 	public String toString() {
 		String promote_to;
-		if (getPromotion() != Piece.EMPTY) {
+		if (getPromotion() != null) {
 			promote_to = PieceHelper.toString(Side.WHITE, getPromotion());
 		} else {
 			promote_to = "";
