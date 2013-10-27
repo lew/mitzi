@@ -146,7 +146,7 @@ public class NaiveBoard implements IBoard {
 		castling[3] = 78;
 
 		en_passant_target = -1;
-		Side active_color = Side.WHITE;
+		active_color = Side.WHITE;
 	}
 
 	@Override
@@ -485,7 +485,10 @@ public class NaiveBoard implements IBoard {
 	@Override
 	public Set<Integer> getOccupiedSquaresByColorAndType(Side color, Piece type) {
 
-		int value = color.ordinal() + type.ordinal();
+		System.out.println("color: "+color);
+		System.out.println("type: "+type);
+		int value = color.ordinal()*10 + type.ordinal();
+		
 		if (occupied_squares_by_color_and_type.containsKey(value) == false) {
 			int square;
 			Set<Integer> set = new HashSet<Integer>();
@@ -554,7 +557,7 @@ public class NaiveBoard implements IBoard {
 	@Override
 	public int getNumberOfPiecesByColorAndType(Side color, Piece type) {
 
-		int value = color.ordinal() + type.ordinal();
+		int value = color.ordinal()*10 + type.ordinal();
 		if (num_occupied_squares_by_color_and_type.containsKey(value) == false) {
 			if (occupied_squares_by_color_and_type.containsKey(value) == false) {
 				int square;
@@ -937,33 +940,34 @@ public class NaiveBoard implements IBoard {
 		StringBuilder fen = new StringBuilder();
 
 		// piece placement
-		for (int row = 2; row < 10; row++) {
+		for (int row = 0; row < 8; row++) {
 
 			int counter = 0;
 
-			for (int column = 2; column < 10; column++) {
-				if (board[row][column] == 0) {
+			for (int column = 0; column < 8; column++) {
+				
+				if (side_board[row*8 +column] == Side.EMPTY) {
 					counter++;
 				} else {
 					if (counter != 0) {
 						fen.append(counter);
 						counter = 0;
 					}
-					fen.append(PieceHelper.toString(board[row][column]));
+					fen.append(PieceHelper.toString(side_board[row*8 +column], piece_board[row*8 +column]));
 				}
-				if (column == 9 && counter != 0) {
+				if (column == 7 && counter != 0) {
 					fen.append(counter);
 				}
 			}
 
-			if (row != 9) {
+			if (row != 7) {
 				fen.append("/");
 			}
 		}
 		fen.append(" ");
 
 		// active color
-		if (active_color == Piece.WHITE) {
+		if (active_color == Side.WHITE) {
 			fen.append("w");
 		} else {
 			fen.append("b");
