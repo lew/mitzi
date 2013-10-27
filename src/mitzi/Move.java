@@ -9,7 +9,7 @@ public class Move implements IMove {
 
 	private int dest;
 
-	private int promotion;
+	private Piece promotion;
 
 	/**
 	 * Move constructor
@@ -21,14 +21,14 @@ public class Move implements IMove {
 	 * @param promotion
 	 *            Promotion (if no, then omit)
 	 */
-	public Move(int src, int dest, int promotion) {
+	public Move(int src, int dest, Piece promotion) {
 		this.src = src;
 		this.dest = dest;
 		this.promotion = promotion;
 	}
 
 	public Move(int src, int dest) {
-		this(src, dest, 0);
+		this(src, dest, Piece.EMPTY);
 	}
 
 	public Move(String notation) {
@@ -44,16 +44,16 @@ public class Move implements IMove {
 			String promo_string = notation.substring(4, 5).toLowerCase(
 					Locale.ENGLISH);
 			if (promo_string.equals("q")) {
-				promotion = PieceHelper.QUEEN;
+				promotion = Piece.QUEEN;
 			} else if (promo_string.equals("r")) {
-				promotion = PieceHelper.ROOK;
+				promotion = Piece.ROOK;
 			} else if (promo_string.equals("n")) {
-				promotion = PieceHelper.KNIGHT;
+				promotion = Piece.KNIGHT;
 			} else if (promo_string.equals("b")) {
-				promotion = PieceHelper.BISHOP;
+				promotion = Piece.BISHOP;
 			}
 		} else {
-			promotion = 0;
+			promotion = Piece.EMPTY;
 		}
 	}
 
@@ -68,15 +68,15 @@ public class Move implements IMove {
 	}
 
 	@Override
-	public int getPromotion() {
+	public Piece getPromotion() {
 		return promotion;
 	}
 
 	@Override
 	public String toString() {
 		String promote_to;
-		if (getPromotion() != 0) {
-			promote_to = PieceHelper.toString(getPromotion());
+		if (getPromotion() != Piece.EMPTY) {
+			promote_to = PieceHelper.toString(Side.WHITE, getPromotion());
 		} else {
 			promote_to = "";
 		}
@@ -88,8 +88,10 @@ public class Move implements IMove {
 	 * 
 	 * Checks if a move is in a given List of moves
 	 * 
-	 * @param moves List of moves
-	 * @param move	the move to be searched
+	 * @param moves
+	 *            List of moves
+	 * @param move
+	 *            the move to be searched
 	 * @return true if move is in moves, else false
 	 */
 	public static Boolean MovesListIncludesMove(Set<Move> moves, Move move) {
@@ -98,8 +100,9 @@ public class Move implements IMove {
 	}
 
 	@Override
-	public boolean equals(IMove move){
-		if(move.getFromSquare() == src && move.getToSquare() == dest && move.getPromotion() == promotion)
+	public boolean equals(IMove move) {
+		if (move.getFromSquare() == src && move.getToSquare() == dest
+				&& move.getPromotion() == promotion)
 			return true;
 		return false;
 	}
