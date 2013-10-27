@@ -1,5 +1,6 @@
 package mitzi;
 
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,21 +10,46 @@ import java.util.Set;
 
 public class NaiveBoard implements IBoard {
 
-	protected static int[][] initial_board = {
-			{ 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
-			{ 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
-			{ 00, 00, 12, 13, 14, 15, 16, 14, 13, 12, 00, 00 },
-			{ 00, 00, 11, 11, 11, 11, 11, 11, 11, 11, 00, 00 },
-			{ 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
-			{ 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
-			{ 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
-			{ 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
-			{ 00, 00, 01, 01, 01, 01, 01, 01, 01, 01, 00, 00 },
-			{ 00, 00, 02, 03, 04, 05, 06, 04, 03, 02, 00, 00 },
-			{ 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
-			{ 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 } };
+	protected static Side[] initial_side_board = { Side.BLACK, Side.BLACK,
+			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
+			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
+			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.EMPTY,
+			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
+			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
+			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
+			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
+			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
+			Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY, Side.EMPTY,
+			Side.EMPTY, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
+			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
+			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
+			Side.WHITE, Side.WHITE, };
 
-	private int[][] board = new int[12][12];
+	protected static Piece[] initial_piece_board = { Piece.ROOK, Piece.KNIGHT,
+			Piece.BISHOP, Piece.QUEEN, Piece.KING, Piece.BISHOP, Piece.KNIGHT,
+			Piece.ROOK, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN,
+			Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.EMPTY,
+			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
+			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
+			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
+			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
+			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
+			Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY,
+			Piece.EMPTY, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN,
+			Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.ROOK,
+			Piece.KNIGHT, Piece.BISHOP, Piece.QUEEN, Piece.KING, Piece.BISHOP,
+			Piece.KNIGHT, Piece.ROOK, };
+
+	private Side[] side_board = new Side[64];
+
+	private Piece[] piece_board = new Piece[64];
+
+	protected static int[] square_to_array_index = { -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, -1, 56, 48, 40, 32, 24, 16, 8, 0, -1, -1, 57, 49,
+			41, 33, 25, 17, 9, 1, -1, -1, 58, 50, 42, 34, 26, 18, 10, 2, -1,
+			-1, 59, 51, 43, 35, 27, 19, 11, 3, -1, -1, 60, 52, 44, 36, 28, 20,
+			12, 4, -1, -1, 61, 53, 45, 37, 29, 21, 13, 5, -1, -1, 62, 54, 46,
+			38, 30, 22, 14, 6, -1, -1, 63, 55, 47, 39, 31, 23, 15, 7, -1, };
 
 	private int full_move_clock;
 
@@ -36,7 +62,7 @@ public class NaiveBoard implements IBoard {
 
 	private int en_passant_target = -1;
 
-	private int active_color;
+	private Side active_color;
 
 	// The following class members are used to prevent multiple computations
 	private Set<IMove> possible_moves; // Set of all possible moves
@@ -63,6 +89,10 @@ public class NaiveBoard implements IBoard {
 
 	// --------------------------------------------------------
 
+	private int squareToArrayIndex(int square) {
+		return square_to_array_index[square];
+	}
+
 	private NaiveBoard returnCopy() {
 		NaiveBoard newBoard = new NaiveBoard();
 
@@ -72,35 +102,39 @@ public class NaiveBoard implements IBoard {
 		newBoard.half_move_clock = half_move_clock;
 		System.arraycopy(castling, 0, newBoard.castling, 0, 4);
 
-		// from row and column 1,2,11,12 are 0..
-		for (int i = 2; i < 11; i++)
-			System.arraycopy(board[i], 2, newBoard.board[i], 2, 8);
+		System.arraycopy(side_board, 0, newBoard.side_board, 0, 64);
+		System.arraycopy(piece_board, 0, newBoard.piece_board, 0, 64);
 
 		return newBoard;
 	}
 
-	private int getFromBoard(int square) {
-		int row = SquareHelper.getRow(square);
-		int column = SquareHelper.getColumn(square);
-		return board[10 - row][1 + column];
+	private Side getSideFromBoard(int square) {
+		int i = squareToArrayIndex(square);
+		return side_board[i];
 	}
 
-	private void setOnBoard(int square, int piece_value) {
-		int row = SquareHelper.getRow(square);
-		int column = SquareHelper.getColumn(square);
-		board[10 - row][1 + column] = piece_value;
+	private Piece getPieceFromBoard(int square) {
+		int i = squareToArrayIndex(square);
+		return piece_board[i];
 	}
 
-	public int getOpponentsColor() {
-		if (active_color == PieceHelper.BLACK)
-			return PieceHelper.WHITE;
+	private void setOnBoard(int square, Side side, Piece piece) {
+		int i = squareToArrayIndex(square);
+		side_board[i] = side;
+		piece_board[i] = piece;
+	}
+
+	public Side getOpponentsColor() {
+		if (active_color == Side.BLACK)
+			return Side.WHITE;
 		else
-			return PieceHelper.BLACK;
+			return Side.BLACK;
 	}
 
 	@Override
 	public void setToInitial() {
-		board = initial_board;
+		side_board = initial_side_board;
+		piece_board = initial_piece_board;
 
 		full_move_clock = 1;
 
@@ -112,13 +146,13 @@ public class NaiveBoard implements IBoard {
 		castling[3] = 78;
 
 		en_passant_target = -1;
-
-		active_color = PieceHelper.WHITE;
+		Side active_color = Side.WHITE;
 	}
 
 	@Override
 	public void setToFEN(String fen) {
-		board = new int[12][12];
+		side_board = new Side[64];
+		piece_board = new Piece[64];
 		castling[0] = -1;
 		castling[1] = -1;
 		castling[2] = -1;
@@ -137,52 +171,40 @@ public class NaiveBoard implements IBoard {
 				int square = (column + offset) * 10 + row;
 				switch (pieces[column - 1]) {
 				case 'P':
-					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.PAWN,
-							PieceHelper.WHITE));
+					setOnBoard(square, Side.WHITE, Piece.PAWN);
 					break;
 				case 'R':
-					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.ROOK,
-							PieceHelper.WHITE));
+					setOnBoard(square, Side.WHITE, Piece.ROOK);
 					break;
 				case 'N':
-					setOnBoard(square, PieceHelper.pieceValue(
-							PieceHelper.KNIGHT, PieceHelper.WHITE));
+					setOnBoard(square, Side.WHITE, Piece.KNIGHT);
 					break;
 				case 'B':
-					setOnBoard(square, PieceHelper.pieceValue(
-							PieceHelper.BISHOP, PieceHelper.WHITE));
+					setOnBoard(square, Side.WHITE, Piece.BISHOP);
 					break;
 				case 'Q':
-					setOnBoard(square, PieceHelper.pieceValue(
-							PieceHelper.QUEEN, PieceHelper.WHITE));
+					setOnBoard(square, Side.WHITE, Piece.QUEEN);
 					break;
 				case 'K':
-					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.KING,
-							PieceHelper.WHITE));
+					setOnBoard(square, Side.WHITE, Piece.KING);
 					break;
 				case 'p':
-					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.PAWN,
-							PieceHelper.BLACK));
+					setOnBoard(square, Side.BLACK, Piece.PAWN);
 					break;
 				case 'r':
-					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.ROOK,
-							PieceHelper.BLACK));
+					setOnBoard(square, Side.BLACK, Piece.ROOK);
 					break;
 				case 'n':
-					setOnBoard(square, PieceHelper.pieceValue(
-							PieceHelper.KNIGHT, PieceHelper.BLACK));
+					setOnBoard(square, Side.BLACK, Piece.KNIGHT);
 					break;
 				case 'b':
-					setOnBoard(square, PieceHelper.pieceValue(
-							PieceHelper.BISHOP, PieceHelper.BLACK));
+					setOnBoard(square, Side.BLACK, Piece.BISHOP);
 					break;
 				case 'q':
-					setOnBoard(square, PieceHelper.pieceValue(
-							PieceHelper.QUEEN, PieceHelper.BLACK));
+					setOnBoard(square, Side.BLACK, Piece.QUEEN);
 					break;
 				case 'k':
-					setOnBoard(square, PieceHelper.pieceValue(PieceHelper.KING,
-							PieceHelper.BLACK));
+					setOnBoard(square, Side.BLACK, Piece.KING);
 					break;
 				default:
 					offset += Character.getNumericValue(pieces[column - 1]) - 1;
@@ -194,10 +216,10 @@ public class NaiveBoard implements IBoard {
 		// set active color
 		switch (fen_parts[1]) {
 		case "b":
-			active_color = PieceHelper.BLACK;
+			active_color = Side.BLACK;
 			break;
 		case "w":
-			active_color = PieceHelper.WHITE;
+			active_color = Side.WHITE;
 			break;
 		}
 
@@ -242,53 +264,47 @@ public class NaiveBoard implements IBoard {
 		int src = move.getFromSquare();
 		int dest = move.getToSquare();
 
-		int piece = getFromBoard(src); // reducing calls of getFormBoard
+		Side side = getSideFromBoard(src);
+		Piece piece = getPieceFromBoard(src);
 
 		// if promotion
-		if (move.getPromotion() != 0) {
-			newBoard.setOnBoard(src, 0);
-			newBoard.setOnBoard(dest,
-					PieceHelper.pieceValue(move.getPromotion(), active_color));
+		if (move.getPromotion() != Piece.EMPTY) {
+			newBoard.setOnBoard(src, Side.EMPTY, Piece.EMPTY);
+			newBoard.setOnBoard(dest, active_color, move.getPromotion());
 
 			newBoard.half_move_clock = 0;
-
 		}
-		// If rochade
-		else if (PieceHelper.pieceType(piece) == PieceHelper.KING
-				&& Math.abs((src - dest)) == 20) {
-			newBoard.setOnBoard(dest,
-					PieceHelper.pieceValue(PieceHelper.KING, active_color));
-			newBoard.setOnBoard(src, 0);
-			newBoard.setOnBoard((src + dest) / 2,
-					PieceHelper.pieceValue(PieceHelper.ROOK, active_color));
+		// If castling
+		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
+			newBoard.setOnBoard(dest, active_color, Piece.KING);
+			newBoard.setOnBoard(src, Side.EMPTY, Piece.EMPTY);
+			newBoard.setOnBoard((src + dest) / 2, active_color, Piece.ROOK);
 			if (SquareHelper.getColumn(dest) == 3)
-				newBoard.setOnBoard(src - 40, 0);
+				newBoard.setOnBoard(src - 40, Side.EMPTY, Piece.EMPTY);
 			else
-				newBoard.setOnBoard(src + 30, 0);
+				newBoard.setOnBoard(src + 30, Side.EMPTY, Piece.EMPTY);
 
 			newBoard.half_move_clock++;
 
 		}
 		// If en passant
-		else if (PieceHelper.pieceType(piece) == PieceHelper.PAWN
-				&& dest == this.getEnPassant()) {
-			newBoard.setOnBoard(dest,
-					PieceHelper.pieceValue(PieceHelper.PAWN, active_color));
-			newBoard.setOnBoard(src, 0);
-			if (active_color == PieceHelper.WHITE)
-				newBoard.setOnBoard(dest - 1, 0);
+		else if (piece == Piece.PAWN && dest == this.getEnPassant()) {
+			newBoard.setOnBoard(dest, active_color, Piece.PAWN);
+			newBoard.setOnBoard(src, Side.EMPTY, Piece.EMPTY);
+			if (active_color == Side.WHITE)
+				newBoard.setOnBoard(dest - 1, Side.EMPTY, Piece.EMPTY);
 			else
-				newBoard.setOnBoard(dest + 1, 0);
+				newBoard.setOnBoard(dest + 1, Side.EMPTY, Piece.EMPTY);
 
 			newBoard.half_move_clock = 0;
 		}
 		// Usual move
 		else {
-			newBoard.setOnBoard(dest, piece);
-			newBoard.setOnBoard(src, 0);
+			newBoard.setOnBoard(dest, side, piece);
+			newBoard.setOnBoard(src, Side.EMPTY, Piece.EMPTY);
 
-			if (this.getFromBoard(dest) != 0
-					|| PieceHelper.pieceType(piece) == PieceHelper.PAWN)
+			if (this.getSideFromBoard(dest) != Side.EMPTY
+					|| piece == Piece.PAWN)
 				newBoard.half_move_clock = 0;
 			else
 				newBoard.half_move_clock++;
@@ -296,28 +312,27 @@ public class NaiveBoard implements IBoard {
 		}
 
 		// Change active_color after move
-		newBoard.active_color = PieceHelper.pieceOppositeColor(piece);
-		if (active_color == PieceHelper.BLACK)
+		newBoard.active_color = Side.getOppositeSide(side);
+		if (active_color == Side.BLACK)
 			newBoard.full_move_clock++;
 
 		// Update en_passant
-		if (PieceHelper.pieceType(piece) == PieceHelper.PAWN
-				&& Math.abs(dest - src) == 2)
+		if (piece == Piece.PAWN && Math.abs(dest - src) == 2)
 			newBoard.en_passant_target = (dest + src) / 2;
 		else
 			newBoard.en_passant_target = -1;
 
 		// Update castling
-		if (PieceHelper.pieceType(piece) == PieceHelper.KING) {
-			if (active_color == PieceHelper.WHITE && src == 51) {
+		if (piece == Piece.KING) {
+			if (active_color == Side.WHITE && src == 51) {
 				newBoard.castling[0] = -1;
 				newBoard.castling[1] = -1;
-			} else if (active_color == PieceHelper.BLACK && src == 58) {
+			} else if (active_color == Side.BLACK && src == 58) {
 				newBoard.castling[2] = -1;
 				newBoard.castling[3] = -1;
 			}
-		} else if (PieceHelper.pieceType(piece) == PieceHelper.ROOK) {
-			if (active_color == PieceHelper.WHITE) {
+		} else if (piece == Piece.ROOK) {
+			if (active_color == Side.WHITE) {
 				if (src == 81)
 					newBoard.castling[1] = -1;
 				else if (src == 11)
