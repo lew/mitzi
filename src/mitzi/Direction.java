@@ -34,8 +34,8 @@ public enum Direction {
 	 *            the color of the piece
 	 * @return NORTH for white and SOUTH for black
 	 */
-	public static Direction pawnDirection(int color) {
-		if (color == PieceHelper.WHITE) {
+	public static Direction pawnDirection(Side color) {
+		if (color == Side.WHITE) {
 			return NORTH;
 		} else {
 			return SOUTH;
@@ -50,8 +50,8 @@ public enum Direction {
 	 *            the color of the piece
 	 * @return the set of directions allowed
 	 */
-	public static EnumSet<Direction> pawnCapturingDirections(int color) {
-		if (color == PieceHelper.WHITE) {
+	public static EnumSet<Direction> pawnCapturingDirections(Side color) {
+		if (color == Side.WHITE) {
 			return EnumSet.of(NORTHEAST, NORTHWEST);
 		} else {
 			return EnumSet.of(SOUTHEAST, SOUTHWEST);

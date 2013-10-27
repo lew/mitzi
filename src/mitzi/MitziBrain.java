@@ -61,7 +61,7 @@ public class MitziBrain implements IBrain {
 		}
 
 		next_move = poss_next_move;
-			
+
 		return best_value;
 
 	}
@@ -77,7 +77,7 @@ public class MitziBrain implements IBrain {
 
 		// check for checkmate
 		if (board.isMatePosition()) {
-			if (board.getActiveColor() == PieceHelper.WHITE)
+			if (board.getActiveColor() == Side.WHITE)
 				return -10 ^ 6;
 			else
 				return 10 ^ 6;
@@ -87,20 +87,19 @@ public class MitziBrain implements IBrain {
 		double value = 0;
 
 		// One way to prevent copy and paste
-		double[] fig_value = { 1, 3.3, 3.3, 5, 9 };
-		int[] colors = { PieceHelper.WHITE, PieceHelper.BLACK };
-		int[] figure = { PieceHelper.PAWN, PieceHelper.BISHOP,
-				PieceHelper.KNIGHT, PieceHelper.ROOK, PieceHelper.QUEEN };
+		double[] fig_value = { 1, 5, 3.3, 3.3, 9};
 
 		// Maybe not the most efficient way (several runs over the board)
-		for (int c = 0; c < 2; c++) {
-			for (int fig = 0; fig < 5; fig++) {
-				if (c == 0)
-					value += board.getNumberOfPiecesByColorAndType(colors[c],
-							figure[fig]) * fig_value[fig];
-				else
-					value -= board.getNumberOfPiecesByColorAndType(colors[c],
-							figure[fig]) * fig_value[fig];
+		for (Side c : Side.values()) {
+			for (Piece fig : Piece.values()) {
+				if (fig != Piece.EMPTY && fig!= Piece.KING) {
+					if (c == Side.WHITE)
+						value += board.getNumberOfPiecesByColorAndType(c, fig)
+								* fig_value[fig.ordinal()];
+					else
+						value -= board.getNumberOfPiecesByColorAndType(c, fig)
+						* fig_value[fig.ordinal()];
+				}
 			}
 
 		}
@@ -116,7 +115,7 @@ public class MitziBrain implements IBrain {
 		// moves...
 
 		int side_color = -1;
-		if (board.getActiveColor() == PieceHelper.WHITE) {
+		if (board.getActiveColor() == Side.WHITE) {
 			side_color = 1;
 		}
 		@SuppressWarnings("unused")
