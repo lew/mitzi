@@ -94,7 +94,7 @@ public class Move implements IMove {
 	 *            the move to be searched
 	 * @return true if move is in moves, else false
 	 */
-	public static Boolean MovesListIncludesMove(Set<Move> moves, Move move) {
+	public static boolean MovesListIncludesMove(Set<Move> moves, Move move) {
 		return moves.contains(move);
 
 	}
