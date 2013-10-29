@@ -1,6 +1,6 @@
 package mitzi;
 
-import java.util.List;
+import java.util.Map;
 
 public final class UCIReporter {
 
@@ -54,13 +54,16 @@ public final class UCIReporter {
 	 * consider best and therefore expect to be played. Also all infos belonging
 	 * to the PV should be sent together.
 	 * 
-	 * TODO: not yet implemented
-	 * 
 	 * NOTE: will most likely be extended later
 	 * 
 	 * @param pv
 	 * @param depth
 	 */
-	public static void sendInfoPV(List<IMove> pv, int depth) {
+	public static void sendInfoPV(Map<Integer, IMove> pv, int depth,
+			double value) {
+		System.out.print("info value cp " + (int)(value*100) + " depth " + depth + " pv");
+		for (int i = 0; i < depth; i++)
+			System.out.print(" " + pv.get(i));
+		System.out.println();
 	}
 }

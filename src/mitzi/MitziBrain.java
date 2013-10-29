@@ -1,5 +1,7 @@
 package mitzi;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 //import mitzi.UCIReporter.InfoType;
@@ -8,7 +10,7 @@ public class MitziBrain implements IBrain {
 
 	private IBoard board;
 
-	private IMove next_move;
+	private Map<Integer, IMove> principal_variation;
 
 	@Override
 	public void set(IBoard board) {
@@ -31,56 +33,58 @@ public class MitziBrain implements IBrain {
 	 *            white's turn +1, black's turn -1
 	 * @return sets the best move and returns the value
 	 */
-	private double evalBoard(IBoard board, int depth, double alpha,
-			double beta, int side_sign) {
-		// TODO: there is still a problem, that the function returns a NULL -
-		// move although some are possible... especially for check positions
+	private double evalBoard(IBoard board, int total_depth, int depth,
+			double alpha, double beta, int side_sign) {
 
-		// if the base case is reached
-		if (depth == 0 || board.isStaleMatePosition() || board.isMatePosition()) {
-			return evalBoard0(board) * side_sign;
+		// generate moves
+		Set<IMove> moves = board.getPossibleMoves();
 
+		// check for mate and stalemate
+		if (moves.isEmpty()) {
+			if (board.isCheckPosition()) {
+				if (board.getActiveColor() == Side.WHITE) {
+					return Double.NEGATIVE_INFINITY * side_sign;
+				} else {
+					return Double.POSITIVE_INFINITY * side_sign;
+				}
+			} else {
+				return 0;
+			}
+		}
+
+		// base case
+		if (depth == 0) {
+			return side_sign * evalBoard0(board);
 		}
 
 		double best_value = Double.NEGATIVE_INFINITY;
-		double val = 0;
-		IMove poss_next_move = null;
-		Set<IMove> moves = board.getPossibleMoves();
-		// TODO: order moves for best alpha-beta effect
+		// TODO: order moves for better alpha beta effect
+
+		// alpha beta search
 		for (IMove move : moves) {
-			val = -evalBoard(board.doMove(move), depth - 1, -beta, -alpha,
-					-side_sign);
+			double val = -evalBoard(board.doMove(move), total_depth, depth - 1,
+					-beta, -alpha, -side_sign);
 			if (val >= best_value) {
 				best_value = val;
-				poss_next_move = move; // oh gott, denkfehler :D FIXME
+				principal_variation.put(total_depth - depth, move);
 			}
 			alpha = Math.max(alpha, val);
-			if (alpha >= beta) {
+			if (alpha >= beta)
 				break;
-			}
 		}
-		next_move = poss_next_move;
 
 		return best_value;
 
 	}
 
 	/**
-	 * returns the value of a board.
+	 * returns the value of a board. Does NOT recognize mate and stalemate!
 	 * 
 	 * @param board
 	 *            the board to be analyzed
 	 * @return the value of a board
 	 */
 	private double evalBoard0(IBoard board) {
-
-		// check for checkmate
-		if (board.isMatePosition()) {
-			if (board.getActiveColor() == Side.WHITE)
-				return Double.NEGATIVE_INFINITY;
-			else
-				return Double.POSITIVE_INFINITY;
-		}
 
 		// A very very simple implementation
 		double value = 0;
@@ -113,15 +117,19 @@ public class MitziBrain implements IBrain {
 		// first of all, ignoring the timings and restriction to certain
 		// moves...
 
-		int side_color = -1;
+		int side_sign = -1;
 		if (board.getActiveColor() == Side.WHITE) {
-			side_color = 1;
+			side_sign = 1;
 		}
-		@SuppressWarnings("unused")
-		double value = evalBoard(board, searchDepth, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY, side_color);
-		System.out.println("");
-		return next_move;
+
+		principal_variation = new HashMap<Integer, IMove>();
+
+		double value = side_sign
+				* evalBoard(board, searchDepth, searchDepth,
+						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+						side_sign);
+		UCIReporter.sendInfoPV(principal_variation, searchDepth, value);
+		return principal_variation.get(0);
 	}
 
 	@Override
