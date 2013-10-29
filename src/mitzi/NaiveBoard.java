@@ -82,6 +82,19 @@ public class NaiveBoard implements IBoard {
 
 	// --------------------------------------------------------
 
+	private void resetCache() {
+		possible_moves = null;
+		is_check = null;
+		is_mate = null;
+		is_stale_mate = null;
+		occupied_squares_by_color.clear();
+		occupied_squares_by_color_and_type.clear();
+		occupied_squares_by_type.clear();
+		num_occupied_squares_by_color.clear();
+		num_occupied_squares_by_color_and_type.clear();
+		num_occupied_squares_by_type.clear();
+	}
+
 	private int squareToArrayIndex(int square) {
 		if (square < 0)
 			return 64;
@@ -142,6 +155,8 @@ public class NaiveBoard implements IBoard {
 
 		en_passant_target = -1;
 		active_color = Side.WHITE;
+		
+		resetCache();
 	}
 
 	@Override
@@ -154,6 +169,8 @@ public class NaiveBoard implements IBoard {
 		castling[2] = -1;
 		castling[3] = -1;
 		en_passant_target = -1;
+		
+		resetCache();
 
 		String[] fen_parts = fen.split(" ");
 
