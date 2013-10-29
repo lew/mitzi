@@ -42,7 +42,7 @@ public class MitziBrain implements IBrain {
 
 		}
 
-		double best_value = -10 ^ 6;
+		double best_value = Double.NEGATIVE_INFINITY;
 		double val = 0;
 		IMove poss_next_move = null;
 		Set<IMove> moves = board.getPossibleMoves();
@@ -55,7 +55,6 @@ public class MitziBrain implements IBrain {
 				poss_next_move = move; // oh gott, denkfehler :D FIXME
 			}
 			alpha = Math.max(alpha, val);
-			//System.out.println("Depth: " + depth + " Next_move: " + move	+ " Value: " + best_value);
 			if (alpha >= beta) {
 				break;
 			}
@@ -78,9 +77,9 @@ public class MitziBrain implements IBrain {
 		// check for checkmate
 		if (board.isMatePosition()) {
 			if (board.getActiveColor() == Side.WHITE)
-				return -10 ^ 6;
+				return Double.NEGATIVE_INFINITY;
 			else
-				return 10 ^ 6;
+				return Double.POSITIVE_INFINITY;
 		}
 
 		// A very very simple implementation
@@ -119,8 +118,8 @@ public class MitziBrain implements IBrain {
 			side_color = 1;
 		}
 		@SuppressWarnings("unused")
-		double value = evalBoard(board, searchDepth, -10 ^ 6, 10 ^ 6,
-				side_color); // value might be interesting for debugging
+		double value = evalBoard(board, searchDepth, Double.NEGATIVE_INFINITY,
+				Double.POSITIVE_INFINITY, side_color);
 		System.out.println("");
 		return next_move;
 	}
