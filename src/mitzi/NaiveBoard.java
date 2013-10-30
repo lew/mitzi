@@ -141,8 +141,8 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public void setToInitial() {
-		side_board = initial_side_board;
-		piece_board = initial_piece_board;
+		System.arraycopy(initial_side_board, 0, side_board, 0, 65);
+		System.arraycopy(initial_piece_board, 0, piece_board, 0, 65);
 
 		full_move_clock = 1;
 
