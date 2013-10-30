@@ -57,6 +57,7 @@ public class MitziBrain implements IBrain {
 					return Double.POSITIVE_INFINITY * side_sign;
 				}
 			} else {
+				// TODO: truncate pv when forcing stalemate
 				return 0;
 			}
 		}
