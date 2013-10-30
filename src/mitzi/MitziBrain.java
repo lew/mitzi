@@ -42,6 +42,15 @@ public class MitziBrain implements IBrain {
 		// check for mate and stalemate
 		if (moves.isEmpty()) {
 			if (board.isCheckPosition()) {
+				// remove rest of pv if favorable mate reached
+				if (board.getActiveColor() == Side.WHITE && side_sign == 1
+						|| board.getActiveColor() == Side.BLACK
+						&& side_sign == -1) {
+					for (int i = total_depth - depth; i < total_depth; i++) {
+						principal_variation.remove(i);
+					}
+				}
+				// return infty
 				if (board.getActiveColor() == Side.WHITE) {
 					return Double.NEGATIVE_INFINITY * side_sign;
 				} else {

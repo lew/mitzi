@@ -62,7 +62,7 @@ public final class UCIReporter {
 	public static void sendInfoPV(Map<Integer, IMove> pv, int depth,
 			double value) {
 		System.out.print("info value cp " + (int)(value*100) + " depth " + depth + " pv");
-		for (int i = 0; i < depth; i++)
+		for (int i = 0; pv.get(i) != null; i++)
 			System.out.print(" " + pv.get(i));
 		System.out.println();
 	}
