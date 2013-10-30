@@ -58,10 +58,12 @@ public final class UCIReporter {
 	 * 
 	 * @param pv
 	 * @param depth
+	 * @param value
+	 *            the board's value in centipawns. positive values are in favor
+	 *            of white.
 	 */
-	public static void sendInfoPV(Map<Integer, IMove> pv, int depth,
-			double value) {
-		System.out.print("info value cp " + (int)(value*100) + " depth " + depth + " pv");
+	public static void sendInfoPV(Map<Integer, IMove> pv, int depth, int value) {
+		System.out.print("info value cp " + value + " depth " + depth + " pv");
 		for (int i = 0; pv.get(i) != null; i++)
 			System.out.print(" " + pv.get(i));
 		System.out.println();

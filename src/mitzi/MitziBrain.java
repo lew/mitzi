@@ -1,7 +1,5 @@
 package mitzi;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 //import mitzi.UCIReporter.InfoType;
@@ -10,7 +8,7 @@ public class MitziBrain implements IBrain {
 
 	private IBoard board;
 
-	private Map<Integer, IMove> principal_variation;
+	private IMove best_move;
 
 	@Override
 	public void set(IBoard board) {
@@ -19,10 +17,9 @@ public class MitziBrain implements IBrain {
 
 	/**
 	 * NegaMax with Alpha Beta Pruning. Furthermore the function sets the
-	 * variable next_move.
+	 * variable best_move.
 	 * 
 	 * @see <a href="https://en.wikipedia.org/wiki/Negamax">Negamax</a>
-	 * 
 	 * @param board
 	 *            the current board
 	 * @param depth
@@ -31,10 +28,10 @@ public class MitziBrain implements IBrain {
 	 * @param beta
 	 * @param side_sign
 	 *            white's turn +1, black's turn -1
-	 * @return sets the best move and returns the value
+	 * @return sets the best move and returns the value in centipawns
 	 */
-	private double evalBoard(IBoard board, int total_depth, int depth,
-			double alpha, double beta, int side_sign) {
+	private int evalBoard(IBoard board, int total_depth, int depth, int alpha,
+			int beta, int side_sign) {
 
 		// generate moves
 		Set<IMove> moves = board.getPossibleMoves();
@@ -42,22 +39,12 @@ public class MitziBrain implements IBrain {
 		// check for mate and stalemate
 		if (moves.isEmpty()) {
 			if (board.isCheckPosition()) {
-				// remove rest of pv if favorable mate reached
-				if (board.getActiveColor() == Side.WHITE && side_sign == 1
-						|| board.getActiveColor() == Side.BLACK
-						&& side_sign == -1) {
-					for (int i = total_depth - depth; i < total_depth; i++) {
-						principal_variation.remove(i);
-					}
-				}
-				// return infty
 				if (board.getActiveColor() == Side.WHITE) {
-					return Double.NEGATIVE_INFINITY * side_sign;
+					return Integer.MIN_VALUE * side_sign;
 				} else {
-					return Double.POSITIVE_INFINITY * side_sign;
+					return Integer.MAX_VALUE * side_sign;
 				}
 			} else {
-				// TODO: truncate pv when forcing stalemate
 				return 0;
 			}
 		}
@@ -67,24 +54,20 @@ public class MitziBrain implements IBrain {
 			return side_sign * evalBoard0(board);
 		}
 
-		double best_value = Double.NEGATIVE_INFINITY;
+		int best_value = Integer.MIN_VALUE;
 		// TODO: order moves for better alpha beta effect
 
 		// alpha beta search
 		for (IMove move : moves) {
-			double val = -evalBoard(board.doMove(move), total_depth, depth - 1,
+			int val = -evalBoard(board.doMove(move), total_depth, depth - 1,
 					-beta, -alpha, -side_sign);
-			/*for (int i = total_depth - depth; i > 0; i--) {
-				System.out.print("  ");
-			}
-			UCIReporter.sendInfoString("move: " + move + " value: " + side_sign
-					* val + " board: " + board.doMove(move));*/
 			if (val >= best_value) {
 				best_value = val;
-				// FIXME: this doesn't work for deeper moves
-				principal_variation.put(total_depth - depth, move);
+				if (total_depth == depth) {
+					best_move = move;
+				}
 			}
-			// alpha = Math.max(alpha, val);
+			alpha = Math.max(alpha, val);
 			if (alpha >= beta)
 				break;
 		}
@@ -98,15 +81,15 @@ public class MitziBrain implements IBrain {
 	 * 
 	 * @param board
 	 *            the board to be analyzed
-	 * @return the value of a board
+	 * @return the value of a board in centipawns
 	 */
-	private double evalBoard0(IBoard board) {
+	private int evalBoard0(IBoard board) {
 
 		// A very very simple implementation
-		double value = 0;
+		int value = 0;
 
 		// One way to prevent copy and paste
-		double[] fig_value = { 1, 5, 3.3, 3.3, 9 };
+		int[] fig_value = { 100, 500, 330, 330, 900 };
 
 		// Maybe not the most efficient way (several runs over the board)
 		for (Side c : Side.values()) {
@@ -138,14 +121,11 @@ public class MitziBrain implements IBrain {
 			side_sign = 1;
 		}
 
-		principal_variation = new HashMap<Integer, IMove>();
+		int value = side_sign
+				* evalBoard(board, searchDepth, searchDepth, Integer.MIN_VALUE,
+						Integer.MAX_VALUE, side_sign);
 
-		double value = side_sign
-				* evalBoard(board, searchDepth, searchDepth,
-						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-						side_sign);
-		//UCIReporter.sendInfoPV(principal_variation, searchDepth, value);
-		return principal_variation.get(0);
+		return best_move;
 	}
 
 	@Override
