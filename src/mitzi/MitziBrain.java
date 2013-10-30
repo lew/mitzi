@@ -74,11 +74,17 @@ public class MitziBrain implements IBrain {
 		for (IMove move : moves) {
 			double val = -evalBoard(board.doMove(move), total_depth, depth - 1,
 					-beta, -alpha, -side_sign);
+			/*for (int i = total_depth - depth; i > 0; i--) {
+				System.out.print("  ");
+			}
+			UCIReporter.sendInfoString("move: " + move + " value: " + side_sign
+					* val + " board: " + board.doMove(move));*/
 			if (val >= best_value) {
 				best_value = val;
+				// FIXME: this doesn't work for deeper moves
 				principal_variation.put(total_depth - depth, move);
 			}
-			alpha = Math.max(alpha, val);
+			// alpha = Math.max(alpha, val);
 			if (alpha >= beta)
 				break;
 		}
@@ -138,7 +144,7 @@ public class MitziBrain implements IBrain {
 				* evalBoard(board, searchDepth, searchDepth,
 						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 						side_sign);
-		UCIReporter.sendInfoPV(principal_variation, searchDepth, value);
+		//UCIReporter.sendInfoPV(principal_variation, searchDepth, value);
 		return principal_variation.get(0);
 	}
 
