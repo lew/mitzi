@@ -53,9 +53,12 @@ public class Variation implements Comparable<Variation> {
 	 * 
 	 * @param move
 	 *            the move to be set
+	 * @param value
+	 *            the value of the (principal) variation
 	 */
-	public void setMove(IMove move) {
+	public void update(IMove move, int value) {
 		this.move = move;
+		this.value = value;
 	}
 
 	/**
