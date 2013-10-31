@@ -49,6 +49,16 @@ public class Variation implements Comparable<Variation> {
 	}
 
 	/**
+	 * Use with caution e. g. when backpropagating
+	 * 
+	 * @param move
+	 *            the move to be set
+	 */
+	public void setMove(IMove move) {
+		this.move = move;
+	}
+
+	/**
 	 * @return the value of the (principal) variation
 	 */
 	public int getValue() {
