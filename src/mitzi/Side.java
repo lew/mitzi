@@ -7,10 +7,8 @@ public enum Side {
 		switch (side) {
 		case BLACK:
 			return WHITE;
-		case WHITE:
-			return BLACK;
 		default:
-			return null;
+			return BLACK;
 		}
 	}
 }
