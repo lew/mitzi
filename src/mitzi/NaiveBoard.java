@@ -155,7 +155,7 @@ public class NaiveBoard implements IBoard {
 
 		en_passant_target = -1;
 		active_color = Side.WHITE;
-		
+
 		resetCache();
 	}
 
@@ -169,7 +169,7 @@ public class NaiveBoard implements IBoard {
 		castling[2] = -1;
 		castling[3] = -1;
 		en_passant_target = -1;
-		
+
 		resetCache();
 
 		String[] fen_parts = fen.split(" ");
@@ -376,7 +376,6 @@ public class NaiveBoard implements IBoard {
 		}
 	}
 
-	// TODO: replace in getPossibleMoves this part.
 	@Override
 	public Boolean colorCanCastle(Side color) {
 
@@ -836,8 +835,18 @@ public class NaiveBoard implements IBoard {
 
 	@Override
 	public Set<IMove> getPossibleMovesTo(int square) {
-		// TODO Auto-generated method stub
-		return null;
+
+		Set<IMove> result = new HashSet<IMove>();
+		if (possible_moves == null)
+			possible_moves = getPossibleMoves();
+		else {
+			for (IMove move : possible_moves) {
+				if (move.getToSquare() == square)
+					result.add(move);
+			}
+		}
+
+		return result;
 	}
 
 	@Override
