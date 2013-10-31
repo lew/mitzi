@@ -3,8 +3,13 @@ package mitzi;
 import java.util.Collections;
 import java.util.HashSet;
 
+import sun.print.resources.serviceui;
+
 public class Variation implements Comparable<Variation> {
 
+	/**
+	 * The fist move of the variation. May be set to null.
+	 */
 	private IMove move;
 
 	/**
@@ -134,7 +139,8 @@ public class Variation implements Comparable<Variation> {
 	private static Variation getPrincipalVariation(Variation search_tree,
 			Variation pv) {
 		// base case
-		if (search_tree.sub_variations.isEmpty())
+		if (search_tree.sub_variations.isEmpty()
+				|| search_tree.getMove() == null)
 			return pv;
 
 		// search minimax preferred subvariation
