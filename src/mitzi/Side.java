@@ -11,4 +11,13 @@ public enum Side {
 			return BLACK;
 		}
 	}
+
+	public static int getSideSign(Side side) {
+		switch (side) {
+		case BLACK:
+			return -1;
+		default:
+			return +1;
+		}
+	}
 }
