@@ -98,7 +98,7 @@ public class Variation implements Comparable<Variation> {
 		if (sub_variations.isEmpty())
 			return;
 
-		Variation min = Collections.max(sub_variations);
+		Variation min = Collections.min(sub_variations);
 		Variation max = Collections.max(sub_variations);
 		HashSet<Variation> new_sub_variations = new HashSet<Variation>();
 		new_sub_variations.add(min);
