@@ -2,13 +2,12 @@ package mitzi;
 
 import java.util.Set;
 
-//import mitzi.UCIReporter.InfoType;
-
 public class MitziBrain implements IBrain {
 
-	private IBoard board;
+	private int POS_INF = +1000000000;
+	private int NEG_INF = -1000000000;
 
-	private IMove best_move;
+	private IBoard board;
 
 	@Override
 	public void set(IBoard board) {
@@ -16,63 +15,82 @@ public class MitziBrain implements IBrain {
 	}
 
 	/**
-	 * NegaMax with Alpha Beta Pruning. Furthermore the function sets the
-	 * variable best_move.
+	 * NegaMax with Alpha Beta Pruning
 	 * 
-	 * @see <a href="https://en.wikipedia.org/wiki/Negamax">Negamax</a>
+	 * @see <a
+	 *      href="https://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning">NegaMax
+	 *      with Alpha Beta Pruning</a>
 	 * @param board
 	 *            the current board
+	 * @param total_depth
+	 *            the total depth to search
 	 * @param depth
-	 *            the search depth
+	 *            the remaining depth to search
 	 * @param alpha
 	 * @param beta
-	 * @param side_sign
-	 *            white's turn +1, black's turn -1
-	 * @return sets the best move and returns the value in centipawns
+	 * @return returns a Variation tree
 	 */
-	private int evalBoard(IBoard board, int total_depth, int depth, int alpha,
-			int beta, int side_sign) {
+	private Variation evalBoard(IBoard board, int total_depth, int depth,
+			int alpha, int beta) {
+
+		// whose move is it?
+		Side side = board.getActiveColor();
+		int side_sign = Side.getSideSign(side);
 
 		// generate moves
 		Set<IMove> moves = board.getPossibleMoves();
 
 		// check for mate and stalemate
 		if (moves.isEmpty()) {
+			Variation base_variation;
 			if (board.isCheckPosition()) {
-				if (board.getActiveColor() == Side.WHITE) {
-					return Integer.MIN_VALUE * side_sign;
-				} else {
-					return Integer.MAX_VALUE * side_sign;
-				}
+				base_variation = new Variation(null, NEG_INF * side_sign,
+						board.getActiveColor());
 			} else {
-				return 0;
+				base_variation = new Variation(null, 0, board.getActiveColor());
 			}
+			return base_variation;
 		}
 
 		// base case
 		if (depth == 0) {
-			return side_sign * evalBoard0(board);
+			Variation base_variation = new Variation(null, evalBoard0(board),
+					board.getActiveColor());
+			return base_variation;
 		}
 
-		int best_value = Integer.MIN_VALUE;
+		int best_value = NEG_INF; // this starts always at negative!
+
 		// TODO: order moves for better alpha beta effect
+		// maybe use variation subtree from previous computation?!
+		// is this even allowed in UCI? as if we would care :)
+
+		// create new parent Variation
+		Variation parent = new Variation(null, NEG_INF,
+				Side.getOppositeSide(side));
 
 		// alpha beta search
 		for (IMove move : moves) {
-			int val = -evalBoard(board.doMove(move), total_depth, depth - 1,
-					-beta, -alpha, -side_sign);
-			if (val >= best_value) {
-				best_value = val;
-				if (total_depth == depth) {
-					best_move = move;
-				}
+			Variation variation = evalBoard(board.doMove(move), total_depth,
+					depth - 1, -beta, -alpha);
+			int negaval = variation.getValue() * side_sign;
+
+			// better variation found
+			if (negaval >= best_value) {
+				best_value = variation.getValue() * side_sign;
+				parent.update(null, variation.getValue());
+				variation.update(move, variation.getValue());
+				parent.addSubVariation(variation);
 			}
-			alpha = Math.max(alpha, val);
+
+			// alpha beta cutoff
+			/*alpha = Math.max(alpha, negaval);
 			if (alpha >= beta)
-				break;
+				break;*/
+
 		}
 
-		return best_value;
+		return parent;
 
 	}
 
@@ -89,19 +107,14 @@ public class MitziBrain implements IBrain {
 		int value = 0;
 
 		// One way to prevent copy and paste
-		int[] fig_value = { 100, 500, 330, 330, 900 };
+		int[] fig_value = { 100, 500, 330, 330, 900, 000 };
 
 		// Maybe not the most efficient way (several runs over the board)
 		for (Side c : Side.values()) {
+			int side_sign = Side.getSideSign(c);
 			for (Piece fig : Piece.values()) {
-				if (fig != Piece.KING) {
-					if (c == Side.WHITE)
-						value += board.getNumberOfPiecesByColorAndType(c, fig)
-								* fig_value[fig.ordinal()];
-					else if (c == Side.BLACK)
-						value -= board.getNumberOfPiecesByColorAndType(c, fig)
-								* fig_value[fig.ordinal()];
-				}
+				value += board.getNumberOfPiecesByColorAndType(c, fig)
+						* fig_value[fig.ordinal()] * side_sign;
 			}
 
 		}
@@ -116,16 +129,10 @@ public class MitziBrain implements IBrain {
 		// first of all, ignoring the timings and restriction to certain
 		// moves...
 
-		int side_sign = -1;
-		if (board.getActiveColor() == Side.WHITE) {
-			side_sign = 1;
-		}
+		Variation var_tree = evalBoard(board, searchDepth, searchDepth,
+				NEG_INF, POS_INF);
 
-		int value = side_sign
-				* evalBoard(board, searchDepth, searchDepth, Integer.MIN_VALUE,
-						Integer.MAX_VALUE, side_sign);
-
-		return best_move;
+		return var_tree.getBestMove();
 	}
 
 	@Override

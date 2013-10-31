@@ -3,12 +3,11 @@ package mitzi;
 import java.util.Collections;
 import java.util.HashSet;
 
-import sun.print.resources.serviceui;
-
 public class Variation implements Comparable<Variation> {
 
 	/**
-	 * The fist move of the variation. May be set to null.
+	 * The fist move of the variation. May be set to null. Usually set to null
+	 * in a Variation tree.
 	 */
 	private IMove move;
 
@@ -152,8 +151,7 @@ public class Variation implements Comparable<Variation> {
 	private static Variation getPrincipalVariation(Variation search_tree,
 			Variation pv) {
 		// base case
-		if (search_tree.sub_variations.isEmpty()
-				|| search_tree.getMove() == null)
+		if (search_tree.sub_variations.isEmpty())
 			return pv;
 
 		// search minimax preferred subvariation
@@ -173,6 +171,16 @@ public class Variation implements Comparable<Variation> {
 		return getPrincipalVariation(preferred, pv);
 	}
 
+	public IMove getBestMove() {
+		Variation preferred;
+		if (to_move == Side.WHITE) {
+			preferred = Collections.max(sub_variations);
+		} else {
+			preferred = Collections.min(sub_variations);
+		}
+		return preferred.move;
+	}
+
 	/**
 	 * Compares two Variation objects by their value.
 	 * 
@@ -188,5 +196,17 @@ public class Variation implements Comparable<Variation> {
 	@Override
 	public int compareTo(Variation anotherVariation) {
 		return Integer.compare(anotherVariation.getValue(), this.getValue());
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder("");
+		str.append(move + "[" + value + "]");
+		if (sub_variations.size() != 0) {
+			for (Variation var : sub_variations) {
+				str.append("(" + var + ")");
+			}
+		}
+		return str.toString();
 	}
 }
