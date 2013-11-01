@@ -138,37 +138,33 @@ public class Variation implements Comparable<Variation> {
 	}
 
 	/**
-	 * Gives the principal variation. Basically a minimax search. Tail recursive
-	 * variant.
+	 * Gives the principal variation. Basically a minimax search.
 	 * 
-	 * @return a Variation containing only the IMoves of the principal variation
+	 * @return a linear Variation containing only the IMoves of the principal
+	 *         variation
 	 */
 	public Variation getPrincipalVariation() {
-		Variation pv = new Variation(move, value, to_move);
-		return getPrincipalVariation(this, pv);
+		return getPrincipalVariation(this);
 	}
 
-	private static Variation getPrincipalVariation(Variation search_tree,
-			Variation pv) {
-		// base case
-		if (search_tree.sub_variations.isEmpty())
-			return pv;
+	private static Variation getPrincipalVariation(Variation search_tree) {
 
 		// search minimax preferred subvariation
 		Variation preferred;
 		if (search_tree.to_move == Side.WHITE) {
-			preferred = Collections.max(search_tree.sub_variations);
-		} else {
 			preferred = Collections.min(search_tree.sub_variations);
+		} else {
+			preferred = Collections.max(search_tree.sub_variations);
 		}
 
-		// add subvariations move to principal variation
-		Variation next_variation = new Variation(preferred.getMove(),
-				preferred.getValue(), preferred.getSideToMove());
-		pv.addSubVariation(next_variation);
+		Variation pv = new Variation(preferred.move, preferred.value,
+				preferred.to_move);
 
-		// search subvariation
-		return getPrincipalVariation(preferred, pv);
+		// search one level down
+		if (!preferred.sub_variations.isEmpty())
+			pv.addSubVariation(getPrincipalVariation(preferred));
+
+		return pv;
 	}
 
 	public IMove getBestMove() {
@@ -198,15 +194,40 @@ public class Variation implements Comparable<Variation> {
 		return Integer.compare(anotherVariation.getValue(), this.getValue());
 	}
 
+	/**
+	 * String representation of a Variation tree. Must be compatible with UCI
+	 * principal variation output!
+	 * 
+	 * @return a String representing the Variation
+	 */
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder("");
-		str.append(move + "[" + value + "]");
-		if (sub_variations.size() != 0) {
+
+		if (sub_variations.isEmpty()) {
+			// base case
+			str.append(move + " ");
+		} else {
+			if (move != null) {
+				str.append(move + " ");
+			}
+			if (sub_variations.size() != 1) {
+				str.append("( ");
+			}
+			int i = 0;
 			for (Variation var : sub_variations) {
-				str.append("(" + var + ")");
+				if (i > 0) {
+					str.append("| ");
+				}
+				str.append(var);
+				i++;
+
+			}
+			if (sub_variations.size() != 1) {
+				str.append(")");
 			}
 		}
+
 		return str.toString();
 	}
 }
