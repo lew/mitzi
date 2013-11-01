@@ -19,20 +19,18 @@ public class MitziBrain implements IBrain {
 		this.board = board;
 	}
 
-
 	/**
 	 * 
 	 * This Comparator class implements the comparing of two moves. The moves
-	 * are saved intern as an ArrayList for a simpler search. 
+	 * are saved intern as an ArrayList for a simpler search.
 	 * 
 	 */
 	class MoveComperator implements Comparator<IMove> {
 
 		private double[] board_values;
-		private ArrayList<IMove> moves ;
+		private ArrayList<IMove> moves;
 
-		public void compute_values(Set<IMove> moves, IBoard board,
-				int side_sign) {
+		public void compute_values(Set<IMove> moves, IBoard board, int side_sign) {
 			this.moves = new ArrayList<IMove>(moves);
 			board_values = new double[moves.size()];
 			int i = 0;
@@ -48,7 +46,7 @@ public class MitziBrain implements IBrain {
 			int i2 = moves.indexOf(m2);
 
 			return -Double.compare(board_values[i1], board_values[i2]);
-		
+
 		}
 	}
 
@@ -74,17 +72,14 @@ public class MitziBrain implements IBrain {
 		ordered_moves = new ArrayList<IMove>(moves);
 		if (depth != 1) {
 			MoveComperator my_comp = new MoveComperator();
-			my_comp.compute_values(moves, board,
-					side_sign);
-			
-			Collections.sort(ordered_moves,my_comp);
+			my_comp.compute_values(moves, board, side_sign);
+
+			Collections.sort(ordered_moves, my_comp);
 		}
-		
-		
+
 		return ordered_moves;
 	}
-	
-	
+
 	/**
 	 * NegaMax with Alpha Beta Pruning
 	 * 
@@ -135,8 +130,9 @@ public class MitziBrain implements IBrain {
 		// maybe use variation subtree from previous computation?!
 		// is this even allowed in UCI? as if we would care :)
 		// Sort the moves:
-		ArrayList<IMove> ordered_moves = sortMoves(moves, board, side_sign, depth);
-		
+		ArrayList<IMove> ordered_moves = sortMoves(moves, board, side_sign,
+				depth);
+
 		// create new parent Variation
 		Variation parent = new Variation(null, NEG_INF,
 				Side.getOppositeSide(side));
@@ -156,7 +152,7 @@ public class MitziBrain implements IBrain {
 				parent.addSubVariation(variation);
 
 				// output to UCI
-				if (depth == total_depth) {
+				if (depth == total_depth && negaval > best_value) {
 					principal_variation = parent.getPrincipalVariation();
 					UCIReporter.sendInfoPV(principal_variation, total_depth,
 							variation.getValue());
@@ -164,10 +160,9 @@ public class MitziBrain implements IBrain {
 			}
 
 			// alpha beta cutoff
-			alpha = Math.max(alpha, negaval);
-			if (alpha >= beta)
-				break;
-
+			/*
+			 * alpha = Math.max(alpha, negaval); if (alpha >= beta) break;
+			 */
 		}
 
 		return parent;
