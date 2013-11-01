@@ -4,19 +4,53 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import mitzi.UCIReporter.InfoType;
 
 public class MitziBrain implements IBrain {
 
-	private int POS_INF = +1000000000;
-	private int NEG_INF = -1000000000;
+	private static int POS_INF = +1000000000;
+	private static int NEG_INF = -1000000000;
 
 	private IBoard board;
 
 	private Variation principal_variation;
 
+	private long eval_counter;
+
 	@Override
 	public void set(IBoard board) {
 		this.board = board;
+		this.eval_counter = 0;
+		this.principal_variation = null;
+	}
+
+	/**
+	 * Sends updates about evaluation status to UCI GUI.
+	 * 
+	 */
+	class UCIUpdater extends TimerTask {
+
+		private long old_mtime;
+		private long old_eval_counter;
+
+		@Override
+		public void run() {
+			long mtime = System.currentTimeMillis();
+			long eval_span = eval_counter - old_eval_counter;
+
+			if (old_mtime != 0) {
+				long time_span = mtime - old_mtime;
+				UCIReporter.sendInfoNum(InfoType.NPS, eval_span * 1000
+						/ time_span);
+			}
+
+			old_mtime = mtime;
+			old_eval_counter += eval_span;
+
+		}
 	}
 
 	/**
@@ -180,6 +214,8 @@ public class MitziBrain implements IBrain {
 	 */
 	private int evalBoard0(IBoard board) {
 
+		eval_counter++;
+
 		// A very very simple implementation
 		int value = 0;
 
@@ -206,8 +242,15 @@ public class MitziBrain implements IBrain {
 		// first of all, ignoring the timings and restriction to certain
 		// moves...
 
+		this.principal_variation = null;
+
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
+
 		Variation var_tree = evalBoard(board, searchDepth, searchDepth,
 				NEG_INF, POS_INF);
+
+		timer.cancel();
 
 		return var_tree.getBestMove();
 	}

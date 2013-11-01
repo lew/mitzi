@@ -43,8 +43,8 @@ public final class UCIReporter {
 	 * @param string
 	 *            the integer value to be sent
 	 */
-	public static void sendInfoInt(InfoType type, int value) {
-		System.out.println("info " + type.string + " " + value);
+	public static void sendInfoNum(InfoType type, long eval_counter) {
+		System.out.println("info " + type.string + " " + eval_counter);
 	}
 
 	/**
