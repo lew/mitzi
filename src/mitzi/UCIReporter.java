@@ -12,9 +12,11 @@ public final class UCIReporter {
 	 * NODES: number of nodes searched
 	 * 
 	 * NPS: number of nodes per second searched
+	 * 
+	 * SCORE_CP: the score from the engine's point of view in centipawns
 	 */
 	public static enum InfoType {
-		DEPTH("depth"), NODES("nodes"), NPS("nps");
+		DEPTH("depth"), NODES("nodes"), NPS("nps"), SCORE_CP("score cp");
 
 		public String string;
 
