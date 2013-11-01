@@ -160,9 +160,10 @@ public class MitziBrain implements IBrain {
 			}
 
 			// alpha beta cutoff
-			/*
-			 * alpha = Math.max(alpha, negaval); if (alpha >= beta) break;
-			 */
+			alpha = Math.max(alpha, negaval);
+			if (alpha >= beta)
+				break;
+
 		}
 
 		return parent;
