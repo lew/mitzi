@@ -145,6 +145,7 @@ public class MitziBrain implements IBrain {
 
 			// better variation found
 			if (negaval >= best_value) {
+				boolean truly_better = negaval > best_value;
 				// update variation tree
 				best_value = variation.getValue() * side_sign;
 				parent.update(null, variation.getValue());
@@ -152,7 +153,7 @@ public class MitziBrain implements IBrain {
 				parent.addSubVariation(variation);
 
 				// output to UCI
-				if (depth == total_depth && negaval > best_value) {
+				if (depth == total_depth && truly_better) {
 					principal_variation = parent.getPrincipalVariation();
 					UCIReporter.sendInfoPV(principal_variation, total_depth,
 							variation.getValue());
