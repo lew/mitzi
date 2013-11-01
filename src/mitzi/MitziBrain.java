@@ -1,5 +1,8 @@
 package mitzi;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Set;
 
 public class MitziBrain implements IBrain {
@@ -14,6 +17,72 @@ public class MitziBrain implements IBrain {
 		this.board = board;
 	}
 
+
+	/**
+	 * 
+	 * This Comparator class implements the comparing of two moves. The moves
+	 * are saved intern as an ArrayList for a simpler search. 
+	 * 
+	 */
+	class MoveComperator implements Comparator<IMove> {
+
+		private double[] board_values;
+		private ArrayList<IMove> moves ;
+
+		public void compute_values(Set<IMove> moves, IBoard board,
+				int side_sign) {
+			this.moves = new ArrayList<IMove>(moves);
+			board_values = new double[moves.size()];
+			int i = 0;
+			for (IMove move : this.moves) {
+				board_values[i] = side_sign * evalBoard0(board.doMove(move));
+				i++;
+			}
+		}
+
+		public int compare(IMove m1, IMove m2) {
+
+			int i1 = moves.indexOf(m1);
+			int i2 = moves.indexOf(m2);
+
+			return -Double.compare(board_values[i1], board_values[i2]);
+		
+		}
+	}
+
+	/**
+	 * Sorts the moves w.r.t. the value of the next board (base case). If the
+	 * depth is 1 (so after one move the base case is reached) no sorting is
+	 * done. (preventing double evaluation of board)
+	 * 
+	 * @param moves
+	 *            the set of moves to be sorted
+	 * @param board
+	 *            the actual board
+	 * @param side_sign
+	 *            the actual side
+	 * @param depth
+	 *            the current search depth
+	 * @return the sorted set of moves in a TreeSet
+	 */
+	private ArrayList<IMove> sortMoves(Set<IMove> moves, IBoard board,
+			int side_sign, int depth) {
+
+		ArrayList<IMove> ordered_moves;
+		ordered_moves = new ArrayList<IMove>(moves);
+		if (depth != 1) {
+			MoveComperator my_comp = new MoveComperator();
+			my_comp.compute_values(moves, board,
+					side_sign);
+			
+			Collections.sort(ordered_moves,my_comp);
+		}
+		
+		
+		return ordered_moves;
+	}
+	
+	
 	/**
 	 * NegaMax with Alpha Beta Pruning
 	 * 
@@ -61,16 +130,17 @@ public class MitziBrain implements IBrain {
 
 		int best_value = NEG_INF; // this starts always at negative!
 
-		// TODO: order moves for better alpha beta effect
 		// maybe use variation subtree from previous computation?!
 		// is this even allowed in UCI? as if we would care :)
-
+		// Sort the moves:
+		ArrayList<IMove> ordered_moves = sortMoves(moves, board, side_sign, depth);
+		
 		// create new parent Variation
 		Variation parent = new Variation(null, NEG_INF,
 				Side.getOppositeSide(side));
 
 		// alpha beta search
-		for (IMove move : moves) {
+		for (IMove move : ordered_moves) {
 			Variation variation = evalBoard(board.doMove(move), total_depth,
 					depth - 1, -beta, -alpha);
 			int negaval = variation.getValue() * side_sign;
@@ -84,9 +154,9 @@ public class MitziBrain implements IBrain {
 			}
 
 			// alpha beta cutoff
-			/*alpha = Math.max(alpha, negaval);
+			alpha = Math.max(alpha, negaval);
 			if (alpha >= beta)
-				break;*/
+				break;
 
 		}
 
