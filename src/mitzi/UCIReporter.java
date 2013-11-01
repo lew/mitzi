@@ -1,7 +1,5 @@
 package mitzi;
 
-import java.util.Map;
-
 public final class UCIReporter {
 
 	/**
