@@ -12,11 +12,9 @@ public final class UCIReporter {
 	 * NODES: number of nodes searched
 	 * 
 	 * NPS: number of nodes per second searched
-	 * 
-	 * SCORE_CP: the score from the engine's point of view in centipawns
 	 */
 	public static enum InfoType {
-		DEPTH("depth"), NODES("nodes"), NPS("nps"), SCORE_CP("score cp");
+		DEPTH("depth"), NODES("nodes"), NPS("nps");
 
 		public String string;
 
@@ -60,14 +58,12 @@ public final class UCIReporter {
 	 * 
 	 * @param pv
 	 * @param depth
-	 * @param value
-	 *            the board's value in centipawns. positive values are in favor
+	 * @param score
+	 *            the board's score in centipawns. positive values are in favor
 	 *            of white.
 	 */
-	public static void sendInfoPV(Map<Integer, IMove> pv, int depth, int value) {
-		System.out.print("info value cp " + value + " depth " + depth + " pv");
-		for (int i = 0; pv.get(i) != null; i++)
-			System.out.print(" " + pv.get(i));
-		System.out.println();
+	public static void sendInfoPV(Variation pv, int depth, int score) {
+		System.out.println("info score cp " + score + " depth " + depth
+				+ " pv " + pv);
 	}
 }
