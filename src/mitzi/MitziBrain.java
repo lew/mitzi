@@ -180,6 +180,11 @@ public class MitziBrain implements IBrain {
 			for (Variation var : ordered_variations) {
 				ordered_moves.add(var.getMove());
 			}
+			// add remaining moves
+			for (IMove move : moves) {
+				if (!ordered_moves.contains(move))
+					ordered_moves.add(move);
+			}
 		}
 
 		// create new parent Variation
@@ -191,7 +196,7 @@ public class MitziBrain implements IBrain {
 		for (IMove move : ordered_moves) {
 
 			Variation variation;
-			if (ordered_variations != null) {
+			if (ordered_variations != null && i < ordered_variations.size()) {
 				variation = evalBoard(board.doMove(move), total_depth,
 						depth - 1, -beta, -alpha, ordered_variations.get(i));
 			} else {
