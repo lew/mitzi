@@ -132,7 +132,7 @@ public class MitziBrain implements IBrain {
 	 * @return returns a Variation tree
 	 */
 	private Variation evalBoard(IBoard board, int total_depth, int depth,
-			int alpha, int beta) {
+			int alpha, int beta, Variation old_tree) {
 
 		// whose move is it?
 		Side side = board.getActiveColor();
@@ -163,21 +163,41 @@ public class MitziBrain implements IBrain {
 
 		int best_value = NEG_INF; // this starts always at negative!
 
-		// maybe use variation subtree from previous computation?!
-		// is this even allowed in UCI? as if we would care :)
 		// Sort the moves:
-		ArrayList<IMove> ordered_moves = sortMoves(moves, board, side_sign,
-				depth);
+		ArrayList<IMove> ordered_moves;
+		ArrayList<Variation> ordered_variations = null;
+		if (old_tree == null || old_tree.getSubVariations().isEmpty()) {
+			// no previous computation given
+			ordered_moves = sortMoves(moves, board, side_sign, depth);
+		} else {
+			// use old Variation tree for ordering
+			Set<Variation> children = old_tree.getSubVariations();
+			ordered_variations = new ArrayList<Variation>(children);
+			Collections.sort(ordered_variations);
+			if (side == Side.WHITE)
+				Collections.reverse(ordered_variations);
+			ordered_moves = new ArrayList<IMove>();
+			for (Variation var : ordered_variations) {
+				ordered_moves.add(var.getMove());
+			}
+		}
 
 		// create new parent Variation
 		Variation parent = new Variation(null, NEG_INF,
 				Side.getOppositeSide(side));
 
+		int i = 0;
 		// alpha beta search
 		for (IMove move : ordered_moves) {
 
-			Variation variation = evalBoard(board.doMove(move), total_depth,
-					depth - 1, -beta, -alpha);
+			Variation variation;
+			if (ordered_variations != null) {
+				variation = evalBoard(board.doMove(move), total_depth,
+						depth - 1, -beta, -alpha, ordered_variations.get(i));
+			} else {
+				variation = evalBoard(board.doMove(move), total_depth,
+						depth - 1, -beta, -alpha);
+			}
 			int negaval = variation.getValue() * side_sign;
 
 			// better variation found
@@ -208,10 +228,16 @@ public class MitziBrain implements IBrain {
 			if (alpha >= beta)
 				break;
 
+			i++; // keep ordered_moves and ordered_variations in sync
 		}
 
 		return parent;
 
+	}
+
+	private Variation evalBoard(IBoard board, int total_depth, int depth,
+			int alpha, int beta) {
+		return evalBoard(board, total_depth, depth, alpha, beta, null);
 	}
 
 	/**
@@ -251,13 +277,29 @@ public class MitziBrain implements IBrain {
 		// first of all, ignoring the timings and restriction to certain
 		// moves...
 
-		this.principal_variation = null;
-
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
 
-		Variation var_tree = evalBoard(board, searchDepth, searchDepth,
-				NEG_INF, POS_INF); // TODO: use for move ordering
+		// iterative deepening
+		Variation var_tree = null; // TODO: use previous searches as starting
+									// point
+		for (int current_depth = 1; current_depth < searchDepth - 1; current_depth *= 2) {
+			this.principal_variation = null;
+			var_tree = evalBoard(board, current_depth, current_depth, NEG_INF,
+					POS_INF, var_tree);
+			// mate found
+			if (principal_variation.getValue() == POS_INF
+					&& board.getActiveColor() == Side.WHITE
+					|| principal_variation.getValue() == NEG_INF
+					&& board.getActiveColor() == Side.BLACK) {
+				timer.cancel();
+
+				return principal_variation.getMove();
+			}
+		}
+		this.principal_variation = null;
+		var_tree = evalBoard(board, searchDepth, searchDepth, NEG_INF, POS_INF,
+				var_tree);
 
 		timer.cancel();
 
