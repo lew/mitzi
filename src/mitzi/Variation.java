@@ -147,9 +147,21 @@ public class Variation implements Comparable<Variation> {
 		return getPrincipalVariation(this);
 	}
 
+	/**
+	 * This function searches for the principal variation in a tree, using
+	 * minimax algorithm.
+	 * 
+	 * @param search_tree
+	 *            the Variations, where the principal Variation has to be found.
+	 * @return the principal Variation
+	 */
 	private static Variation getPrincipalVariation(Variation search_tree) {
 
 		// search minimax preferred subvariation
+
+		// Note, if this algorithm is called by white, then the root has side
+		// Black and vice versa. Therefore white should be minimized and
+		// black maximized.
 		Variation preferred;
 		if (search_tree.to_move == Side.WHITE) {
 			preferred = Collections.min(search_tree.sub_variations);
@@ -167,12 +179,19 @@ public class Variation implements Comparable<Variation> {
 		return pv;
 	}
 
+	/**
+	 * 
+	 * @return the best move of the actual variation
+	 */
 	public IMove getBestMove() {
 		Variation preferred;
+		// Note, if this function is called by white, the root has side
+		// Black and vice versa. Therefore white should be minimized and
+		// black maximized.
 		if (to_move == Side.WHITE) {
-			preferred = Collections.max(sub_variations);
-		} else {
 			preferred = Collections.min(sub_variations);
+		} else {
+			preferred = Collections.max(sub_variations);
 		}
 		return preferred.move;
 	}

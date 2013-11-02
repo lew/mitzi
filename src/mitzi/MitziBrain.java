@@ -79,6 +79,7 @@ public class MitziBrain implements IBrain {
 			int i1 = moves.indexOf(m1);
 			int i2 = moves.indexOf(m2);
 
+			// "-" to receive an increasing ordering
 			return -Double.compare(board_values[i1], board_values[i2]);
 
 		}
@@ -140,22 +141,22 @@ public class MitziBrain implements IBrain {
 		// generate moves
 		Set<IMove> moves = board.getPossibleMoves();
 
-		// check for mate and stalemate
+		// check for mate and stalemate (the side should alternate)
 		if (moves.isEmpty()) {
 			Variation base_variation;
 			if (board.isCheckPosition()) {
 				base_variation = new Variation(null, NEG_INF * side_sign,
-						board.getActiveColor());
+						Side.getOppositeSide(side));
 			} else {
-				base_variation = new Variation(null, 0, board.getActiveColor());
+				base_variation = new Variation(null, 0, Side.getOppositeSide(side));
 			}
 			return base_variation;
 		}
 
-		// base case
+		// base case  (the side should alternate)
 		if (depth == 0) {
 			Variation base_variation = new Variation(null, evalBoard0(board),
-					board.getActiveColor());
+					Side.getOppositeSide(side));
 			return base_variation;
 		}
 
@@ -173,24 +174,31 @@ public class MitziBrain implements IBrain {
 
 		// alpha beta search
 		for (IMove move : ordered_moves) {
+			
 			Variation variation = evalBoard(board.doMove(move), total_depth,
 					depth - 1, -beta, -alpha);
 			int negaval = variation.getValue() * side_sign;
 
 			// better variation found
 			if (negaval >= best_value) {
-				boolean truly_better = negaval > best_value;
+				boolean truly_better = negaval > best_value;	
+				best_value = negaval;
+				
 				// update variation tree
-				best_value = variation.getValue() * side_sign;
 				parent.update(null, variation.getValue());
+				
+				//update the missing move for the child
 				variation.update(move, variation.getValue());
+				
 				parent.addSubVariation(variation);
 
 				// output to UCI
 				if (depth == total_depth && truly_better) {
+					
 					principal_variation = parent.getPrincipalVariation();
 					UCIReporter.sendInfoPV(principal_variation, total_depth,
 							variation.getValue());
+				
 				}
 			}
 
@@ -252,6 +260,9 @@ public class MitziBrain implements IBrain {
 
 		timer.cancel();
 
+		for(Variation var : var_tree.getSubVariations())
+			System.out.println("info score val:" + var.getValue() + " - " + var.getMove() + " + " + var.getPrincipalVariation());
+		
 		return var_tree.getBestMove();
 	}
 
