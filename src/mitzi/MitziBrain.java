@@ -148,12 +148,13 @@ public class MitziBrain implements IBrain {
 				base_variation = new Variation(null, NEG_INF * side_sign,
 						Side.getOppositeSide(side));
 			} else {
-				base_variation = new Variation(null, 0, Side.getOppositeSide(side));
+				base_variation = new Variation(null, 0,
+						Side.getOppositeSide(side));
 			}
 			return base_variation;
 		}
 
-		// base case  (the side should alternate)
+		// base case (the side should alternate)
 		if (depth == 0) {
 			Variation base_variation = new Variation(null, evalBoard0(board),
 					Side.getOppositeSide(side));
@@ -174,31 +175,31 @@ public class MitziBrain implements IBrain {
 
 		// alpha beta search
 		for (IMove move : ordered_moves) {
-			
+
 			Variation variation = evalBoard(board.doMove(move), total_depth,
 					depth - 1, -beta, -alpha);
 			int negaval = variation.getValue() * side_sign;
 
 			// better variation found
 			if (negaval >= best_value) {
-				boolean truly_better = negaval > best_value;	
+				boolean truly_better = negaval > best_value;
 				best_value = negaval;
-				
+
 				// update variation tree
 				parent.update(null, variation.getValue());
-				
-				//update the missing move for the child
+
+				// update the missing move for the child
 				variation.update(move, variation.getValue());
-				
+
 				parent.addSubVariation(variation);
 
 				// output to UCI
 				if (depth == total_depth && truly_better) {
-					
+
 					principal_variation = parent.getPrincipalVariation();
 					UCIReporter.sendInfoPV(principal_variation, total_depth,
 							variation.getValue());
-				
+
 				}
 			}
 
@@ -256,11 +257,11 @@ public class MitziBrain implements IBrain {
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
 
 		Variation var_tree = evalBoard(board, searchDepth, searchDepth,
-				NEG_INF, POS_INF);
+				NEG_INF, POS_INF); // TODO: use for move ordering
 
 		timer.cancel();
-		
-		return var_tree.getBestMove();
+
+		return principal_variation.getMove();
 	}
 
 	@Override
