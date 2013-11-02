@@ -259,9 +259,6 @@ public class MitziBrain implements IBrain {
 				NEG_INF, POS_INF);
 
 		timer.cancel();
-
-		for(Variation var : var_tree.getSubVariations())
-			System.out.println("info score val:" + var.getValue() + " - " + var.getMove() + " + " + var.getPrincipalVariation());
 		
 		return var_tree.getBestMove();
 	}
