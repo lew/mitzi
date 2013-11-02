@@ -210,7 +210,7 @@ public class Variation implements Comparable<Variation> {
 	 */
 	@Override
 	public int compareTo(Variation anotherVariation) {
-		return Integer.compare(anotherVariation.getValue(), this.getValue());
+		return Integer.compare(this.getValue(), anotherVariation.getValue());
 	}
 
 	/**
