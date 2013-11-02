@@ -58,10 +58,23 @@ public final class UCIReporter {
 	 * @param depth
 	 * @param score
 	 *            the board's score in centipawns. positive values are in favor
-	 *            of white.
+	 *            of white. Detects MitziBrain.POS_INF and NEG_INF as mate.
+	 * @param side
+	 *            Side of the first move in the Variation. Needed for mate
+	 *            output.
 	 */
-	public static void sendInfoPV(Variation pv, int depth, int score) {
-		System.out.println("info score cp " + score + " depth " + depth
-				+ " pv " + pv);
+	public static void sendInfoPV(Variation pv, int depth, int score, Side side) {
+		if (score == MitziBrain.NEG_INF && side == Side.WHITE
+				|| score == MitziBrain.POS_INF && side == Side.BLACK) {
+			System.out.println("info score mate -" + ((depth + 1) / 2)
+					+ " depth " + depth + " pv " + pv);
+		} else if (score == MitziBrain.NEG_INF && side == Side.BLACK
+				|| score == MitziBrain.POS_INF && side == Side.WHITE) {
+			System.out.println("info score mate " + ((depth + 1) / 2)
+					+ " depth " + depth + " pv " + pv);
+		} else {
+			System.out.println("info score cp " + score + " depth " + depth
+					+ " pv " + pv);
+		}
 	}
 }

@@ -11,8 +11,8 @@ import mitzi.UCIReporter.InfoType;
 
 public class MitziBrain implements IBrain {
 
-	private static int POS_INF = +1000000000;
-	private static int NEG_INF = -1000000000;
+	public static int POS_INF = +1000000000;
+	public static int NEG_INF = -1000000000;
 
 	private IBoard board;
 
@@ -223,7 +223,7 @@ public class MitziBrain implements IBrain {
 
 					principal_variation = parent.getPrincipalVariation();
 					UCIReporter.sendInfoPV(principal_variation, total_depth,
-							variation.getValue());
+							variation.getValue(), board.getActiveColor());
 
 				}
 			}
@@ -288,12 +288,13 @@ public class MitziBrain implements IBrain {
 		// iterative deepening
 		Variation var_tree = null; // TODO: use previous searches as starting
 									// point
-		for (int current_depth = 1; current_depth < searchDepth - 1; current_depth *= 2) {
+		for (int current_depth = 1; current_depth < searchDepth - 1; current_depth += 2) {
 			this.principal_variation = null;
 			var_tree = evalBoard(board, current_depth, current_depth, NEG_INF,
 					POS_INF, var_tree);
 			// mate found
-			if (principal_variation.getValue() == POS_INF
+			if (principal_variation != null
+					&& principal_variation.getValue() == POS_INF
 					&& board.getActiveColor() == Side.WHITE
 					|| principal_variation.getValue() == NEG_INF
 					&& board.getActiveColor() == Side.BLACK) {
@@ -301,6 +302,8 @@ public class MitziBrain implements IBrain {
 
 				return principal_variation.getMove();
 			}
+			if (current_depth == 1) // get depth 2 as well
+				current_depth--;
 		}
 		this.principal_variation = null;
 		var_tree = evalBoard(board, searchDepth, searchDepth, NEG_INF, POS_INF,
@@ -308,7 +311,12 @@ public class MitziBrain implements IBrain {
 
 		timer.cancel();
 
-		return principal_variation.getMove();
+		if (principal_variation != null) {
+			return principal_variation.getMove();
+		} else {
+			// mitzi cannot avoid mate :(
+			return var_tree.getBestMove();
+		}
 	}
 
 	@Override
