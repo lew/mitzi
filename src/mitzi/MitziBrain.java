@@ -288,10 +288,18 @@ public class MitziBrain implements IBrain {
 		// iterative deepening
 		Variation var_tree = null; // TODO: use previous searches as starting
 									// point
+		Variation var_tree_temp;
+		
+		//Parameters for aspiration windows
+		int alpha = NEG_INF; //initial value
+		int beta = POS_INF; //initial value
+		int asp_window = 200; // often 50 or 25 is used
+		int factor = 3; //factor for increasing if out of bounds
+
 		for (int current_depth = 1; current_depth < searchDepth - 1; current_depth += 2) {
 			this.principal_variation = null;
-			var_tree = evalBoard(board, current_depth, current_depth, NEG_INF,
-					POS_INF, var_tree);
+			var_tree_temp = evalBoard(board, current_depth, current_depth,
+					alpha, beta, var_tree);
 			// mate found
 			if (principal_variation != null
 					&& principal_variation.getValue() == POS_INF
@@ -302,13 +310,48 @@ public class MitziBrain implements IBrain {
 
 				return principal_variation.getMove();
 			}
+			// If Value is out of bounds, redo search with larger bounds, but
+			// with the same variation tree
+			if (var_tree_temp.getValue() <= alpha) {
+				alpha -= factor * asp_window;
+				current_depth -= 2;
+				System.out.println("Fail lower bound!"); // only for debugging
+				continue;
+			} else if (var_tree_temp.getValue() >= beta) {
+				beta += factor * asp_window;
+				current_depth -= 2;
+				System.out.println("Fail upper bound!");
+				continue;
+			}
+
+			alpha = var_tree_temp.getValue() - asp_window;
+			beta = var_tree_temp.getValue() + asp_window;
+
+			var_tree = var_tree_temp;
+
 			if (current_depth == 1) // get depth 2 as well
 				current_depth--;
 		}
-		this.principal_variation = null;
-		var_tree = evalBoard(board, searchDepth, searchDepth, NEG_INF, POS_INF,
-				var_tree);
+		
+		//repeat until a value inside the alpha-beta bound is found.
+		while (true) {
+			this.principal_variation = null;
+			var_tree_temp = evalBoard(board, searchDepth, searchDepth, alpha,
+					beta, var_tree);
+			if (var_tree_temp.getValue() <= alpha) {
+				alpha -= factor * asp_window;
+				System.out.println("Fail lower bound!");
+				continue;
+			} else if (var_tree_temp.getValue() >= beta) {
 
+				beta += factor * asp_window;
+				System.out.println("Fail upper bound!");
+				continue;
+			} else {
+				var_tree = var_tree_temp;
+				break;
+			}
+		}
 		timer.cancel();
 
 		if (principal_variation != null) {
