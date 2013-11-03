@@ -294,14 +294,14 @@ public class MitziBrain implements IBrain {
 		Variation var_tree = null; // TODO: use previous searches as starting
 									// point
 		Variation var_tree_temp;
-		
-		//Parameters for aspiration windows
-		int alpha = NEG_INF; //initial value
-		int beta = POS_INF; //initial value
-		int asp_window = 200; // often 50 or 25 is used
-		int factor = 3; //factor for increasing if out of bounds
 
-		for (int current_depth = 1; current_depth < searchDepth - 1; current_depth += 2) {
+		// Parameters for aspiration windows
+		int alpha = NEG_INF; // initial value
+		int beta = POS_INF; // initial value
+		int asp_window = 200; // often 50 or 25 is used
+		int factor = 3; // factor for increasing if out of bounds
+
+		for (int current_depth = 1; current_depth < searchDepth; current_depth++) {
 			this.principal_variation = null;
 			var_tree_temp = evalBoard(board, current_depth, current_depth,
 					alpha, beta, var_tree);
@@ -319,13 +319,11 @@ public class MitziBrain implements IBrain {
 			// with the same variation tree
 			if (var_tree_temp.getValue() <= alpha) {
 				alpha -= factor * asp_window;
-				current_depth -= 2;
-				UCIReporter.sendInfoString("Fail lower bound!"); // only for debugging
+				current_depth--;
 				continue;
 			} else if (var_tree_temp.getValue() >= beta) {
 				beta += factor * asp_window;
-				current_depth -= 2;
-				UCIReporter.sendInfoString("Fail upper bound!");
+				current_depth--;
 				continue;
 			}
 
@@ -333,29 +331,23 @@ public class MitziBrain implements IBrain {
 			beta = var_tree_temp.getValue() + asp_window;
 
 			var_tree = var_tree_temp;
-
-			if (current_depth == 1) // get depth 2 as well
-				current_depth--;
 		}
-		
-		//repeat until a value inside the alpha-beta bound is found.
+
+		// repeat until a value inside the alpha-beta bound is found.
 		while (true) {
 			this.principal_variation = null;
 			var_tree_temp = evalBoard(board, searchDepth, searchDepth, alpha,
 					beta, var_tree);
 			if (var_tree_temp.getValue() <= alpha) {
 				alpha -= factor * asp_window;
-				UCIReporter.sendInfoString("Fail lower bound!");
-				continue;
 			} else if (var_tree_temp.getValue() >= beta) {
 				beta += factor * asp_window;
-				UCIReporter.sendInfoString("Fail upper bound!");
-				continue;
 			} else {
 				var_tree = var_tree_temp;
 				break;
 			}
 		}
+		
 		timer.cancel();
 
 		if (principal_variation != null) {
