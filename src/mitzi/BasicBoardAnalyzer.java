@@ -1,6 +1,6 @@
 package mitzi;
 
-public class PrimitiveBoardAnalyzer implements IBoardAnalyzer {
+public class BasicBoardAnalyzer implements IBoardAnalyzer {
 
 	@Override
 	public AnalysisResult eval0(IBoard board) {
