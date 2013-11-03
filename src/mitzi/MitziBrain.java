@@ -135,7 +135,6 @@ public class MitziBrain implements IBrain {
 					Collections.reverseOrder(move_comparator));
 			ordered_moves.addAll(remaining_moves);
 		}
-		UCIReporter.sendInfoString(ordered_moves.toString());
 
 		// create new parent Variation
 		Variation parent = new Variation(null, NEG_INF,
