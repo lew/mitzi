@@ -3,13 +3,13 @@ package mitzi;
 import java.util.Locale;
 import java.util.Set;
 
-public class Move implements IMove {
+public final class Move implements IMove {
 
-	private int src;
+	private final int src;
 
-	private int dest;
+	private final int dest;
 
-	private Piece promotion;
+	private final Piece promotion;
 
 	/**
 	 * Move constructor
@@ -51,6 +51,8 @@ public class Move implements IMove {
 				promotion = Piece.KNIGHT;
 			} else if (promo_string.equals("b")) {
 				promotion = Piece.BISHOP;
+			} else {
+				promotion = null;
 			}
 		} else {
 			promotion = null;
@@ -100,10 +102,32 @@ public class Move implements IMove {
 	}
 
 	@Override
-	public boolean equals(IMove move) {
-		if (move.getFromSquare() == src && move.getToSquare() == dest
-				&& move.getPromotion() == promotion)
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + dest;
+		result = prime * result
+				+ ((promotion == null) ? 0 : promotion.hashCode());
+		result = prime * result + src;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
-		return false;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Move other = (Move) obj;
+		if (dest != other.dest || promotion != other.promotion
+				|| src != other.src) {
+			return false;
+		}
+		return true;
 	}
 }
