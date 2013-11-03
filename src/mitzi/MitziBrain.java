@@ -159,6 +159,13 @@ public class MitziBrain implements IBrain {
 			}
 			int negaval = variation.getValue() * side_sign;
 
+			// update the missing move for the child
+			variation.update(move, variation.getValue());
+
+			// build variation tree
+			if (negaval >= best_value - 100) // NOTE: fine tune this
+				parent.addSubVariation(variation);
+
 			// better variation found
 			if (negaval >= best_value) {
 				boolean truly_better = negaval > best_value;
@@ -166,11 +173,6 @@ public class MitziBrain implements IBrain {
 
 				// update variation tree
 				parent.update(null, variation.getValue());
-
-				// update the missing move for the child
-				variation.update(move, variation.getValue());
-
-				parent.addSubVariation(variation);
 
 				// output to UCI
 				if (depth == total_depth && truly_better) {
@@ -217,8 +219,8 @@ public class MitziBrain implements IBrain {
 		// Parameters for aspiration windows
 		int alpha = NEG_INF; // initial value
 		int beta = POS_INF; // initial value
-		int asp_window = 200; // often 50 or 25 is used
-		int factor = 3; // factor for increasing if out of bounds
+		int asp_window = 150; // often 50 or 25 is used
+		int factor = 2; // factor for increasing if out of bounds
 
 		for (int current_depth = 1; current_depth < searchDepth; current_depth++) {
 			this.principal_variation = null;
