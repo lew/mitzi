@@ -1,6 +1,5 @@
 package mitzi;
 
-import java.util.BitSet;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,6 +34,12 @@ public class MitziBoard implements IBoard {
 	private Side[] side_board = new Side[65];
 
 	private Piece[] piece_board = new Piece[65];
+
+	protected static int[] all_squares = { 11, 12, 13, 14, 15, 16, 17, 18, 21,
+			22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 41, 42,
+			43, 44, 45, 46, 47, 48, 51, 52, 53, 54, 55, 56, 57, 58, 61, 62, 63,
+			64, 65, 66, 67, 68, 71, 72, 73, 74, 75, 76, 77, 78, 81, 82, 83, 84,
+			85, 86, 87, 88 };
 
 	protected static int[] square_to_array_index = { 64, 64, 64, 64, 64, 64,
 			64, 64, 64, 64, 64, 56, 48, 40, 32, 24, 16, 8, 0, 64, 64, 57, 49,
@@ -983,7 +988,7 @@ public class MitziBoard implements IBoard {
 		}
 
 		// run over all squares
-		for (int square = 11; square <= 88; square++) {
+		for (int square : all_squares) {
 			Side side = getSideFromBoard(square);
 			if (side == null) // empty square
 				continue;
