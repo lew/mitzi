@@ -1,12 +1,12 @@
 package mitzi;
 
-public class AnalysisResult {
+public final class AnalysisResult {
 
-	private int score;
+	private final int score;
 
-	private boolean is_stalemate;
+	private final boolean is_stalemate;
 
-	private boolean needs_deeper;
+	private final boolean needs_deeper;
 
 	public AnalysisResult(int score, boolean is_stalemate, boolean needs_deeper) {
 		this.score = score;
@@ -41,5 +41,34 @@ public class AnalysisResult {
 	 */
 	public boolean needsDeeper() {
 		return needs_deeper;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (is_stalemate ? 1231 : 1237);
+		result = prime * result + (needs_deeper ? 1231 : 1237);
+		result = prime * result + score;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		AnalysisResult other = (AnalysisResult) obj;
+		if (is_stalemate != other.is_stalemate
+				|| needs_deeper != other.needs_deeper || score != other.score) {
+			return false;
+		}
+		return true;
 	}
 }
