@@ -1001,23 +1001,32 @@ public class MitziBoard implements IBoard {
 			Integer num_occupied_squares_by_color_int = num_occupied_squares_by_color
 					.get(side);
 			if (num_occupied_squares_by_color_int == null)
-				num_occupied_squares_by_color_int = 0;
+				num_occupied_squares_by_color_int = 1;
+			else
+				num_occupied_squares_by_color_int = num_occupied_squares_by_color_int
+						.intValue() + 1;
 			num_occupied_squares_by_color.put(side,
-					num_occupied_squares_by_color_int++);
+					num_occupied_squares_by_color_int);
 
 			Integer num_occupied_squares_by_type_int = num_occupied_squares_by_type
 					.get(piece);
 			if (num_occupied_squares_by_type_int == null)
-				num_occupied_squares_by_type_int = 0;
-			num_occupied_squares_by_color.put(side,
-					num_occupied_squares_by_type_int++);
+				num_occupied_squares_by_type_int = 1;
+			else
+				num_occupied_squares_by_type_int = num_occupied_squares_by_type_int
+						.intValue() + 1;
+			num_occupied_squares_by_type.put(piece,
+					num_occupied_squares_by_type_int);
 
 			Integer num_occupied_squares_by_color_and_type_int = num_occupied_squares_by_color_and_type
 					.get(side).get(piece);
 			if (num_occupied_squares_by_color_and_type_int == null)
-				num_occupied_squares_by_color_and_type_int = 0;
+				num_occupied_squares_by_color_and_type_int = 1;
+			else
+				num_occupied_squares_by_color_and_type_int = num_occupied_squares_by_color_and_type_int
+						.intValue() + 1;
 			num_occupied_squares_by_color_and_type.get(side).put(piece,
-					num_occupied_squares_by_color_and_type_int++);
+					num_occupied_squares_by_color_and_type_int);
 		}
 	}
 }
