@@ -110,27 +110,32 @@ public class MitziBrain implements IBrain {
 		if (old_tree == null || old_tree.getSubVariations().isEmpty()) {
 			// no previous computation given, use basic heuristic
 			ordered_moves = new ArrayList<IMove>(moves);
-			Collections.sort(ordered_moves, move_comparator);
+			Collections.sort(ordered_moves,
+					Collections.reverseOrder(move_comparator));
 		} else {
 			// use old Variation tree for ordering
 			Set<Variation> children = old_tree.getSubVariations();
 			ordered_variations = new ArrayList<Variation>(children);
-			Collections.sort(ordered_variations);
-			if (side == Side.WHITE)
-				Collections.reverse(ordered_variations);
+			if (side == Side.BLACK)
+				Collections.sort(ordered_variations);
+			else
+				Collections
+						.sort(ordered_variations, Collections.reverseOrder());
 			ordered_moves = new ArrayList<IMove>();
 			for (Variation var : ordered_variations) {
 				ordered_moves.add(var.getMove());
 			}
 			// add remaining moves in basic heuristic order
-			ArrayList<IMove> basic_ordered_moves = new ArrayList<IMove>();
+			ArrayList<IMove> remaining_moves = new ArrayList<IMove>();
 			for (IMove move : moves) {
 				if (!ordered_moves.contains(move))
-					basic_ordered_moves.add(move);
+					remaining_moves.add(move);
 			}
-			Collections.sort(basic_ordered_moves, move_comparator);
-			ordered_moves.addAll(basic_ordered_moves);
+			Collections.sort(remaining_moves,
+					Collections.reverseOrder(move_comparator));
+			ordered_moves.addAll(remaining_moves);
 		}
+		UCIReporter.sendInfoString(ordered_moves.toString());
 
 		// create new parent Variation
 		Variation parent = new Variation(null, NEG_INF,
