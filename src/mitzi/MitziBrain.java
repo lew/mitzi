@@ -195,6 +195,11 @@ public class MitziBrain implements IBrain {
 		// alpha beta search
 		for (IMove move : ordered_moves) {
 
+			if (depth == total_depth && total_depth >= 6) {
+				// output currently searched move to UCI
+				UCIReporter.sendInfoCurrMove(move, i + 1);
+			}
+
 			Variation variation;
 			if (ordered_variations != null && i < ordered_variations.size()) {
 				variation = evalBoard(board.doMove(move), total_depth,

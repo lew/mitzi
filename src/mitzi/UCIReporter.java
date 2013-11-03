@@ -48,6 +48,20 @@ public final class UCIReporter {
 	}
 
 	/**
+	 * Send information about the currently searched move to the GUI.
+	 * 
+	 * @param move
+	 *            currently searching this IMove
+	 * @param move_number
+	 *            currently searching move number n, for the first move n should
+	 *            be 1 not 0.
+	 */
+	public static void sendInfoCurrMove(IMove move, int move_number) {
+		System.out.println("info currmove " + move + " currmovenumber "
+				+ move_number);
+	}
+
+	/**
 	 * The Principal variation (PV) is a sequence of moves that programs
 	 * consider best and therefore expect to be played. Also all infos belonging
 	 * to the PV should be sent together.
