@@ -17,6 +17,8 @@ public class MitziBrain implements IBrain {
 	private Variation principal_variation;
 
 	private long eval_counter;
+	
+	private IBoardAnalyzer board_analyzer = new PrimitiveBoardAnalyzer();
 
 	@Override
 	public void set(IBoard board) {
@@ -67,7 +69,7 @@ public class MitziBrain implements IBrain {
 			board_values = new double[moves.size()];
 			int i = 0;
 			for (IMove move : this.moves) {
-				board_values[i] = side_sign * evalBoard0(board.doMove(move));
+				board_values[i] = side_sign * board_analyzer.eval0(board.doMove(move)).getScore();
 				i++;
 			}
 		}
@@ -154,7 +156,8 @@ public class MitziBrain implements IBrain {
 
 		// base case (the side should alternate)
 		if (depth == 0) {
-			Variation base_variation = new Variation(null, evalBoard0(board),
+			AnalysisResult result = board_analyzer.eval0(board);
+			Variation base_variation = new Variation(null, result.getScore(),
 					Side.getOppositeSide(side));
 			return base_variation;
 		}
@@ -246,36 +249,6 @@ public class MitziBrain implements IBrain {
 	private Variation evalBoard(IBoard board, int total_depth, int depth,
 			int alpha, int beta) {
 		return evalBoard(board, total_depth, depth, alpha, beta, null);
-	}
-
-	/**
-	 * returns the value of a board. Does NOT recognize mate and stalemate!
-	 * 
-	 * @param board
-	 *            the board to be analyzed
-	 * @return the value of a board in centipawns
-	 */
-	private int evalBoard0(IBoard board) {
-
-		eval_counter++;
-
-		// A very very simple implementation
-		int value = 0;
-
-		// One way to prevent copy and paste
-		int[] fig_value = { 100, 500, 330, 330, 900, 000 };
-
-		// Maybe not the most efficient way (several runs over the board)
-		for (Side c : Side.values()) {
-			int side_sign = Side.getSideSign(c);
-			for (Piece fig : Piece.values()) {
-				value += board.getNumberOfPiecesByColorAndType(c, fig)
-						* fig_value[fig.ordinal()] * side_sign;
-			}
-
-		}
-
-		return value;
 	}
 
 	@Override
