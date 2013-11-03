@@ -17,7 +17,7 @@ public class MitziBrain implements IBrain {
 	private Variation principal_variation;
 
 	private long eval_counter;
-	
+
 	private IBoardAnalyzer board_analyzer = new PrimitiveBoardAnalyzer();
 
 	@Override
@@ -69,7 +69,8 @@ public class MitziBrain implements IBrain {
 			board_values = new double[moves.size()];
 			int i = 0;
 			for (IMove move : this.moves) {
-				board_values[i] = side_sign * board_analyzer.eval0(board.doMove(move)).getScore();
+				board_values[i] = side_sign
+						* board_analyzer.eval0(board.doMove(move)).getScore();
 				i++;
 			}
 		}
@@ -151,6 +152,7 @@ public class MitziBrain implements IBrain {
 				base_variation = new Variation(null, 0,
 						Side.getOppositeSide(side));
 			}
+			eval_counter++;
 			return base_variation;
 		}
 
@@ -159,6 +161,7 @@ public class MitziBrain implements IBrain {
 			AnalysisResult result = board_analyzer.eval0(board);
 			Variation base_variation = new Variation(null, result.getScore(),
 					Side.getOppositeSide(side));
+			eval_counter++;
 			return base_variation;
 		}
 
@@ -318,7 +321,7 @@ public class MitziBrain implements IBrain {
 				break;
 			}
 		}
-		
+
 		timer.cancel();
 
 		if (principal_variation != null) {
