@@ -19,7 +19,7 @@ public class PrimitiveBoardAnalyzer implements IBoardAnalyzer {
 
 		}
 
-		AnalysisResult result = new AnalysisResult(score, false);
+		AnalysisResult result = new AnalysisResult(score, false, false);
 		return result;
 	}
 
