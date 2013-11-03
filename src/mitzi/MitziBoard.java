@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class NaiveBoard implements IBoard {
+public class MitziBoard implements IBoard {
 
 	protected static Side[] initial_side_board = { Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
@@ -101,8 +101,8 @@ public class NaiveBoard implements IBoard {
 		return square_to_array_index[square];
 	}
 
-	private NaiveBoard returnCopy() {
-		NaiveBoard newBoard = new NaiveBoard();
+	private MitziBoard returnCopy() {
+		MitziBoard newBoard = new MitziBoard();
 
 		newBoard.active_color = active_color;
 		newBoard.en_passant_target = en_passant_target;
@@ -270,9 +270,9 @@ public class NaiveBoard implements IBoard {
 	}
 
 	@Override
-	public NaiveBoard doMove(IMove move) {
+	public MitziBoard doMove(IMove move) {
 
-		NaiveBoard newBoard = this.returnCopy();
+		MitziBoard newBoard = this.returnCopy();
 
 		int src = move.getFromSquare();
 		int dest = move.getToSquare();
@@ -425,7 +425,7 @@ public class NaiveBoard implements IBoard {
 					// Check each square if the king on it would be check
 					for (Integer squ : line) {
 						move = new Move(square, squ);
-						NaiveBoard board = doMove(move);
+						MitziBoard board = doMove(move);
 						board.active_color = active_color;
 
 						if (board.isCheckPosition())
@@ -792,7 +792,7 @@ public class NaiveBoard implements IBoard {
 						// Check each square if the king on it would be check
 						for (Integer squ : line) {
 							move = new Move(square, squ);
-							NaiveBoard board = doMove(move);
+							MitziBoard board = doMove(move);
 							board.active_color = active_color; // TODO: ugly
 																// solution ! ;)
 							if (board.isCheckPosition())
@@ -822,7 +822,7 @@ public class NaiveBoard implements IBoard {
 		// TODO do this in a more efficient way
 		Iterator<IMove> iter = moves.iterator();
 		while (iter.hasNext()) {
-			NaiveBoard temp_board = this.doMove(iter.next());
+			MitziBoard temp_board = this.doMove(iter.next());
 			temp_board.active_color = active_color; // ugly solution…
 			if (temp_board.isCheckPosition()) {
 				iter.remove();
