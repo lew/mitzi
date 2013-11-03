@@ -1,5 +1,7 @@
 package mitzi;
 
+import static mitzi.MateScores.*;
+
 public final class UCIReporter {
 
 	/**
@@ -78,12 +80,12 @@ public final class UCIReporter {
 	 *            output.
 	 */
 	public static void sendInfoPV(Variation pv, int depth, int score, Side side) {
-		if (score == MitziBrain.NEG_INF && side == Side.WHITE
-				|| score == MitziBrain.POS_INF && side == Side.BLACK) {
+		if (score == NEG_INF && side == Side.WHITE
+				|| score == POS_INF && side == Side.BLACK) {
 			System.out.println("info score mate -" + ((depth + 1) / 2)
 					+ " depth " + depth + " pv " + pv);
-		} else if (score == MitziBrain.NEG_INF && side == Side.BLACK
-				|| score == MitziBrain.POS_INF && side == Side.WHITE) {
+		} else if (score == NEG_INF && side == Side.BLACK
+				|| score == POS_INF && side == Side.WHITE) {
 			System.out.println("info score mate " + ((depth + 1) / 2)
 					+ " depth " + depth + " pv " + pv);
 		} else {

@@ -7,12 +7,10 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static mitzi.MateScores.*;
 import mitzi.UCIReporter.InfoType;
 
 public class MitziBrain implements IBrain {
-
-	public static int POS_INF = +1000000000;
-	public static int NEG_INF = -1000000000;
 
 	private IBoard board;
 
