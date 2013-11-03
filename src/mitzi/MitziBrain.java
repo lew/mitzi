@@ -320,12 +320,12 @@ public class MitziBrain implements IBrain {
 			if (var_tree_temp.getValue() <= alpha) {
 				alpha -= factor * asp_window;
 				current_depth -= 2;
-				System.out.println("Fail lower bound!"); // only for debugging
+				UCIReporter.sendInfoString("Fail lower bound!"); // only for debugging
 				continue;
 			} else if (var_tree_temp.getValue() >= beta) {
 				beta += factor * asp_window;
 				current_depth -= 2;
-				System.out.println("Fail upper bound!");
+				UCIReporter.sendInfoString("Fail upper bound!");
 				continue;
 			}
 
@@ -345,12 +345,11 @@ public class MitziBrain implements IBrain {
 					beta, var_tree);
 			if (var_tree_temp.getValue() <= alpha) {
 				alpha -= factor * asp_window;
-				System.out.println("Fail lower bound!");
+				UCIReporter.sendInfoString("Fail lower bound!");
 				continue;
 			} else if (var_tree_temp.getValue() >= beta) {
-
 				beta += factor * asp_window;
-				System.out.println("Fail upper bound!");
+				UCIReporter.sendInfoString("Fail upper bound!");
 				continue;
 			} else {
 				var_tree = var_tree_temp;
