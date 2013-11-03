@@ -81,6 +81,10 @@ public interface IBoard {
 	public Set<IMove> getPossibleMovesFrom(int square);
 
 	public Set<IMove> getPossibleMovesTo(int square);
+	
+	public Side getSideFromBoard(int square);
+	
+	public Piece getPieceFromBoard(int square);
 
 	public boolean isCheckPosition();
 

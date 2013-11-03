@@ -2,7 +2,6 @@ package mitzi;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,69 +50,6 @@ public class MitziBrain implements IBrain {
 			old_eval_counter += eval_span;
 
 		}
-	}
-
-	/**
-	 * 
-	 * This Comparator class implements the comparing of two moves. The moves
-	 * are saved intern as an ArrayList for a simpler search.
-	 * 
-	 */
-	class MoveComperator implements Comparator<IMove> {
-
-		private double[] board_values;
-		private ArrayList<IMove> moves;
-
-		public void compute_values(Set<IMove> moves, IBoard board, int side_sign) {
-			this.moves = new ArrayList<IMove>(moves);
-			board_values = new double[moves.size()];
-			int i = 0;
-			for (IMove move : this.moves) {
-				board_values[i] = side_sign
-						* board_analyzer.eval0(board.doMove(move)).getScore();
-				i++;
-			}
-		}
-
-		public int compare(IMove m1, IMove m2) {
-
-			int i1 = moves.indexOf(m1);
-			int i2 = moves.indexOf(m2);
-
-			// "-" to receive an increasing ordering
-			return -Double.compare(board_values[i1], board_values[i2]);
-
-		}
-	}
-
-	/**
-	 * Sorts the moves w.r.t. the value of the next board (base case). If the
-	 * depth is 1 (so after one move the base case is reached) no sorting is
-	 * done. (preventing double evaluation of board)
-	 * 
-	 * @param moves
-	 *            the set of moves to be sorted
-	 * @param board
-	 *            the actual board
-	 * @param side_sign
-	 *            the actual side
-	 * @param depth
-	 *            the current search depth
-	 * @return the sorted set of moves in a TreeSet
-	 */
-	private ArrayList<IMove> sortMoves(Set<IMove> moves, IBoard board,
-			int side_sign, int depth) {
-
-		ArrayList<IMove> ordered_moves;
-		ordered_moves = new ArrayList<IMove>(moves);
-		if (depth != 1) {
-			MoveComperator my_comp = new MoveComperator();
-			my_comp.compute_values(moves, board, side_sign);
-
-			Collections.sort(ordered_moves, my_comp);
-		}
-
-		return ordered_moves;
 	}
 
 	/**
@@ -168,11 +104,13 @@ public class MitziBrain implements IBrain {
 		int best_value = NEG_INF; // this starts always at negative!
 
 		// Sort the moves:
+		BasicMoveComparator move_comparator = new BasicMoveComparator(board);
 		ArrayList<IMove> ordered_moves;
 		ArrayList<Variation> ordered_variations = null;
 		if (old_tree == null || old_tree.getSubVariations().isEmpty()) {
-			// no previous computation given
-			ordered_moves = sortMoves(moves, board, side_sign, depth);
+			// no previous computation given, use basic heuristic
+			ordered_moves = new ArrayList<IMove>(moves);
+			Collections.sort(ordered_moves, move_comparator);
 		} else {
 			// use old Variation tree for ordering
 			Set<Variation> children = old_tree.getSubVariations();
@@ -184,11 +122,14 @@ public class MitziBrain implements IBrain {
 			for (Variation var : ordered_variations) {
 				ordered_moves.add(var.getMove());
 			}
-			// add remaining moves
+			// add remaining moves in basic heuristic order
+			ArrayList<IMove> basic_ordered_moves = new ArrayList<IMove>();
 			for (IMove move : moves) {
 				if (!ordered_moves.contains(move))
-					ordered_moves.add(move);
+					basic_ordered_moves.add(move);
 			}
+			Collections.sort(basic_ordered_moves, move_comparator);
+			ordered_moves.addAll(basic_ordered_moves);
 		}
 
 		// create new parent Variation

@@ -116,12 +116,12 @@ public class NaiveBoard implements IBoard {
 		return newBoard;
 	}
 
-	private Side getSideFromBoard(int square) {
+	public Side getSideFromBoard(int square) {
 		int i = squareToArrayIndex(square);
 		return side_board[i];
 	}
 
-	private Piece getPieceFromBoard(int square) {
+	public Piece getPieceFromBoard(int square) {
 		int i = squareToArrayIndex(square);
 		return piece_board[i];
 	}
