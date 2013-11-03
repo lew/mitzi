@@ -17,7 +17,7 @@ public class MitziBrain implements IBrain {
 
 	private long eval_counter;
 
-	private IBoardAnalyzer board_analyzer = new PrimitiveBoardAnalyzer();
+	private IBoardAnalyzer board_analyzer = new BasicBoardAnalyzer();
 
 	@Override
 	public void set(IBoard board) {
