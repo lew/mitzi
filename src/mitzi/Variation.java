@@ -21,6 +21,16 @@ public class Variation implements Comparable<Variation> {
 	 * Whose turn is it at this move.
 	 */
 	private Side to_move;
+	
+	/**
+	 * The depth of this variation.
+	 */
+	private int depth;
+	
+	/**
+	 * Important for transposition tables
+	 */
+	private Flag flag;
 
 	/**
 	 * A set of Variations possible after the move.
@@ -248,5 +258,38 @@ public class Variation implements Comparable<Variation> {
 		}
 
 		return str.toString();
+	}
+
+	/**
+	 * 
+	 * @return the current depth
+	 */
+	public int getDepth() {
+		return depth;
+	}
+
+	/**
+	 * Sets the current depth
+	 * @param  the depth to be set
+	 */
+	public void setDepth(int depth) {
+		this.depth = depth;	
+	}
+
+	/**
+	 * 
+	 * @return the current flag of the variation
+	 */
+	public Flag getFlag() {
+		return flag;
+	}
+
+	/**
+	 * Sets the current flag
+	 * @param flag the flag to be set
+	 */
+	public void setFlag(Flag flag) {
+		this.flag = flag;
+		
 	}
 }

@@ -2,6 +2,9 @@ package mitzi;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,7 +20,13 @@ public class MitziBrain implements IBrain {
 
 	private long eval_counter;
 
+	private long table_counter = 0;
+
 	private IBoardAnalyzer board_analyzer = new BasicBoardAnalyzer();
+
+	// maybe reuse old tables
+	public Map<IBoard, Variation> transposition_table = new HashMap<IBoard, Variation>(
+			100000);
 
 	@Override
 	public void set(IBoard board) {
@@ -71,6 +80,27 @@ public class MitziBrain implements IBrain {
 	private Variation evalBoard(IBoard board, int total_depth, int depth,
 			int alpha, int beta, Variation old_tree) {
 
+		int alpha_old = alpha;
+
+		// Transposition Table Lookup; node is the lookup key for entry
+		// http://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning_and_Transposition_Tables
+		Variation entry = transposition_table.get(board);
+		if (entry != null && entry.getDepth() >= depth) {
+			table_counter++;
+			if (entry.getFlag() == Flag.EXACT) {
+				entry.setDepth(depth);
+				return entry;
+			} else if (entry.getFlag() == Flag.LOWERBOUND)
+				alpha = Math.max(alpha, entry.getValue());
+			else if (entry.getFlag() == Flag.UPPERBOUND)
+				beta = Math.min(beta, entry.getValue());
+
+			if (alpha >= beta) {
+				entry.setDepth(depth);
+				return entry;
+			}
+		}
+
 		// whose move is it?
 		Side side = board.getActiveColor();
 		int side_sign = Side.getSideSign(side);
@@ -122,9 +152,17 @@ public class MitziBrain implements IBrain {
 				Collections
 						.sort(ordered_variations, Collections.reverseOrder());
 			ordered_moves = new ArrayList<IMove>();
+			ArrayList<Variation> del = new ArrayList<Variation>();
 			for (Variation var : ordered_variations) {
-				ordered_moves.add(var.getMove());
+				// TODO: WORKAROUND FOR CRASH. This should not happen, but
+				// happens only in connection with Transpos. Tables!!!!
+				if (moves.contains(var.getMove()))
+					del.add(var);
+				else
+					ordered_moves.add(var.getMove());
 			}
+			ordered_variations.removeAll(del);
+
 			// add remaining moves in basic heuristic order
 			ArrayList<IMove> remaining_moves = new ArrayList<IMove>();
 			for (IMove move : moves) {
@@ -192,6 +230,24 @@ public class MitziBrain implements IBrain {
 			i++; // keep ordered_moves and ordered_variations in sync
 		}
 
+		// Transposition Table Store; board is the lookup key for parent
+
+		Variation t_entry = new Variation(null, parent.getValue(), side);
+		Set<Variation> childs = new HashSet<Variation>(
+				parent.getSubVariations());
+		for (Variation var : childs)
+			t_entry.addSubVariation(var);
+		if (t_entry.getValue() <= alpha_old)
+			t_entry.setFlag(Flag.UPPERBOUND);
+		else if (t_entry.getValue() >= beta)
+			t_entry.setFlag(Flag.LOWERBOUND);
+		else
+			t_entry.setFlag(Flag.EXACT);
+
+		t_entry.setDepth(depth); // the depth of subvariations is not changed.
+									// (because it not needed)
+		transposition_table.put(board, t_entry);
+
 		return parent;
 
 	}
@@ -224,6 +280,9 @@ public class MitziBrain implements IBrain {
 
 		for (int current_depth = 1; current_depth < searchDepth; current_depth++) {
 			this.principal_variation = null;
+			table_counter = 0;
+			// should or should not be cleared?
+			transposition_table.clear();
 			var_tree_temp = evalBoard(board, current_depth, current_depth,
 					alpha, beta, var_tree);
 			// mate found
@@ -252,10 +311,14 @@ public class MitziBrain implements IBrain {
 			beta = var_tree_temp.getValue() + asp_window;
 
 			var_tree = var_tree_temp;
+			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
 
 		// repeat until a value inside the alpha-beta bound is found.
 		while (true) {
+			// should or should not be cleared?
+			transposition_table.clear();
+			table_counter = 0;
 			this.principal_variation = null;
 			var_tree_temp = evalBoard(board, searchDepth, searchDepth, alpha,
 					beta, var_tree);
@@ -270,7 +333,9 @@ public class MitziBrain implements IBrain {
 		}
 
 		timer.cancel();
-
+		UCIReporter.sendInfoString("Size transposition table: "
+				+ transposition_table.size());
+		UCIReporter.sendInfoString("Boards found: " + table_counter);
 		if (principal_variation != null) {
 			return principal_variation.getMove();
 		} else {

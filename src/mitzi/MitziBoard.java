@@ -1,5 +1,6 @@
 package mitzi;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1049,6 +1050,50 @@ public class MitziBoard implements IBoard {
 	@Override
 	public int getFullMoveClock() {
 		return full_move_clock;
+	}
+
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+
+		for (Side element : side_board)
+			result = prime * result + (element == null ? 0 : element.ordinal()+1);
+		
+		for (Piece element : piece_board)
+			result = prime * result + (element == null ? 0 : element.ordinal()+1);
+		
+		for(int element : castling)
+			result = prime * result + element;
+		
+		result = prime* result + active_color.ordinal();
+		
+		result = prime* result + en_passant_target;
+					
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		MitziBoard other = (MitziBoard) obj;
+		if (!Arrays.equals(side_board, other.side_board)
+				|| !Arrays.equals(piece_board,piece_board)
+				|| !Arrays.equals(castling,other.castling)
+				|| en_passant_target != other.en_passant_target
+				|| active_color != other.active_color) {
+			return false;
+		}
+		return true;
 	}
 
 }
