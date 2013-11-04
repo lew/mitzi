@@ -21,12 +21,12 @@ public class Variation implements Comparable<Variation> {
 	 * Whose turn is it at this move.
 	 */
 	private Side to_move;
-	
+
 	/**
 	 * The depth of this variation.
 	 */
 	private int depth;
-	
+
 	/**
 	 * Important for transposition tables
 	 */
@@ -217,9 +217,14 @@ public class Variation implements Comparable<Variation> {
 	 *         argument Variation; and a value greater than 0 if this Variation
 	 *         is in value greater than the argument Variation (signed
 	 *         comparison).
+	 * 
+	 * @throws NullPointerException
+	 *             if the specified object is null
 	 */
 	@Override
 	public int compareTo(Variation anotherVariation) {
+		if (anotherVariation == null)
+			throw new NullPointerException();
 		return Integer.compare(this.getValue(), anotherVariation.getValue());
 	}
 
@@ -270,10 +275,12 @@ public class Variation implements Comparable<Variation> {
 
 	/**
 	 * Sets the current depth
-	 * @param  the depth to be set
+	 * 
+	 * @param the
+	 *            depth to be set
 	 */
 	public void setDepth(int depth) {
-		this.depth = depth;	
+		this.depth = depth;
 	}
 
 	/**
@@ -286,10 +293,12 @@ public class Variation implements Comparable<Variation> {
 
 	/**
 	 * Sets the current flag
-	 * @param flag the flag to be set
+	 * 
+	 * @param flag
+	 *            the flag to be set
 	 */
 	public void setFlag(Flag flag) {
 		this.flag = flag;
-		
+
 	}
 }
