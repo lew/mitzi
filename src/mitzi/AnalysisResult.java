@@ -23,20 +23,23 @@ public final class AnalysisResult {
 	private int plys_to_eval0 = 0;
 
 	private int plys_to_seldepth = 0;
+	
+	private Flag flag;
 
-	AnalysisResult(int score, Boolean is_stalemate, boolean needs_deeper) {
+	AnalysisResult(int score, Boolean is_stalemate) {
 		this.score = score;
 		this.is_stalemate = is_stalemate;
-		this.needs_deeper = needs_deeper;
+		this.needs_deeper = true;
 	}
 
 	AnalysisResult(int score, Boolean is_stalemate, boolean needs_deeper,
-			int plys_to_eval0, int plys_to_seldepth) {
+			int plys_to_eval0, int plys_to_seldepth, Flag flag) {
 		this.score = score;
 		this.is_stalemate = is_stalemate;
 		this.needs_deeper = needs_deeper;
 		this.plys_to_eval0 = plys_to_eval0;
 		this.plys_to_seldepth = plys_to_seldepth;
+		this.flag = flag;
 	}
 
 	/**
@@ -67,6 +70,14 @@ public final class AnalysisResult {
 		this.plys_to_seldepth = sel_depth;
 	}
 
+	public Flag getFlag() {
+		return flag;
+	}
+
+	public void setFlag(Flag flag) {
+		this.flag = flag;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -94,5 +105,28 @@ public final class AnalysisResult {
 			return false;
 		}
 		return true;
+	}
+
+	public int compareQualityTo(AnalysisResult o) {
+		if (o == null)
+			throw new NullPointerException();
+
+		if (this == o)
+			return 0;
+
+		// (deeper results)
+		if (this.plys_to_eval0 > o.plys_to_eval0)
+			return 1;
+
+		// or (equally deep results) and (deeper or equal selective results)
+		if (this.plys_to_eval0 == o.plys_to_eval0
+				&& this.plys_to_seldepth > o.plys_to_seldepth)
+			return 1;
+		
+		if (this.plys_to_eval0 == o.plys_to_eval0
+				&& this.plys_to_seldepth == o.plys_to_seldepth)
+			return 0;
+
+		return -1;
 	}
 }
