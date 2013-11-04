@@ -1087,7 +1087,7 @@ public class MitziBoard implements IBoard {
 		}
 		MitziBoard other = (MitziBoard) obj;
 		if (!Arrays.equals(side_board, other.side_board)
-				|| !Arrays.equals(piece_board,piece_board)
+				|| !Arrays.equals(piece_board,other.piece_board)
 				|| !Arrays.equals(castling,other.castling)
 				|| en_passant_target != other.en_passant_target
 				|| active_color != other.active_color) {
