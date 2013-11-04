@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class MitziBoard implements IBoard {
-
+	
 	protected static Side[] initial_side_board = { Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,

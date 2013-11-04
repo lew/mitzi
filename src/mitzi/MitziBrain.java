@@ -88,7 +88,6 @@ public class MitziBrain implements IBrain {
 		if (entry != null && entry.getDepth() >= depth) {
 			table_counter++;
 			if (entry.getFlag() == Flag.EXACT) {
-				entry.setDepth(depth);
 				return entry;
 			} else if (entry.getFlag() == Flag.LOWERBOUND)
 				alpha = Math.max(alpha, entry.getValue());
@@ -96,7 +95,6 @@ public class MitziBrain implements IBrain {
 				beta = Math.min(beta, entry.getValue());
 
 			if (alpha >= beta) {
-				entry.setDepth(depth);
 				return entry;
 			}
 		}
@@ -156,7 +154,7 @@ public class MitziBrain implements IBrain {
 			for (Variation var : ordered_variations) {
 				// TODO: WORKAROUND FOR CRASH. This should not happen, but
 				// happens only in connection with Transpos. Tables!!!!
-				if (moves.contains(var.getMove()))
+				if (!moves.contains(var.getMove()))
 					del.add(var);
 				else
 					ordered_moves.add(var.getMove());
@@ -178,6 +176,8 @@ public class MitziBrain implements IBrain {
 		Variation parent = new Variation(null, NEG_INF,
 				Side.getOppositeSide(side));
 
+		String fen= board.toFEN();
+		String m = moves.toString();
 		int i = 0;
 		// alpha beta search
 		for (IMove move : ordered_moves) {
@@ -282,7 +282,7 @@ public class MitziBrain implements IBrain {
 			this.principal_variation = null;
 			table_counter = 0;
 			// should or should not be cleared?
-			transposition_table.clear();
+			//transposition_table.clear();
 			var_tree_temp = evalBoard(board, current_depth, current_depth,
 					alpha, beta, var_tree);
 			// mate found
@@ -317,7 +317,7 @@ public class MitziBrain implements IBrain {
 		// repeat until a value inside the alpha-beta bound is found.
 		while (true) {
 			// should or should not be cleared?
-			transposition_table.clear();
+			//transposition_table.clear();
 			table_counter = 0;
 			this.principal_variation = null;
 			var_tree_temp = evalBoard(board, searchDepth, searchDepth, alpha,
