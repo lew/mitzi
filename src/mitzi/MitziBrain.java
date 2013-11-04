@@ -123,7 +123,7 @@ public class MitziBrain implements IBrain {
 		// base case (the side should alternate)
 		if (depth == 0) {
 			AnalysisResult result = board_analyzer.eval0(board);
-			Variation base_variation = new Variation(null, result.getScore(),
+			Variation base_variation = new Variation(null, result.score,
 					Side.getOppositeSide(side));
 			eval_counter++;
 			return base_variation;

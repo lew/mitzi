@@ -2,45 +2,48 @@ package mitzi;
 
 public final class AnalysisResult {
 
-	private final int score;
+	/**
+	 * The boards score in centipawns.
+	 */
+	public final int score;
 
-	private final boolean is_stalemate;
+	/**
+	 * If true, the board is a stalemate position. I. e. no moves are possible
+	 * but there is no check. If null, then it has not been analyzed.
+	 */
+	public final Boolean is_stalemate;
 
-	private final boolean needs_deeper;
+	/**
+	 * If the evaluation method considers this board to be in an unstable state
+	 * and recommends a deeper evalutation or is simply not sure, this is set to
+	 * true.
+	 */
+	public final boolean needs_deeper;
 
-	public AnalysisResult(int score, boolean is_stalemate, boolean needs_deeper) {
+	private int search_depth;
+
+	private int sel_depth;
+
+	public AnalysisResult(int score, Boolean is_stalemate, boolean needs_deeper) {
 		this.score = score;
 		this.is_stalemate = is_stalemate;
 		this.needs_deeper = needs_deeper;
 	}
 
-	/**
-	 * The boards score in centipawns.
-	 * 
-	 * @return
-	 */
-	public int getScore() {
-		return score;
+	public int getSearch_depth() {
+		return search_depth;
 	}
 
-	/**
-	 * Check if the board is a stalemate position. I. e. no moves are possible
-	 * but there is no check.
-	 * 
-	 * @return true iff stalemate
-	 */
-	public boolean isStalemate() {
-		return is_stalemate;
+	public void setSearch_depth(int search_depth) {
+		this.search_depth = search_depth;
 	}
 
-	/**
-	 * Check if the evaluation method considers this board to be in an unstable
-	 * state and recommends a deeper evalutation.
-	 * 
-	 * @return true iff further evaluation is advised
-	 */
-	public boolean needsDeeper() {
-		return needs_deeper;
+	public int getSel_depth() {
+		return sel_depth;
+	}
+
+	public void setSel_depth(int sel_depth) {
+		this.sel_depth = sel_depth;
 	}
 
 	@Override
