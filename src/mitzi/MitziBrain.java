@@ -176,8 +176,6 @@ public class MitziBrain implements IBrain {
 		Variation parent = new Variation(null, NEG_INF,
 				Side.getOppositeSide(side));
 
-		String fen= board.toFEN();
-		String m = moves.toString();
 		int i = 0;
 		// alpha beta search
 		for (IMove move : ordered_moves) {
