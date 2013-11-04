@@ -123,6 +123,8 @@ public class MitziBrain implements IBrain {
 		// base case (the side should alternate)
 		if (depth == 0) {
 			AnalysisResult result = board_analyzer.eval0(board);
+			result.setSearchDepth(total_depth);
+			result.setSelDepth(total_depth);
 			Variation base_variation = new Variation(null, result.score,
 					Side.getOppositeSide(side));
 			eval_counter++;
@@ -280,7 +282,7 @@ public class MitziBrain implements IBrain {
 			this.principal_variation = null;
 			table_counter = 0;
 			// should or should not be cleared?
-			//transposition_table.clear();
+			// transposition_table.clear();
 			var_tree_temp = evalBoard(board, current_depth, current_depth,
 					alpha, beta, var_tree);
 			// mate found
@@ -315,7 +317,7 @@ public class MitziBrain implements IBrain {
 		// repeat until a value inside the alpha-beta bound is found.
 		while (true) {
 			// should or should not be cleared?
-			//transposition_table.clear();
+			// transposition_table.clear();
 			table_counter = 0;
 			this.principal_variation = null;
 			var_tree_temp = evalBoard(board, searchDepth, searchDepth, alpha,

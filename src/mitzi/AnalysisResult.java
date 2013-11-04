@@ -30,19 +30,29 @@ public final class AnalysisResult {
 		this.needs_deeper = needs_deeper;
 	}
 
-	public int getSearch_depth() {
+	/**
+	 * Gives the (complete) search depth at which this result was obtained.
+	 * 
+	 * @return the search depth
+	 */
+	public int getSearchDepth() {
 		return search_depth;
 	}
 
-	public void setSearch_depth(int search_depth) {
+	public void setSearchDepth(int search_depth) {
 		this.search_depth = search_depth;
 	}
 
-	public int getSel_depth() {
+	/**
+	 * Gives the selective search depth at which this result was obtained.
+	 * 
+	 * @return the selective search depth
+	 */
+	public int getSelDepth() {
 		return sel_depth;
 	}
 
-	public void setSel_depth(int sel_depth) {
+	public void setSelDepth(int sel_depth) {
 		this.sel_depth = sel_depth;
 	}
 
