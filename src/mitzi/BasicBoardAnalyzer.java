@@ -26,7 +26,7 @@ public class BasicBoardAnalyzer implements IBoardAnalyzer {
 			}
 		}
 
-		AnalysisResult result = new AnalysisResult(score, null, true);
+		AnalysisResult result = new AnalysisResult(score, null);
 		return result;
 	}
 }
