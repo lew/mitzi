@@ -1,6 +1,7 @@
 package mitzi;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class HashManager {
@@ -18,7 +19,7 @@ public class HashManager {
 		new_root.removeFromParent();
 		new_root.setParentMove(null);
 		root_node = new_root;
-		hash_map = new HashMap<IBoard, PositionTreeNode>();
+		clearHashMap();
 	}
 
 	public PositionTreeNode lookup(Position position) {
@@ -40,4 +41,18 @@ public class HashManager {
 		return root_node;
 	}
 
+	public void clearHashMap() {
+		if (hash_map.isEmpty())
+			return;
+
+		Iterator<Map.Entry<IBoard, PositionTreeNode>> it = hash_map.entrySet()
+				.iterator();
+		while (it.hasNext()) {
+			Map.Entry<IBoard, PositionTreeNode> entry = it.next();
+			it.remove();
+			if (!root_node.isNodeDescendant(entry.getValue())) {
+				hash_map.remove(entry.getKey());
+			}
+		}
+	}
 }
