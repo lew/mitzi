@@ -80,17 +80,32 @@ public final class UCIReporter {
 	 *            output.
 	 */
 	public static void sendInfoPV(Variation pv, int depth, int score, Side side) {
-		if (score == NEG_INF && side == Side.WHITE
-				|| score == POS_INF && side == Side.BLACK) {
+		if (score == NEG_INF && side == Side.WHITE || score == POS_INF
+				&& side == Side.BLACK) {
 			System.out.println("info score mate -" + ((depth + 1) / 2)
 					+ " depth " + depth + " pv " + pv);
-		} else if (score == NEG_INF && side == Side.BLACK
-				|| score == POS_INF && side == Side.WHITE) {
+		} else if (score == NEG_INF && side == Side.BLACK || score == POS_INF
+				&& side == Side.WHITE) {
 			System.out.println("info score mate " + ((depth + 1) / 2)
 					+ " depth " + depth + " pv " + pv);
 		} else {
 			System.out.println("info score cp " + score + " depth " + depth
 					+ " pv " + pv);
+		}
+	}
+
+	public static void sendInfoPV(PositionTreeNode root_node, int depth,
+			int score, Side side) {
+		if (score == NEG_INF && side == Side.WHITE || score == POS_INF
+				&& side == Side.BLACK) {
+			System.out.println("info score mate -" + ((depth + 1) / 2)
+					+ " depth " + depth);
+		} else if (score == NEG_INF && side == Side.BLACK || score == POS_INF
+				&& side == Side.WHITE) {
+			System.out.println("info score mate " + ((depth + 1) / 2)
+					+ " depth " + depth);
+		} else {
+			System.out.println("info score cp " + score + " depth " + depth);
 		}
 	}
 }
