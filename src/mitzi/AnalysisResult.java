@@ -23,7 +23,7 @@ public final class AnalysisResult {
 	private int plys_to_eval0 = 0;
 
 	private int plys_to_seldepth = 0;
-	
+
 	private Flag flag;
 
 	AnalysisResult(int score, Boolean is_stalemate) {
@@ -122,11 +122,16 @@ public final class AnalysisResult {
 		if (this.plys_to_eval0 == o.plys_to_eval0
 				&& this.plys_to_seldepth > o.plys_to_seldepth)
 			return 1;
-		
+
 		if (this.plys_to_eval0 == o.plys_to_eval0
 				&& this.plys_to_seldepth == o.plys_to_seldepth)
 			return 0;
 
 		return -1;
+	}
+
+	@Override
+	public String toString() {
+		return "cp: " + score + " depth: " + plys_to_eval0 + (flag != null  ? " flag: " + flag : "");
 	}
 }
