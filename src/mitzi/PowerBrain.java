@@ -132,6 +132,7 @@ public class PowerBrain implements IBrain {
 		// Sort the moves:
 		BasicMoveComparator move_comparator = new BasicMoveComparator(
 				position.board);
+		
 		// TODO: order moves using PTN
 		List<IMove> ordered_moves = new ArrayList<IMove>(moves.size());
 		
