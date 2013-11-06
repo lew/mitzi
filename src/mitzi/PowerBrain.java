@@ -133,14 +133,12 @@ public class PowerBrain implements IBrain {
 		BasicMoveComparator move_comparator = new BasicMoveComparator(
 				position.board);
 		// TODO: order moves using PTN
-		List<IMove> ordered_moves = new ArrayList<IMove>();
-
-		// add remaining moves in basic heuristic order ArrayList<IMove>
+		List<IMove> ordered_moves = new ArrayList<IMove>(moves.size());
+		
+		// add remaining moves in basic heuristic order ArrayList<IMove> (moves get changed!)
+		moves.removeAll(ordered_moves);
 		List<IMove> remaining_moves = new ArrayList<IMove>(moves);
-		for (IMove move : moves) {
-			if (!ordered_moves.contains(move))
-				remaining_moves.add(move);
-		}
+
 		Collections.sort(remaining_moves,
 				Collections.reverseOrder(move_comparator));
 		ordered_moves.addAll(remaining_moves);
