@@ -45,13 +45,27 @@ public class HashManager {
 		if (hash_map.isEmpty())
 			return;
 
+		int cutoff = 6;
+
 		Iterator<Map.Entry<IBoard, PositionTreeNode>> it = hash_map.entrySet()
 				.iterator();
 		while (it.hasNext()) {
 			Map.Entry<IBoard, PositionTreeNode> entry = it.next();
 			it.remove();
+
+			if (entry.getValue() == root_node)
+				continue;
+
 			if (!root_node.isNodeDescendant(entry.getValue())) {
 				hash_map.remove(entry.getKey());
+			} else if (entry.getValue().getPosition().getAnalysisResult() == null) {
+				hash_map.remove(entry.getKey());
+				entry.getValue().removeFromParent();
+			} else if (cutoff < root_node.getDepth()
+					&& entry.getValue().getPosition().getAnalysisResult()
+							.getPlysToSelDepth() < cutoff) {
+				hash_map.remove(entry.getKey());
+				entry.getValue().removeFromParent();
 			}
 		}
 	}
