@@ -794,8 +794,7 @@ public class MitziBoard implements IBoard {
 						for (Integer squ : line) {
 							move = new Move(square, squ);
 							MitziBoard board = doMove(move);
-							board.active_color = active_color; // TODO: ugly
-																// solution ! ;)
+							board.active_color = active_color;
 							if (board.isCheckPosition())
 								break;
 							if (squ == new_square) {
@@ -824,7 +823,7 @@ public class MitziBoard implements IBoard {
 		Iterator<IMove> iter = moves.iterator();
 		while (iter.hasNext()) {
 			MitziBoard temp_board = this.doMove(iter.next());
-			temp_board.active_color = active_color; // ugly solution…
+			temp_board.active_color = active_color;
 			if (temp_board.isCheckPosition()) {
 				iter.remove();
 
@@ -838,13 +837,12 @@ public class MitziBoard implements IBoard {
 	public Set<IMove> getPossibleMovesTo(int square) {
 
 		Set<IMove> result = new HashSet<IMove>();
-		if (possible_moves == null)
-			possible_moves = getPossibleMoves();
-		else {
-			for (IMove move : possible_moves) {
-				if (move.getToSquare() == square)
-					result.add(move);
-			}
+		
+		Set<IMove> possible_moves = getPossibleMoves();
+
+		for (IMove move : possible_moves) {
+			if (move.getToSquare() == square)
+				result.add(move);
 		}
 
 		return result;
@@ -947,8 +945,10 @@ public class MitziBoard implements IBoard {
 
 	@Override
 	public boolean isPossibleMove(IMove move) {
-		// TODO Auto-generated method stub
-		return false;
+
+		Set<IMove> possible_moves = getPossibleMoves();
+		
+		return possible_moves.contains(move);
 	}
 
 	public String toString() {
@@ -1100,7 +1100,7 @@ public class MitziBoard implements IBoard {
 	public boolean isHit(IMove move) {
 		int dest = move.getToSquare();
 		int src = move.getFromSquare();
-		
+
 		// a hit happens iff the dest is an enemy or its en passant
 		if (getSideFromBoard(dest) == Side.getOppositeSide(active_color)
 				|| (getPieceFromBoard(src) == Piece.PAWN && dest == this
