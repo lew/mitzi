@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class MitziBoard implements IBoard {
-	
+
 	protected static Side[] initial_side_board = { Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
@@ -32,10 +32,6 @@ public class MitziBoard implements IBoard {
 			Piece.PAWN, Piece.ROOK, Piece.KNIGHT, Piece.BISHOP, Piece.QUEEN,
 			Piece.KING, Piece.BISHOP, Piece.KNIGHT, Piece.ROOK, null };
 
-	private Side[] side_board = new Side[65];
-
-	private Piece[] piece_board = new Piece[65];
-
 	protected static int[] square_to_array_index = { 64, 64, 64, 64, 64, 64,
 			64, 64, 64, 64, 64, 56, 48, 40, 32, 24, 16, 8, 0, 64, 64, 57, 49,
 			41, 33, 25, 17, 9, 1, 64, 64, 58, 50, 42, 34, 26, 18, 10, 2, 64,
@@ -44,6 +40,10 @@ public class MitziBoard implements IBoard {
 			38, 30, 22, 14, 6, 64, 64, 63, 55, 47, 39, 31, 23, 15, 7, 64, 64,
 			64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
 			64, 64, 64 };
+
+	private Side[] side_board = new Side[65];
+
+	private Piece[] piece_board = new Piece[65];
 
 	private int full_move_clock;
 
@@ -61,7 +61,7 @@ public class MitziBoard implements IBoard {
 	// The following class members are used to prevent multiple computations
 	private Set<IMove> possible_moves; // Set of all possible moves
 
-	private Boolean is_check; // using the class Boolean, which can be null!
+	private Boolean is_check;
 
 	private Boolean is_mate;
 
@@ -75,18 +75,12 @@ public class MitziBoard implements IBoard {
 
 	private Map<Piece, Set<Integer>> occupied_squares_by_type = new HashMap<Piece, Set<Integer>>();
 
-	/*
-	private Map<Integer, Integer> num_occupied_squares_by_color_and_type = new HashMap<Integer, Integer>();
-
-	private Map<Side, Integer> num_occupied_squares_by_color = new HashMap<Side, Integer>();
-
-	private Map<Piece, Integer> num_occupied_squares_by_type = new HashMap<Piece, Integer>();
-*/
 	private Integer[] num_occupied_squares_by_color_and_type = new Integer[16];
-	
+
 	private Integer[] num_occupied_squares_by_color = new Integer[2];
 
 	private Integer[] num_occupied_squares_by_type = new Integer[6];
+
 	// --------------------------------------------------------
 
 	private void resetCache() {
@@ -536,10 +530,10 @@ public class MitziBoard implements IBoard {
 						if (getSideFromBoard(square) == color)
 							num++;
 					}
-				num_occupied_squares_by_color[color.ordinal()]=num;
+				num_occupied_squares_by_color[color.ordinal()] = num;
 				return num;
 			}
-			num_occupied_squares_by_color[color.ordinal()]=occupied_squares_by_color
+			num_occupied_squares_by_color[color.ordinal()] = occupied_squares_by_color
 					.get(color).size();
 		}
 		return num_occupied_squares_by_color[color.ordinal()];
@@ -560,10 +554,10 @@ public class MitziBoard implements IBoard {
 						if (getPieceFromBoard(square) == type)
 							num++;
 					}
-				num_occupied_squares_by_type[type.ordinal()]=num;
+				num_occupied_squares_by_type[type.ordinal()] = num;
 				return num;
 			}
-			num_occupied_squares_by_type[type.ordinal()]=occupied_squares_by_type
+			num_occupied_squares_by_type[type.ordinal()] = occupied_squares_by_type
 					.get(type).size();
 		}
 		return num_occupied_squares_by_type[type.ordinal()];
@@ -586,11 +580,11 @@ public class MitziBoard implements IBoard {
 								&& type == getPieceFromBoard(square))
 							num++;
 					}
-				num_occupied_squares_by_color_and_type[value]=num;
+				num_occupied_squares_by_color_and_type[value] = num;
 				return num;
 			}
-			num_occupied_squares_by_color_and_type[value]=
-					occupied_squares_by_color_and_type.get(value).size();
+			num_occupied_squares_by_color_and_type[value] = occupied_squares_by_color_and_type
+					.get(value).size();
 		}
 		return num_occupied_squares_by_color_and_type[value];
 	}
@@ -1058,25 +1052,26 @@ public class MitziBoard implements IBoard {
 		return full_move_clock;
 	}
 
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 
 		for (Side element : side_board)
-			result = prime * result + (element == null ? 0 : element.ordinal()+1);
-		
+			result = prime * result
+					+ (element == null ? 0 : element.ordinal() + 1);
+
 		for (Piece element : piece_board)
-			result = prime * result + (element == null ? 0 : element.ordinal()+1);
-		
-		for(int element : castling)
+			result = prime * result
+					+ (element == null ? 0 : element.ordinal() + 1);
+
+		for (int element : castling)
 			result = prime * result + element;
-		
-		result = prime* result + active_color.ordinal();
-		
-		result = prime* result + en_passant_target;
-					
+
+		result = prime * result + active_color.ordinal();
+
+		result = prime * result + en_passant_target;
+
 		return result;
 	}
 
@@ -1093,8 +1088,8 @@ public class MitziBoard implements IBoard {
 		}
 		MitziBoard other = (MitziBoard) obj;
 		if (!Arrays.equals(side_board, other.side_board)
-				|| !Arrays.equals(piece_board,other.piece_board)
-				|| !Arrays.equals(castling,other.castling)
+				|| !Arrays.equals(piece_board, other.piece_board)
+				|| !Arrays.equals(castling, other.castling)
 				|| en_passant_target != other.en_passant_target
 				|| active_color != other.active_color) {
 			return false;
@@ -1102,4 +1097,15 @@ public class MitziBoard implements IBoard {
 		return true;
 	}
 
+	public boolean isHit(IMove move) {
+		int dest = move.getToSquare();
+		int src = move.getFromSquare();
+		
+		// a hit happens iff the dest is an enemy or its en passant
+		if (getSideFromBoard(dest) == Side.getOppositeSide(active_color)
+				|| (getPieceFromBoard(src) == Piece.PAWN && dest == this
+						.getEnPassant()))
+			return true;
+		return false;
+	}
 }
