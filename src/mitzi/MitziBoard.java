@@ -75,12 +75,18 @@ public class MitziBoard implements IBoard {
 
 	private Map<Piece, Set<Integer>> occupied_squares_by_type = new HashMap<Piece, Set<Integer>>();
 
+	/*
 	private Map<Integer, Integer> num_occupied_squares_by_color_and_type = new HashMap<Integer, Integer>();
 
 	private Map<Side, Integer> num_occupied_squares_by_color = new HashMap<Side, Integer>();
 
 	private Map<Piece, Integer> num_occupied_squares_by_type = new HashMap<Piece, Integer>();
+*/
+	private Integer[] num_occupied_squares_by_color_and_type = new Integer[16];
+	
+	private Integer[] num_occupied_squares_by_color = new Integer[2];
 
+	private Integer[] num_occupied_squares_by_type = new Integer[6];
 	// --------------------------------------------------------
 
 	private void resetCache() {
@@ -91,9 +97,9 @@ public class MitziBoard implements IBoard {
 		occupied_squares_by_color.clear();
 		occupied_squares_by_color_and_type.clear();
 		occupied_squares_by_type.clear();
-		num_occupied_squares_by_color.clear();
-		num_occupied_squares_by_color_and_type.clear();
-		num_occupied_squares_by_type.clear();
+		Arrays.fill(num_occupied_squares_by_color, null);
+		Arrays.fill(num_occupied_squares_by_color_and_type, null);
+		Arrays.fill(num_occupied_squares_by_type, null);
 	}
 
 	private int squareToArrayIndex(int square) {
@@ -519,7 +525,7 @@ public class MitziBoard implements IBoard {
 	@Override
 	public int getNumberOfPiecesByColor(Side color) {
 
-		if (num_occupied_squares_by_color.containsKey(color) == false) {
+		if (num_occupied_squares_by_color[color.ordinal()] == null) {
 			if (occupied_squares_by_color.containsKey(color) == false) {
 				int square;
 				int num = 0;
@@ -530,20 +536,20 @@ public class MitziBoard implements IBoard {
 						if (getSideFromBoard(square) == color)
 							num++;
 					}
-				num_occupied_squares_by_color.put(color, num);
+				num_occupied_squares_by_color[color.ordinal()]=num;
 				return num;
 			}
-			num_occupied_squares_by_color.put(color, occupied_squares_by_color
-					.get(color).size());
+			num_occupied_squares_by_color[color.ordinal()]=occupied_squares_by_color
+					.get(color).size();
 		}
-		return num_occupied_squares_by_color.get(color);
+		return num_occupied_squares_by_color[color.ordinal()];
 
 	}
 
 	@Override
 	public int getNumberOfPiecesByType(Piece type) {
 
-		if (num_occupied_squares_by_type.containsKey(type) == false) {
+		if (num_occupied_squares_by_type[type.ordinal()] == null) {
 			if (occupied_squares_by_type.containsKey(type) == false) {
 				int square;
 				int num = 0;
@@ -554,13 +560,13 @@ public class MitziBoard implements IBoard {
 						if (getPieceFromBoard(square) == type)
 							num++;
 					}
-				num_occupied_squares_by_type.put(type, num);
+				num_occupied_squares_by_type[type.ordinal()]=num;
 				return num;
 			}
-			num_occupied_squares_by_type.put(type, occupied_squares_by_type
-					.get(type).size());
+			num_occupied_squares_by_type[type.ordinal()]=occupied_squares_by_type
+					.get(type).size();
 		}
-		return num_occupied_squares_by_type.get(type);
+		return num_occupied_squares_by_type[type.ordinal()];
 
 	}
 
@@ -568,7 +574,7 @@ public class MitziBoard implements IBoard {
 	public int getNumberOfPiecesByColorAndType(Side color, Piece type) {
 
 		int value = color.ordinal() * 10 + type.ordinal();
-		if (num_occupied_squares_by_color_and_type.containsKey(value) == false) {
+		if (num_occupied_squares_by_color_and_type[value] == null) {
 			if (occupied_squares_by_color_and_type.containsKey(value) == false) {
 				int square;
 				int num = 0;
@@ -580,13 +586,13 @@ public class MitziBoard implements IBoard {
 								&& type == getPieceFromBoard(square))
 							num++;
 					}
-				num_occupied_squares_by_color_and_type.put(value, num);
+				num_occupied_squares_by_color_and_type[value]=num;
 				return num;
 			}
-			num_occupied_squares_by_color_and_type.put(value,
-					occupied_squares_by_color_and_type.get(value).size());
+			num_occupied_squares_by_color_and_type[value]=
+					occupied_squares_by_color_and_type.get(value).size();
 		}
-		return num_occupied_squares_by_color_and_type.get(value);
+		return num_occupied_squares_by_color_and_type[value];
 	}
 
 	@Override
