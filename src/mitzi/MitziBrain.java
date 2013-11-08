@@ -1,5 +1,6 @@
 package mitzi;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class MitziBrain implements IBrain {
 	private IBoardAnalyzer board_analyzer = new BasicBoardAnalyzer();
 
 	// maybe reuse old tables
-	public Map<IBoard, Variation> transposition_table = new HashMap<IBoard, Variation>(
+	public Map<IBoard, SoftReference<Variation>> transposition_table = new HashMap<IBoard, SoftReference<Variation>>(
 			100000);
 
 	@Override
@@ -84,7 +85,10 @@ public class MitziBrain implements IBrain {
 
 		// Transposition Table Lookup; node is the lookup key for entry
 		// http://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning_and_Transposition_Tables
-		Variation entry = transposition_table.get(board);
+		Variation entry = null;
+		SoftReference<Variation> sr_entry = transposition_table.get(board);
+		if (sr_entry != null)
+			entry = sr_entry.get();
 		if (entry != null && entry.getDepth() >= depth) {
 			table_counter++;
 			if (entry.getFlag() == Flag.EXACT) {
@@ -246,7 +250,7 @@ public class MitziBrain implements IBrain {
 
 		t_entry.setDepth(depth); // the depth of subvariations is not changed.
 									// (because it not needed)
-		transposition_table.put(board, t_entry);
+		transposition_table.put(board, new SoftReference<Variation>(t_entry));
 
 		return parent;
 
