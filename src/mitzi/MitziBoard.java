@@ -277,8 +277,7 @@ public class MitziBoard implements IBoard {
 
 		int src = move.getFromSquare();
 		int dest = move.getToSquare();
-
-		Side side = getSideFromBoard(src);
+	
 		Piece piece = getPieceFromBoard(src);
 
 		// if promotion
@@ -314,6 +313,7 @@ public class MitziBoard implements IBoard {
 		}
 		// Usual move
 		else {
+			Side side = getSideFromBoard(src);
 			newBoard.setOnBoard(dest, side, piece);
 			newBoard.setOnBoard(src, null, null);
 
@@ -325,7 +325,7 @@ public class MitziBoard implements IBoard {
 		}
 
 		// Change active_color after move
-		newBoard.active_color = Side.getOppositeSide(side);
+		newBoard.active_color = Side.getOppositeSide(active_color);
 		if (active_color == Side.BLACK)
 			newBoard.full_move_clock++;
 
@@ -866,8 +866,8 @@ public class MitziBoard implements IBoard {
 					iter++;
 					// …some piece is found
 					Piece piece = getPieceFromBoard(square);
-					Side side = getSideFromBoard(square);
 					if (piece != null) {
+						Side side = getSideFromBoard(square);
 						if (side == active_color) {
 							break;
 						} else {
@@ -906,8 +906,8 @@ public class MitziBoard implements IBoard {
 					.getAllSquaresByKnightStep(king_pos);
 			for (int square : knight_squares) {
 				Piece piece = getPieceFromBoard(square);
-				Side side = getSideFromBoard(square);
 				if (piece != null) {
+					Side side = getSideFromBoard(square);
 					if (side != active_color && piece == Piece.KNIGHT) {
 						return true;
 					}
