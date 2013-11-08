@@ -291,10 +291,10 @@ public class MitziBrain implements IBrain {
 					alpha, beta, var_tree);
 			// mate found
 			if (principal_variation != null
-					&& principal_variation.getValue() == POS_INF
-					&& board.getActiveColor() == Side.WHITE
-					|| principal_variation.getValue() == NEG_INF
-					&& board.getActiveColor() == Side.BLACK) {
+					&& (principal_variation.getValue() == POS_INF
+							&& board.getActiveColor() == Side.WHITE || principal_variation
+							.getValue() == NEG_INF
+							&& board.getActiveColor() == Side.BLACK)) {
 				timer.cancel();
 
 				return principal_variation.getMove();
