@@ -23,7 +23,7 @@ public class MitziBrain implements IBrain {
 
 	private long table_counter = 0;
 
-	private IBoardAnalyzer board_analyzer = new BasicBoardAnalyzer();
+	private IBoardAnalyzer board_analyzer = new BoardAnalyzer();
 
 	// maybe reuse old tables
 	public Map<IBoard, SoftReference<Variation>> transposition_table = new HashMap<IBoard, SoftReference<Variation>>(
@@ -279,7 +279,7 @@ public class MitziBrain implements IBrain {
 		// Parameters for aspiration windows
 		int alpha = NEG_INF; // initial value
 		int beta = POS_INF; // initial value
-		int asp_window = 150; // often 50 or 25 is used
+		int asp_window = 100; // often 50 or 25 is used
 		int factor = 2; // factor for increasing if out of bounds
 
 		for (int current_depth = 1; current_depth < searchDepth; current_depth++) {
@@ -334,6 +334,7 @@ public class MitziBrain implements IBrain {
 				var_tree = var_tree_temp;
 				break;
 			}
+			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
 
 		timer.cancel();
