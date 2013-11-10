@@ -4,7 +4,6 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -141,14 +140,20 @@ public class MitziBrain implements IBrain {
 		BasicMoveComparator move_comparator = new BasicMoveComparator(board);
 		ArrayList<IMove> ordered_moves;
 		ArrayList<Variation> ordered_variations = null;
-		if (old_tree == null || old_tree.getSubVariations().isEmpty()) {
+		if ((old_tree == null || old_tree.getSubVariations().isEmpty())
+				&& (entry == null || entry.getSubVariations().isEmpty())) {
 			// no previous computation given, use basic heuristic
 			ordered_moves = new ArrayList<IMove>(moves);
 			Collections.sort(ordered_moves,
 					Collections.reverseOrder(move_comparator));
+
 		} else {
 			// use old Variation tree for ordering
-			Set<Variation> children = old_tree.getSubVariations();
+			Set<Variation> children;
+			if (entry == null || entry.getSubVariations().isEmpty())
+				children = old_tree.getSubVariations();
+			else
+				children = entry.getSubVariations();
 			ordered_variations = new ArrayList<Variation>(children);
 			if (side == Side.BLACK)
 				Collections.sort(ordered_variations);
@@ -205,7 +210,7 @@ public class MitziBrain implements IBrain {
 			variation.update(move, variation.getValue());
 
 			// build variation tree
-			if (negaval >= best_value - 100) // NOTE: fine tune this
+			if (negaval >= best_value - 50) // NOTE: fine tune this
 				parent.addSubVariation(variation);
 
 			// better variation found
@@ -235,22 +240,16 @@ public class MitziBrain implements IBrain {
 		}
 
 		// Transposition Table Store; board is the lookup key for parent
-
-		Variation t_entry = new Variation(null, parent.getValue(), side);
-		Set<Variation> childs = new HashSet<Variation>(
-				parent.getSubVariations());
-		for (Variation var : childs)
-			t_entry.addSubVariation(var);
-		if (t_entry.getValue() <= alpha_old)
-			t_entry.setFlag(Flag.UPPERBOUND);
-		else if (t_entry.getValue() >= beta)
-			t_entry.setFlag(Flag.LOWERBOUND);
+		if (parent.getValue() <= alpha_old)
+			parent.setFlag(Flag.UPPERBOUND);
+		else if (parent.getValue() >= beta)
+			parent.setFlag(Flag.LOWERBOUND);
 		else
-			t_entry.setFlag(Flag.EXACT);
+			parent.setFlag(Flag.EXACT);
 
-		t_entry.setDepth(depth); // the depth of subvariations is not changed.
-									// (because it not needed)
-		transposition_table.put(board, new SoftReference<Variation>(t_entry));
+		parent.setDepth(depth); // the depth of subvariations is not changed.
+								// (because it not needed)
+		transposition_table.put(board, new SoftReference<Variation>(parent));
 
 		return parent;
 
@@ -304,10 +303,12 @@ public class MitziBrain implements IBrain {
 			if (var_tree_temp.getValue() <= alpha) {
 				alpha -= factor * asp_window;
 				current_depth--;
+				UCIReporter.sendInfoString("Boards found: " + table_counter);
 				continue;
 			} else if (var_tree_temp.getValue() >= beta) {
 				beta += factor * asp_window;
 				current_depth--;
+				UCIReporter.sendInfoString("Boards found: " + table_counter);
 				continue;
 			}
 
@@ -332,6 +333,7 @@ public class MitziBrain implements IBrain {
 				beta += factor * asp_window;
 			} else {
 				var_tree = var_tree_temp;
+				UCIReporter.sendInfoString("Boards found: " + table_counter);
 				break;
 			}
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
