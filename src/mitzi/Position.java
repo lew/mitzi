@@ -1104,4 +1104,16 @@ public class Position implements IPosition {
 			return true;
 		return false;
 	}
+
+	@Override
+	public Set<IMove> generateCaptures() {
+		
+		Set<IMove> result = new HashSet<IMove>();
+		Set<IMove> poss_moves = getPossibleMoves();
+		
+		for(IMove move : poss_moves)
+			if(isHit(move) || move.getPromotion()!=null)
+				result.add(move);
+		return result;
+	}
 }

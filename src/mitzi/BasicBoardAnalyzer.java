@@ -3,7 +3,7 @@ package mitzi;
 public class BasicBoardAnalyzer implements IPositionAnalyzer {
 
 	@Override
-	public AnalysisResult eval0(IPosition board) {
+	public int eval0(IPosition board) {
 
 		int score = 0;
 
@@ -26,6 +26,13 @@ public class BasicBoardAnalyzer implements IPositionAnalyzer {
 			}
 		}
 
+		return score;
+	}
+	
+	@Override
+	public AnalysisResult evalBoard(IPosition board,int  alpha, int beta){
+		
+		int score = eval0(board);
 		AnalysisResult result = new AnalysisResult(score, null);
 		return result;
 	}

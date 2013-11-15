@@ -86,4 +86,6 @@ public interface IPosition {
 
 	public String toFEN();
 
+	public Set<IMove> generateCaptures();
+
 }

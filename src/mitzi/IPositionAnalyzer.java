@@ -2,6 +2,8 @@ package mitzi;
 
 public interface IPositionAnalyzer {
 	
-	public AnalysisResult eval0(IPosition board);
+	public int eval0(IPosition board);
+	
+	public AnalysisResult evalBoard(IPosition board, int alpha, int beta);
 
 }

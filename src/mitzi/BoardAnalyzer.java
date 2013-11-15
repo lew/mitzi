@@ -1,5 +1,7 @@
 package mitzi;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -50,7 +52,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	static private int PREMATURE_QUEEN = -17; // not yet implemented
 
 	@Override
-	public AnalysisResult eval0(IPosition board) {
+	public int eval0(IPosition board) {
 		int score = 0;
 
 		// Evaluate position - activity
@@ -62,8 +64,44 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		// Evaluate the pieces
 		score += evalPieces(board);
 
+		// AnalysisResult result = new AnalysisResult(score, null);
+		return score;
+	}
+
+	public AnalysisResult evalBoard(IPosition board, int alpha, int beta) {
+
+		int score = quiesce(board, alpha, beta);
+
 		AnalysisResult result = new AnalysisResult(score, null);
 		return result;
+	}
+
+	private int quiesce(IPosition board, int alpha, int beta) {
+
+		int score = eval0(board);
+		if (score >= beta)
+			return beta;
+		if (score > alpha)
+			alpha = score;
+
+		Set<IMove> caputures = board.generateCaptures();
+		BasicMoveComparator move_comparator = new BasicMoveComparator(board);
+
+		// no previous computation given, use basic heuristic
+		ArrayList<IMove> ordered_captures = new ArrayList<IMove>(caputures);
+		Collections.sort(ordered_captures,
+				Collections.reverseOrder(move_comparator));
+		for (IMove move : caputures) {
+			IPosition pos = board.doMove(move).new_position;
+			score = -quiesce(pos, -beta, -alpha);
+
+			if (score >= beta)
+				return beta;
+			if (score > alpha)
+				alpha = score;
+		}
+		return alpha;
+
 	}
 
 	private int evalPieces(IPosition board) {
