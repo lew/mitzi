@@ -2,8 +2,6 @@ package mitzi;
 
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * After creating a new <code>Position</code> instance, use this class to cache
@@ -15,7 +13,7 @@ public class PositionCache {
 	/**
 	 * A map from the Position's <code>hashCode</code> to a set of Positions.
 	 */
-	private static HashMap<Integer, SoftReference<Set<Position>>> position_cache = new HashMap<Integer, SoftReference<Set<Position>>>();
+	private static HashMap<Integer, SoftReference<Position>> position_cache = new HashMap<Integer, SoftReference<Position>>();
 
 	/**
 	 * Cannot be instantiated. For access to the static cache use
@@ -37,22 +35,22 @@ public class PositionCache {
 	 */
 	public static Position getPosition(Position lookup) {
 		int hash = lookup.hashCode();
-		SoftReference<Set<Position>> sr = position_cache.get(hash);
+		SoftReference<Position> sr = position_cache.get(hash);
 		if (sr == null) {
-			Set<Position> new_set = new HashSet<Position>();
-			new_set.add(lookup);
+			Position new_pos = new Position();
 			position_cache.put(hash,
-					new SoftReference<Set<Position>>(new_set));
+					new SoftReference<Position>(new_pos));
 			return lookup;
 		} else {
-			Set<Position> result_set = sr.get();
-			for (Position p : result_set) {
-				if (p.equals(lookup)) {
-					return p;
-				}
-			}
-			result_set.add(lookup);
-			return lookup;
+			Position result = sr.get();
+			
+			//replace the old value, if there is a collision between the hashkeys
+			if(!lookup.equals(result)){
+				position_cache.put(hash,
+						new SoftReference<Position>(lookup));
+				return lookup;
+			}	
+			return result;
 		}
 	}
 }
