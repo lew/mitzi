@@ -73,17 +73,29 @@ public final class UCIReporter {
 	 */
 	public static void sendInfoPV(IPosition position) {
 		AnalysisResult result = position.getAnalysisResult();
-		if (result.score == NEG_INF && position.getActiveColor() == Side.WHITE || result.score == POS_INF
+		if (result == null)
+			return;
+					
+		if (result.score == NEG_INF && position.getActiveColor() == Side.WHITE
+				|| result.score == POS_INF
 				&& position.getActiveColor() == Side.BLACK) {
-			System.out.println("info score mate -" + ((result.plys_to_eval0 + 1) / 2)
-					+ " depth " + result.plys_to_eval0 + " pv ");
-		} else if (result.score == NEG_INF && position.getActiveColor() == Side.BLACK || result.score == POS_INF
+			System.out.print("info score mate -"
+					+ ((result.plys_to_eval0 + 1) / 2) + " depth "
+					+ result.plys_to_eval0 + " pv");
+		} else if (result.score == NEG_INF
+				&& position.getActiveColor() == Side.BLACK
+				|| result.score == POS_INF
 				&& position.getActiveColor() == Side.WHITE) {
-			System.out.println("info score mate " + ((result.plys_to_eval0 + 1) / 2)
-					+ " depth " + result.plys_to_eval0 + " pv ");
+			System.out.print("info score mate "
+					+ ((result.plys_to_eval0 + 1) / 2) + " depth "
+					+ result.plys_to_eval0 + " pv");
 		} else {
-			System.out.println("info score cp " + result.score + " depth " + result.plys_to_eval0
-					+ " pv ");
+			System.out.print("info score cp " + result.score + " depth "
+					+ result.plys_to_eval0 + " pv");
 		}
+		for (IMove move : result.getPV()) {
+			System.out.print(" " + move);
+		}
+		System.out.println();
 	}
 }
