@@ -210,6 +210,7 @@ public class MitziBrain implements IBrain {
 			table_counter = 0;
 			result = evalBoard(position, current_depth, current_depth, alpha,
 					beta);
+			position.updateAnalysisResult(result);
 
 			if (result.score == POS_INF || result.score == NEG_INF) {
 				break;
@@ -237,7 +238,7 @@ public class MitziBrain implements IBrain {
 
 		timer.cancel();
 		UCIReporter.sendInfoString("Boards found: " + table_counter);
-		UCIReporter.sendInfoString(result.toString());
+		UCIReporter.sendInfoPV(position);
 		return result.best_move;
 	}
 

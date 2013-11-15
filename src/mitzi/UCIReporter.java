@@ -68,29 +68,22 @@ public final class UCIReporter {
 	 * consider best and therefore expect to be played. Also all infos belonging
 	 * to the PV should be sent together.
 	 * 
-	 * NOTE: will most likely be extended later
-	 * 
-	 * @param pv
-	 * @param depth
-	 * @param score
-	 *            the board's score in centipawns. positive values are in favor
-	 *            of white. Detects MitziBrain.POS_INF and NEG_INF as mate.
-	 * @param side
-	 *            Side of the first move in the Variation. Needed for mate
-	 *            output.
+	 * @param position
+	 *            a Position with an AnalysisResult
 	 */
-	public static void sendInfoPV(Variation pv, int depth, int score, Side side) {
-		if (score == NEG_INF && side == Side.WHITE
-				|| score == POS_INF && side == Side.BLACK) {
-			System.out.println("info score mate -" + ((depth + 1) / 2)
-					+ " depth " + depth + " pv " + pv);
-		} else if (score == NEG_INF && side == Side.BLACK
-				|| score == POS_INF && side == Side.WHITE) {
-			System.out.println("info score mate " + ((depth + 1) / 2)
-					+ " depth " + depth + " pv " + pv);
+	public static void sendInfoPV(IPosition position) {
+		AnalysisResult result = position.getAnalysisResult();
+		if (result.score == NEG_INF && position.getActiveColor() == Side.WHITE || result.score == POS_INF
+				&& position.getActiveColor() == Side.BLACK) {
+			System.out.println("info score mate -" + ((result.plys_to_eval0 + 1) / 2)
+					+ " depth " + result.plys_to_eval0 + " pv ");
+		} else if (result.score == NEG_INF && position.getActiveColor() == Side.BLACK || result.score == POS_INF
+				&& position.getActiveColor() == Side.WHITE) {
+			System.out.println("info score mate " + ((result.plys_to_eval0 + 1) / 2)
+					+ " depth " + result.plys_to_eval0 + " pv ");
 		} else {
-			System.out.println("info score cp " + score + " depth " + depth
-					+ " pv " + pv);
+			System.out.println("info score cp " + result.score + " depth " + result.plys_to_eval0
+					+ " pv ");
 		}
 	}
 }
