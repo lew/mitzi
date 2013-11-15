@@ -71,11 +71,7 @@ public class Position implements IPosition {
 
 	private Map<Piece, Set<Integer>> occupied_squares_by_type = new HashMap<Piece, Set<Integer>>();
 
-	private Integer[] num_occupied_squares_by_color_and_type = new Integer[16];
-
-	private Integer[] num_occupied_squares_by_color = new Integer[2];
-
-	private Integer[] num_occupied_squares_by_type = new Integer[6];
+	private int[] num_occupied_squares_by_color_and_type = new int[16];
 
 	// --------------------------------------------------------
 
@@ -84,12 +80,9 @@ public class Position implements IPosition {
 		is_check = null;
 		is_mate = null;
 		is_stale_mate = null;
-		occupied_squares_by_color.clear();
 		occupied_squares_by_color_and_type.clear();
 		occupied_squares_by_type.clear();
-		Arrays.fill(num_occupied_squares_by_color, null);
-		Arrays.fill(num_occupied_squares_by_color_and_type, null);
-		Arrays.fill(num_occupied_squares_by_type, null);
+		occupied_squares_by_color.clear();
 	}
 
 	private int squareToArrayIndex(int square) {
@@ -107,6 +100,9 @@ public class Position implements IPosition {
 
 		System.arraycopy(side_board, 0, newBoard.side_board, 0, 65);
 		System.arraycopy(piece_board, 0, newBoard.piece_board, 0, 65);
+
+		System.arraycopy(num_occupied_squares_by_color_and_type, 0,
+				newBoard.num_occupied_squares_by_color_and_type, 0, 16);
 
 		return newBoard;
 	}
@@ -147,6 +143,31 @@ public class Position implements IPosition {
 		en_passant_target = -1;
 		active_color = Side.WHITE;
 
+		num_occupied_squares_by_color_and_type[Side.WHITE.ordinal() * 10
+				+ Piece.KING.ordinal()] = 1;
+		num_occupied_squares_by_color_and_type[Side.WHITE.ordinal() * 10
+				+ Piece.QUEEN.ordinal()] = 1;
+		num_occupied_squares_by_color_and_type[Side.WHITE.ordinal() * 10
+				+ Piece.ROOK.ordinal()] = 2;
+		num_occupied_squares_by_color_and_type[Side.WHITE.ordinal() * 10
+				+ Piece.BISHOP.ordinal()] = 2;
+		num_occupied_squares_by_color_and_type[Side.WHITE.ordinal() * 10
+				+ Piece.KNIGHT.ordinal()] = 2;
+		num_occupied_squares_by_color_and_type[Side.WHITE.ordinal() * 10
+				+ Piece.PAWN.ordinal()] = 8;
+		num_occupied_squares_by_color_and_type[Side.BLACK.ordinal() * 10
+				+ Piece.KING.ordinal()] = 1;
+		num_occupied_squares_by_color_and_type[Side.BLACK.ordinal() * 10
+				+ Piece.QUEEN.ordinal()] = 1;
+		num_occupied_squares_by_color_and_type[Side.BLACK.ordinal() * 10
+				+ Piece.ROOK.ordinal()] = 2;
+		num_occupied_squares_by_color_and_type[Side.BLACK.ordinal() * 10
+				+ Piece.BISHOP.ordinal()] = 2;
+		num_occupied_squares_by_color_and_type[Side.BLACK.ordinal() * 10
+				+ Piece.KNIGHT.ordinal()] = 2;
+		num_occupied_squares_by_color_and_type[Side.BLACK.ordinal() * 10
+				+ Piece.PAWN.ordinal()] = 8;
+
 		resetCache();
 	}
 
@@ -176,39 +197,63 @@ public class Position implements IPosition {
 				switch (pieces[column - 1]) {
 				case 'P':
 					setOnBoard(square, Side.WHITE, Piece.PAWN);
+					num_occupied_squares_by_color_and_type[Side.WHITE.ordinal()
+							* 10 + Piece.PAWN.ordinal()]++;
 					break;
 				case 'R':
 					setOnBoard(square, Side.WHITE, Piece.ROOK);
+					num_occupied_squares_by_color_and_type[Side.WHITE.ordinal()
+							* 10 + Piece.ROOK.ordinal()]++;
 					break;
 				case 'N':
 					setOnBoard(square, Side.WHITE, Piece.KNIGHT);
+					num_occupied_squares_by_color_and_type[Side.WHITE.ordinal()
+							* 10 + Piece.KNIGHT.ordinal()]++;
 					break;
 				case 'B':
 					setOnBoard(square, Side.WHITE, Piece.BISHOP);
+					num_occupied_squares_by_color_and_type[Side.WHITE.ordinal()
+							* 10 + Piece.BISHOP.ordinal()]++;
 					break;
 				case 'Q':
 					setOnBoard(square, Side.WHITE, Piece.QUEEN);
+					num_occupied_squares_by_color_and_type[Side.WHITE.ordinal()
+							* 10 + Piece.QUEEN.ordinal()]++;
 					break;
 				case 'K':
 					setOnBoard(square, Side.WHITE, Piece.KING);
+					num_occupied_squares_by_color_and_type[Side.WHITE.ordinal()
+							* 10 + Piece.KING.ordinal()]++;
 					break;
 				case 'p':
 					setOnBoard(square, Side.BLACK, Piece.PAWN);
+					num_occupied_squares_by_color_and_type[Side.BLACK.ordinal()
+							* 10 + Piece.PAWN.ordinal()]++;
 					break;
 				case 'r':
 					setOnBoard(square, Side.BLACK, Piece.ROOK);
+					num_occupied_squares_by_color_and_type[Side.BLACK.ordinal()
+							* 10 + Piece.ROOK.ordinal()]++;
 					break;
 				case 'n':
 					setOnBoard(square, Side.BLACK, Piece.KNIGHT);
+					num_occupied_squares_by_color_and_type[Side.BLACK.ordinal()
+							* 10 + Piece.KNIGHT.ordinal()]++;
 					break;
 				case 'b':
 					setOnBoard(square, Side.BLACK, Piece.BISHOP);
+					num_occupied_squares_by_color_and_type[Side.BLACK.ordinal()
+							* 10 + Piece.BISHOP.ordinal()]++;
 					break;
 				case 'q':
 					setOnBoard(square, Side.BLACK, Piece.QUEEN);
+					num_occupied_squares_by_color_and_type[Side.BLACK.ordinal()
+							* 10 + Piece.QUEEN.ordinal()]++;
 					break;
 				case 'k':
 					setOnBoard(square, Side.BLACK, Piece.KING);
+					num_occupied_squares_by_color_and_type[Side.BLACK.ordinal()
+							* 10 + Piece.KING.ordinal()]++;
 					break;
 				default:
 					offset += Character.getNumericValue(pieces[column - 1]) - 1;
@@ -263,12 +308,17 @@ public class Position implements IPosition {
 		int dest = move.getToSquare();
 
 		Piece piece = getPieceFromBoard(src);
+		Piece capture = getPieceFromBoard(dest);
 
 		// if promotion
 		if (move.getPromotion() != null) {
 			newBoard.setOnBoard(src, null, null);
 			newBoard.setOnBoard(dest, active_color, move.getPromotion());
 			mova.resets_half_move_clock = true;
+			newBoard.num_occupied_squares_by_color_and_type[active_color
+					.ordinal() * 10 + Piece.PAWN.ordinal()]--;
+			newBoard.num_occupied_squares_by_color_and_type[active_color
+					.ordinal() * 10 + move.getPromotion().ordinal()]++;
 		}
 		// If castling
 		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
@@ -285,10 +335,13 @@ public class Position implements IPosition {
 		else if (piece == Piece.PAWN && dest == this.getEnPassant()) {
 			newBoard.setOnBoard(dest, active_color, Piece.PAWN);
 			newBoard.setOnBoard(src, null, null);
-			if (active_color == Side.WHITE)
+			if (active_color == Side.WHITE) {
+				capture = getPieceFromBoard(dest - 1);
 				newBoard.setOnBoard(dest - 1, null, null);
-			else
+			} else {
+				capture = getPieceFromBoard(dest + 1);
 				newBoard.setOnBoard(dest + 1, null, null);
+			}
 			mova.resets_half_move_clock = true;
 		}
 		// Usual move
@@ -298,6 +351,14 @@ public class Position implements IPosition {
 			newBoard.setOnBoard(src, null, null);
 			if (this.getSideFromBoard(dest) != null || piece == Piece.PAWN)
 				mova.resets_half_move_clock = true;
+		}
+
+		// update counters
+		if (capture != null) {
+			newBoard.num_occupied_squares_by_color_and_type[Side
+					.getOppositeSide(active_color).ordinal()
+					* 10
+					+ capture.ordinal()]--;
 		}
 
 		// Change active_color after move
@@ -495,75 +556,26 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public int getNumberOfPiecesByColor(Side color) {
-
-		if (num_occupied_squares_by_color[color.ordinal()] == null) {
-			if (occupied_squares_by_color.containsKey(color) == false) {
-				int square;
-				int num = 0;
-
-				for (int i = 1; i < 9; i++)
-					for (int j = 1; j < 9; j++) {
-						square = SquareHelper.getSquare(i, j);
-						if (getSideFromBoard(square) == color)
-							num++;
-					}
-				num_occupied_squares_by_color[color.ordinal()] = num;
-				return num;
-			}
-			num_occupied_squares_by_color[color.ordinal()] = occupied_squares_by_color
-					.get(color).size();
+	public int getNumberOfPiecesByColor(Side side) {
+		int result = 0;
+		for (Piece piece : Piece.values()) {
+			result += num_occupied_squares_by_color_and_type[side.ordinal()*10+piece.ordinal()];
 		}
-		return num_occupied_squares_by_color[color.ordinal()];
-
+		return result;
 	}
 
 	@Override
-	public int getNumberOfPiecesByType(Piece type) {
-
-		if (num_occupied_squares_by_type[type.ordinal()] == null) {
-			if (occupied_squares_by_type.containsKey(type) == false) {
-				int square;
-				int num = 0;
-
-				for (int i = 1; i < 9; i++)
-					for (int j = 1; j < 9; j++) {
-						square = SquareHelper.getSquare(i, j);
-						if (getPieceFromBoard(square) == type)
-							num++;
-					}
-				num_occupied_squares_by_type[type.ordinal()] = num;
-				return num;
-			}
-			num_occupied_squares_by_type[type.ordinal()] = occupied_squares_by_type
-					.get(type).size();
+	public int getNumberOfPiecesByType(Piece piece) {
+		int result = 0;
+		for (Side side : Side.values()) {
+			result += num_occupied_squares_by_color_and_type[side.ordinal()*10+piece.ordinal()];
 		}
-		return num_occupied_squares_by_type[type.ordinal()];
-
+		return result;
 	}
 
 	@Override
 	public int getNumberOfPiecesByColorAndType(Side color, Piece type) {
-
 		int value = color.ordinal() * 10 + type.ordinal();
-		if (num_occupied_squares_by_color_and_type[value] == null) {
-			if (occupied_squares_by_color_and_type.containsKey(value) == false) {
-				int square;
-				int num = 0;
-
-				for (int i = 1; i < 9; i++)
-					for (int j = 1; j < 9; j++) {
-						square = SquareHelper.getSquare(i, j);
-						if (color == getSideFromBoard(square)
-								&& type == getPieceFromBoard(square))
-							num++;
-					}
-				num_occupied_squares_by_color_and_type[value] = num;
-				return num;
-			}
-			num_occupied_squares_by_color_and_type[value] = occupied_squares_by_color_and_type
-					.get(value).size();
-		}
 		return num_occupied_squares_by_color_and_type[value];
 	}
 
