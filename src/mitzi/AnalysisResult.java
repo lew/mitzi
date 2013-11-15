@@ -1,5 +1,7 @@
 package mitzi;
 
+import java.util.LinkedList;
+
 public final class AnalysisResult {
 
 	/**
@@ -72,6 +74,15 @@ public final class AnalysisResult {
 			return 0;
 
 		return -1;
+	}
+
+	public LinkedList<IMove> getPV() {
+		LinkedList<IMove> pv = new LinkedList<IMove>();
+		if (best_move != null) {
+			pv.add(best_move);
+			pv.addAll(best_child.getAnalysisResult().getPV());
+		}
+		return pv;
 	}
 
 	@Override
