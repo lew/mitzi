@@ -59,6 +59,8 @@ public class Position implements IPosition {
 	private SoftReference<Set<IMove>> possible_moves; // Set of all possible
 														// moves
 
+	private AnalysisResult analysis_result = null;
+
 	private Boolean is_check;
 
 	private Boolean is_mate;
@@ -82,6 +84,7 @@ public class Position implements IPosition {
 		is_check = null;
 		is_mate = null;
 		is_stale_mate = null;
+		analysis_result = null;
 		occupied_squares_by_color_and_type.clear();
 		occupied_squares_by_type.clear();
 		occupied_squares_by_color.clear();
@@ -130,6 +133,21 @@ public class Position implements IPosition {
 			return Side.WHITE;
 		else
 			return Side.BLACK;
+	}
+
+	public AnalysisResult getAnalysisResult() {
+		return analysis_result;
+	}
+
+	public void updateAnalysisResult(AnalysisResult analysis_result) {
+		if (this.analysis_result.getPlysToEval0() < analysis_result
+				.getPlysToEval0()
+				|| (this.analysis_result.getPlysToEval0() == analysis_result
+						.getPlysToEval0() && this.analysis_result
+						.getPlysToSelDepth() < analysis_result
+						.getPlysToSelDepth())) {
+			this.analysis_result = analysis_result;
+		}
 	}
 
 	@Override
