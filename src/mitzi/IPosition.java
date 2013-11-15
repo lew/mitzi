@@ -52,6 +52,8 @@ public interface IPosition {
 	
 	public AnalysisResult getAnalysisResult();
 	
+	public void updateAnalysisResult(AnalysisResult new_result);
+	
 	public Boolean colorCanCastle(Side color);
 	
 	public Set<Integer> getOccupiedSquaresByColor(Side color);

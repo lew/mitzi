@@ -13,21 +13,16 @@ public class MitziBrain implements IBrain {
 
 	private GameState game_state;
 
-	private Variation principal_variation;
-
 	private long eval_counter;
 
 	private long table_counter = 0;
 
 	private IPositionAnalyzer board_analyzer = new BoardAnalyzer();
 
-	public TranspositionTable transposition_table = new TranspositionTable();
-
 	@Override
 	public void set(GameState game_state) {
 		this.game_state = game_state;
 		this.eval_counter = 0;
-		this.principal_variation = null;
 	}
 
 	/**
@@ -57,40 +52,41 @@ public class MitziBrain implements IBrain {
 	}
 
 	/**
-	 * NegaMax with Alpha Beta Pruning
+	 * NegaMax with Alpha Beta Pruning and Transposition Tables
 	 * 
 	 * @see <a
-	 *      href="https://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning">NegaMax
-	 *      with Alpha Beta Pruning</a>
-	 * @param game_state
-	 *            the current game_state
+	 *      href="http://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning_and_Transposition_Tables">NegaMax
+	 *      with Alpha Beta Pruning and Transposition Tables</a>
+	 * @param position
+	 *            the position to evaluate
 	 * @param total_depth
 	 *            the total depth to search
 	 * @param depth
 	 *            the remaining depth to search
 	 * @param alpha
 	 * @param beta
-	 * @return returns a Variation tree
+	 * @return returns the result of the evaluation
 	 */
-	private Variation evalBoard(IPosition position, int total_depth, int depth,
-			int alpha, int beta, Variation old_tree) {
+	private AnalysisResult evalBoard(IPosition position, int total_depth,
+			int depth, int alpha, int beta) {
 
 		int alpha_old = alpha;
 
-		// Transposition Table Lookup; node is the lookup key for entry
-		// http://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning_and_Transposition_Tables
-		Variation entry = transposition_table.get(position);
-		if (entry != null && entry.getDepth() >= depth) {
+		// Cache lookup
+		position = IPositionCache.getPosition(position);
+
+		AnalysisResult old_result = position.getAnalysisResult();
+		if (old_result != null && old_result.plys_to_eval0 >= depth) {
 			table_counter++;
-			if (entry.getFlag() == Flag.EXACT) {
-				return entry;
-			} else if (entry.getFlag() == Flag.LOWERBOUND)
-				alpha = Math.max(alpha, entry.getValue());
-			else if (entry.getFlag() == Flag.UPPERBOUND)
-				beta = Math.min(beta, entry.getValue());
+			if (old_result.flag == Flag.EXACT) {
+				return old_result;
+			} else if (old_result.flag == Flag.LOWERBOUND)
+				alpha = Math.max(alpha, old_result.score);
+			else if (old_result.flag == Flag.UPPERBOUND)
+				beta = Math.min(beta, old_result.score);
 
 			if (alpha >= beta) {
-				return entry;
+				return old_result;
 			}
 		}
 
@@ -103,81 +99,35 @@ public class MitziBrain implements IBrain {
 
 		// check for mate and stalemate (the side should alternate)
 		if (moves.isEmpty()) {
-			Variation base_variation;
-			if (position.isCheckPosition()) {
-				base_variation = new Variation(null, NEG_INF * side_sign,
-						Side.getOppositeSide(side));
-			} else {
-				base_variation = new Variation(null, 0,
-						Side.getOppositeSide(side));
-			}
 			eval_counter++;
-			return base_variation;
+			if (position.isCheckPosition()) {
+				return new AnalysisResult(NEG_INF * side_sign, false, false, 0,
+						0, Flag.EXACT);
+			} else {
+				return new AnalysisResult(0, true, false, 0, 0, Flag.EXACT);
+			}
 		}
 
 		// base case (the side should alternate)
 		if (depth == 0) {
-			AnalysisResult result = board_analyzer.evalBoard(position, alpha,beta);
-			result.setPlysToEval0(0);
-			result.setPlysToSelDepth(0);
-			Variation base_variation = new Variation(null, result.score,
-					Side.getOppositeSide(side));
-			eval_counter++;
-			return base_variation;
+			AnalysisResult result = board_analyzer.evalBoard(position, alpha,
+					beta);
+			return result;
 		}
-
-		int best_value = NEG_INF; // this starts always at negative!
 
 		// Sort the moves:
+		// TODO: use sorted list in (cached) Position
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
 		ArrayList<IMove> ordered_moves;
-		ArrayList<Variation> ordered_variations = null;
-		if ((old_tree == null || old_tree.getSubVariations().isEmpty())
-				&& (entry == null || entry.getSubVariations().isEmpty())) {
-			// no previous computation given, use basic heuristic
-			ordered_moves = new ArrayList<IMove>(moves);
-			Collections.sort(ordered_moves,
-					Collections.reverseOrder(move_comparator));
+		// no previous computation given, use basic heuristic
+		ordered_moves = new ArrayList<IMove>(moves);
+		Collections.sort(ordered_moves,
+				Collections.reverseOrder(move_comparator));
 
-		} else {
-			// use old Variation tree for ordering
-			Set<Variation> children;
-			if (entry == null || entry.getSubVariations().isEmpty())
-				children = old_tree.getSubVariations();
-			else
-				children = entry.getSubVariations();
-			ordered_variations = new ArrayList<Variation>(children);
-			if (side == Side.BLACK)
-				Collections.sort(ordered_variations);
-			else
-				Collections
-						.sort(ordered_variations, Collections.reverseOrder());
-			ordered_moves = new ArrayList<IMove>();
-			ArrayList<Variation> del = new ArrayList<Variation>();
-			for (Variation var : ordered_variations) {
-				// TODO: WORKAROUND FOR CRASH. This should not happen, but
-				// happens only in connection with Transpos. Tables!!!!
-				if (!moves.contains(var.getMove()))
-					del.add(var);
-				else
-					ordered_moves.add(var.getMove());
-			}
-			ordered_variations.removeAll(del);
+		// create parent AnalysisResult
+		AnalysisResult parent = null;
 
-			// add remaining moves in basic heuristic order
-			ArrayList<IMove> remaining_moves = new ArrayList<IMove>();
-			for (IMove move : moves) {
-				if (!ordered_moves.contains(move))
-					remaining_moves.add(move);
-			}
-			Collections.sort(remaining_moves,
-					Collections.reverseOrder(move_comparator));
-			ordered_moves.addAll(remaining_moves);
-		}
-
-		// create new parent Variation
-		Variation parent = new Variation(null, NEG_INF,
-				Side.getOppositeSide(side));
+		int best_value = NEG_INF; // this starts always at negative!
 
 		int i = 0;
 		// alpha beta search
@@ -188,38 +138,29 @@ public class MitziBrain implements IBrain {
 				UCIReporter.sendInfoCurrMove(move, i + 1);
 			}
 
-			Variation variation;
-			if (ordered_variations != null && i < ordered_variations.size()) {
-				variation = evalBoard(position.doMove(move).new_position, total_depth,
-						depth - 1, -beta, -alpha, ordered_variations.get(i));
-			} else {
-				variation = evalBoard(position.doMove(move).new_position, total_depth,
-						depth - 1, -beta, -alpha);
-			}
-			int negaval = variation.getValue() * side_sign;
+			IPosition child_pos = position.doMove(move).new_position;
+			AnalysisResult result = evalBoard(child_pos, total_depth,
+					depth - 1, -beta, -alpha);
+			eval_counter++;
+			child_pos.updateAnalysisResult(result);
 
-			// update the missing move for the child
-			variation.update(move, variation.getValue());
-
-			// build variation tree
-			if (negaval >= best_value - 50) // NOTE: fine tune this
-				parent.addSubVariation(variation);
+			int negaval = result.score * side_sign;
 
 			// better variation found
 			if (negaval >= best_value) {
 				boolean truly_better = negaval > best_value;
 				best_value = negaval;
 
-				// update variation tree
-				parent.update(null, variation.getValue());
+				// update AnalysisResult
+				parent = result.tinyCopy();
+				parent.best_move = move;
+				parent.best_child = child_pos;
+				parent.plys_to_eval0++;
+				parent.plys_to_seldepth++;
 
 				// output to UCI
 				if (depth == total_depth && truly_better) {
-
-					principal_variation = parent.getPrincipalVariation();
-					UCIReporter.sendInfoPV(principal_variation, total_depth,
-							variation.getValue(), position.getActiveColor());
-
+					// TODO send PV
 				}
 			}
 
@@ -232,24 +173,16 @@ public class MitziBrain implements IBrain {
 		}
 
 		// Transposition Table Store; game_state is the lookup key for parent
-		if (parent.getValue() <= alpha_old)
-			parent.setFlag(Flag.UPPERBOUND);
-		else if (parent.getValue() >= beta)
-			parent.setFlag(Flag.LOWERBOUND);
-		else
-			parent.setFlag(Flag.EXACT);
 
-		parent.setDepth(depth); // the depth of subvariations is not changed.
-								// (because it not needed)
-		transposition_table.put(position, parent);
+		if (parent.score <= alpha_old)
+			parent.flag = Flag.UPPERBOUND;
+		else if (parent.score >= beta)
+			parent.flag = Flag.LOWERBOUND;
+		else
+			parent.flag = Flag.EXACT;
 
 		return parent;
 
-	}
-
-	private Variation evalBoard(IPosition position, int total_depth, int depth,
-			int alpha, int beta) {
-		return evalBoard(position, total_depth, depth, alpha, beta, null);
 	}
 
 	@Override
@@ -258,16 +191,14 @@ public class MitziBrain implements IBrain {
 
 		// first of all, ignoring the timings and restriction to certain
 		// moves...
-		
+
 		IPosition position = game_state.getPosition();
 
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
 
 		// iterative deepening
-		Variation var_tree = null; // TODO: use previous searches as starting
-									// point
-		Variation var_tree_temp;
+		AnalysisResult result = null;
 
 		// Parameters for aspiration windows
 		int alpha = NEG_INF; // initial value
@@ -275,74 +206,39 @@ public class MitziBrain implements IBrain {
 		int asp_window = 100; // often 50 or 25 is used
 		int factor = 2; // factor for increasing if out of bounds
 
-		for (int current_depth = 1; current_depth < searchDepth; current_depth++) {
-			this.principal_variation = null;
+		for (int current_depth = 1; current_depth <= searchDepth; current_depth++) {
 			table_counter = 0;
-			// should or should not be cleared?
-			// transposition_table.clear();
-			var_tree_temp = evalBoard(position, current_depth, current_depth,
-					alpha, beta, var_tree);
-			// mate found
-			if (principal_variation != null
-					&& (principal_variation.getValue() == POS_INF
-							&& position.getActiveColor() == Side.WHITE || principal_variation
-							.getValue() == NEG_INF
-							&& position.getActiveColor() == Side.BLACK)) {
-				timer.cancel();
+			result = evalBoard(position, current_depth, current_depth, alpha,
+					beta);
 
-				return principal_variation.getMove();
-			}
-			// If Value is out of bounds, redo search with larger bounds, but
-			// with the same variation tree
-			if (var_tree_temp.getValue() <= alpha) {
-				alpha -= factor * asp_window;
-				current_depth--;
-				UCIReporter.sendInfoString("Boards found: " + table_counter);
-				continue;
-			} else if (var_tree_temp.getValue() >= beta) {
-				beta += factor * asp_window;
-				current_depth--;
-				UCIReporter.sendInfoString("Boards found: " + table_counter);
-				continue;
-			}
-
-			alpha = var_tree_temp.getValue() - asp_window;
-			beta = var_tree_temp.getValue() + asp_window;
-
-			var_tree = var_tree_temp;
-			UCIReporter.sendInfoString("Boards found: " + table_counter);
-		}
-
-		// repeat until a value inside the alpha-beta bound is found.
-		while (true) {
-			// should or should not be cleared?
-			// transposition_table.clear();
-			table_counter = 0;
-			this.principal_variation = null;
-			var_tree_temp = evalBoard(position, searchDepth, searchDepth, alpha,
-					beta, var_tree);
-			if (var_tree_temp.getValue() <= alpha) {
-				alpha -= factor * asp_window;
-			} else if (var_tree_temp.getValue() >= beta) {
-				beta += factor * asp_window;
-			} else {
-				var_tree = var_tree_temp;
-				UCIReporter.sendInfoString("Boards found: " + table_counter);
+			if (result.score == POS_INF || result.score == NEG_INF) {
 				break;
 			}
+
+			// If Value is out of bounds, redo search with larger bounds, but
+			// with the same variation tree
+			if (result.score <= alpha) {
+				alpha -= factor * asp_window;
+				current_depth--;
+				UCIReporter.sendInfoString("Boards found: " + table_counter);
+				continue;
+			} else if (result.score >= beta) {
+				beta += factor * asp_window;
+				current_depth--;
+				UCIReporter.sendInfoString("Boards found: " + table_counter);
+				continue;
+			}
+
+			alpha = result.score - asp_window;
+			beta = result.score + asp_window;
+
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
 
 		timer.cancel();
-		UCIReporter.sendInfoString("Size transposition table: "
-				+ transposition_table.size());
 		UCIReporter.sendInfoString("Boards found: " + table_counter);
-		if (principal_variation != null) {
-			return principal_variation.getMove();
-		} else {
-			// mitzi cannot avoid mate :(
-			return var_tree.getBestMove();
-		}
+		UCIReporter.sendInfoString(result.toString());
+		return result.best_move;
 	}
 
 	@Override

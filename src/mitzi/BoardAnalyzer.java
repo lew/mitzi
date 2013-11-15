@@ -72,7 +72,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 		int score = quiesce(board, alpha, beta);
 
-		AnalysisResult result = new AnalysisResult(score, null);
+		AnalysisResult result = new AnalysisResult(score, null, false, 0, 0, Flag.EXACT);
 		return result;
 	}
 

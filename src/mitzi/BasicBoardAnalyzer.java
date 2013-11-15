@@ -33,7 +33,7 @@ public class BasicBoardAnalyzer implements IPositionAnalyzer {
 	public AnalysisResult evalBoard(IPosition board,int  alpha, int beta){
 		
 		int score = eval0(board);
-		AnalysisResult result = new AnalysisResult(score, null);
+		AnalysisResult result = new AnalysisResult(score, null, true, 0, 0, null);
 		return result;
 	}
 }

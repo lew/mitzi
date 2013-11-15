@@ -142,14 +142,10 @@ public class Position implements IPosition {
 	public void updateAnalysisResult(AnalysisResult analysis_result) {
 		if (analysis_result == null)
 			throw new NullPointerException();
-		
+
 		if (this.analysis_result == null
-				|| this.analysis_result.getPlysToEval0() < analysis_result
-						.getPlysToEval0()
-				|| (this.analysis_result.getPlysToEval0() == analysis_result
-						.getPlysToEval0() && this.analysis_result
-						.getPlysToSelDepth() < analysis_result
-						.getPlysToSelDepth())) {
+				|| this.analysis_result.plys_to_eval0 < analysis_result.plys_to_eval0
+				|| (this.analysis_result.plys_to_eval0 == analysis_result.plys_to_eval0 && this.analysis_result.plys_to_seldepth < analysis_result.plys_to_seldepth)) {
 			this.analysis_result = analysis_result;
 		}
 	}
@@ -1107,12 +1103,12 @@ public class Position implements IPosition {
 
 	@Override
 	public Set<IMove> generateCaptures() {
-		
+
 		Set<IMove> result = new HashSet<IMove>();
 		Set<IMove> poss_moves = getPossibleMoves();
-		
-		for(IMove move : poss_moves)
-			if(isHit(move) || move.getPromotion()!=null)
+
+		for (IMove move : poss_moves)
+			if (isHit(move) || move.getPromotion() != null)
 				result.add(move);
 		return result;
 	}
