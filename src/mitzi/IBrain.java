@@ -5,13 +5,13 @@ import java.util.Set;
 public interface IBrain {
 
 	/**
-	 * Before the engine is asked to search on a position, there will always be
-	 * this command to tell the engine about the current position.
+	 * Before the engine is asked to search on a game state, there will always be
+	 * this command to tell the engine about the current game state.
 	 * 
-	 * @param board
-	 *            the current game position
+	 * @param game_state
+	 *            the current game state
 	 */
-	public void set(IBoard board);
+	public void set(GameState game_state);
 
 	/**
 	 * Start calculating on the current position.

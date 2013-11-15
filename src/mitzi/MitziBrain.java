@@ -11,7 +11,7 @@ import mitzi.UCIReporter.InfoType;
 
 public class MitziBrain implements IBrain {
 
-	private IBoard board;
+	private GameState game_state;
 
 	private Variation principal_variation;
 
@@ -19,13 +19,13 @@ public class MitziBrain implements IBrain {
 
 	private long table_counter = 0;
 
-	private IBoardAnalyzer board_analyzer = new BoardAnalyzer();
+	private IPositionAnalyzer board_analyzer = new BoardAnalyzer();
 
 	public TranspositionTable transposition_table = new TranspositionTable();
 
 	@Override
-	public void set(IBoard board) {
-		this.board = board;
+	public void set(GameState game_state) {
+		this.game_state = game_state;
 		this.eval_counter = 0;
 		this.principal_variation = null;
 	}
@@ -62,8 +62,8 @@ public class MitziBrain implements IBrain {
 	 * @see <a
 	 *      href="https://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning">NegaMax
 	 *      with Alpha Beta Pruning</a>
-	 * @param board
-	 *            the current board
+	 * @param game_state
+	 *            the current game_state
 	 * @param total_depth
 	 *            the total depth to search
 	 * @param depth
@@ -72,7 +72,7 @@ public class MitziBrain implements IBrain {
 	 * @param beta
 	 * @return returns a Variation tree
 	 */
-	private Variation evalBoard(IBoard board, int total_depth, int depth,
+	private Variation evalBoard(IPosition board, int total_depth, int depth,
 			int alpha, int beta, Variation old_tree) {
 
 		int alpha_old = alpha;
@@ -190,10 +190,10 @@ public class MitziBrain implements IBrain {
 
 			Variation variation;
 			if (ordered_variations != null && i < ordered_variations.size()) {
-				variation = evalBoard(board.doMove(move), total_depth,
+				variation = evalBoard(board.doMove(move).new_position, total_depth,
 						depth - 1, -beta, -alpha, ordered_variations.get(i));
 			} else {
-				variation = evalBoard(board.doMove(move), total_depth,
+				variation = evalBoard(board.doMove(move).new_position, total_depth,
 						depth - 1, -beta, -alpha);
 			}
 			int negaval = variation.getValue() * side_sign;
@@ -231,7 +231,7 @@ public class MitziBrain implements IBrain {
 			i++; // keep ordered_moves and ordered_variations in sync
 		}
 
-		// Transposition Table Store; board is the lookup key for parent
+		// Transposition Table Store; game_state is the lookup key for parent
 		if (parent.getValue() <= alpha_old)
 			parent.setFlag(Flag.UPPERBOUND);
 		else if (parent.getValue() >= beta)
@@ -247,7 +247,7 @@ public class MitziBrain implements IBrain {
 
 	}
 
-	private Variation evalBoard(IBoard board, int total_depth, int depth,
+	private Variation evalBoard(IPosition board, int total_depth, int depth,
 			int alpha, int beta) {
 		return evalBoard(board, total_depth, depth, alpha, beta, null);
 	}
@@ -258,6 +258,8 @@ public class MitziBrain implements IBrain {
 
 		// first of all, ignoring the timings and restriction to certain
 		// moves...
+		
+		IPosition position = game_state.getPosition();
 
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
@@ -278,14 +280,14 @@ public class MitziBrain implements IBrain {
 			table_counter = 0;
 			// should or should not be cleared?
 			// transposition_table.clear();
-			var_tree_temp = evalBoard(board, current_depth, current_depth,
+			var_tree_temp = evalBoard(position, current_depth, current_depth,
 					alpha, beta, var_tree);
 			// mate found
 			if (principal_variation != null
 					&& (principal_variation.getValue() == POS_INF
-							&& board.getActiveColor() == Side.WHITE || principal_variation
+							&& position.getActiveColor() == Side.WHITE || principal_variation
 							.getValue() == NEG_INF
-							&& board.getActiveColor() == Side.BLACK)) {
+							&& position.getActiveColor() == Side.BLACK)) {
 				timer.cancel();
 
 				return principal_variation.getMove();
@@ -317,7 +319,7 @@ public class MitziBrain implements IBrain {
 			// transposition_table.clear();
 			table_counter = 0;
 			this.principal_variation = null;
-			var_tree_temp = evalBoard(board, searchDepth, searchDepth, alpha,
+			var_tree_temp = evalBoard(position, searchDepth, searchDepth, alpha,
 					beta, var_tree);
 			if (var_tree_temp.getValue() <= alpha) {
 				alpha -= factor * asp_window;

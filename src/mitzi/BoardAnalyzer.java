@@ -10,7 +10,7 @@ import java.util.Set;
  *         http://philemon.cycovery.com/site/part2.html for more details.
  * 
  */
-public class BoardAnalyzer implements IBoardAnalyzer {
+public class BoardAnalyzer implements IPositionAnalyzer {
 
 	protected static int[] square_to_array_index = { 64, 64, 64, 64, 64, 64,
 			64, 64, 64, 64, 64, 56, 48, 40, 32, 24, 16, 8, 0, 64, 64, 57, 49,
@@ -50,7 +50,7 @@ public class BoardAnalyzer implements IBoardAnalyzer {
 	static private int PREMATURE_QUEEN = -17; // not yet implemented
 
 	@Override
-	public AnalysisResult eval0(IBoard board) {
+	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
 
 		// Evaluate position - activity
@@ -66,7 +66,7 @@ public class BoardAnalyzer implements IBoardAnalyzer {
 		return result;
 	}
 
-	private int evalPieces(IBoard board) {
+	private int evalPieces(IPosition board) {
 		int score = 0;
 		int[] piece_values = { 100, 500, 325, 325, 975, 000 };
 		int bishop_pair_value = 50;
@@ -98,7 +98,7 @@ public class BoardAnalyzer implements IBoardAnalyzer {
 	 *            the board to be analyzed
 	 * @return the score for the activity of Rook, Bishop, Knight, Queen
 	 */
-	private int evalPieceActivity(IBoard board) {
+	private int evalPieceActivity(IPosition board) {
 		int score = 0;
 		Set<Integer> squares;
 
@@ -155,7 +155,7 @@ public class BoardAnalyzer implements IBoardAnalyzer {
 	 *            the board to be analyzed
 	 * @return the score w.r.t. weak/ strong positions
 	 */
-	private int evalWeakPosition(IBoard board) {
+	private int evalWeakPosition(IPosition board) {
 
 		int score = 0;
 		Set<Integer> squares;

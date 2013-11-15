@@ -2,7 +2,7 @@ package mitzi;
 
 import java.util.Set;
 
-public interface IBoard {
+public interface IPosition {
 
 	/**
 	 * Sets the board to the initial position at the start of a game.
@@ -18,26 +18,14 @@ public interface IBoard {
 	 */
 	public void setToFEN(String fen);
 
-	public IBoard doMove(IMove move);
+	public class MoveApplication {
+		IPosition new_position;
+		boolean resets_half_move_clock = false;
+	}
+
+	public MoveApplication doMove(IMove move);
 
 	public Side getActiveColor();
-
-	/**
-	 * This is the number of halfmoves since the last pawn advance or capture.
-	 * This is used to determine if a draw can be claimed under the fifty-move
-	 * rule.
-	 * 
-	 * @return number of halfmoves since the last pawn advance or capture
-	 */
-	public int getHalfMoveClock();
-
-	/**
-	 * The number of the full move. It starts at 1, and is incremented after
-	 * Black's move.
-	 * 
-	 * @return number of the full move
-	 */
-	public int getFullMoveClock();
 
 	/**
 	 * En passant target square. If there's no en passant target square, this is

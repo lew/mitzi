@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class BasicMoveComparator implements Comparator<IMove> {
 
-	private IBoard board;
+	private IPosition board;
 	private Map<IMove, Integer> move_values = new HashMap<IMove, Integer>();
 
 	private static final Map<Piece, Integer> src_values = new HashMap<Piece, Integer>();
@@ -31,7 +31,7 @@ public class BasicMoveComparator implements Comparator<IMove> {
 		dest_values.put(null, 0);
 	}
 
-	public BasicMoveComparator(IBoard board) {
+	public BasicMoveComparator(IPosition board) {
 		this.board = board;
 	}
 

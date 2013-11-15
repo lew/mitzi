@@ -1,9 +1,9 @@
 package mitzi;
 
-public class BasicBoardAnalyzer implements IBoardAnalyzer {
+public class BasicBoardAnalyzer implements IPositionAnalyzer {
 
 	@Override
-	public AnalysisResult eval0(IBoard board) {
+	public AnalysisResult eval0(IPosition board) {
 
 		int score = 0;
 

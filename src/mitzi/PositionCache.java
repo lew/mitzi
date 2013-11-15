@@ -41,7 +41,8 @@ public class PositionCache {
 		if (sr == null) {
 			Set<Position> new_set = new HashSet<Position>();
 			new_set.add(lookup);
-			position_cache.put(hash, new SoftReference<Set<Position>>(new_set));
+			position_cache.put(hash,
+					new SoftReference<Set<Position>>(new_set));
 			return lookup;
 		} else {
 			Set<Position> result_set = sr.get();

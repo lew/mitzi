@@ -5,12 +5,12 @@ import java.util.Set;
 
 public class RandyBrain implements IBrain {
 
-	private IBoard board;
+	private GameState game_state;
 	private Set<IMove> moves;
 
 	@Override
-	public void set(IBoard board) {
-		this.board = board;
+	public void set(GameState game_state) {
+		this.game_state = game_state;
 	}
 
 	@Override
@@ -20,7 +20,7 @@ public class RandyBrain implements IBrain {
 		// ignores time limits and other restrictions
 		// take that, UCI…
 
-		moves = board.getPossibleMoves();
+		moves = game_state.getPosition().getPossibleMoves();
 
 		int randy = new Random().nextInt(moves.size());
 		int i = 0;
