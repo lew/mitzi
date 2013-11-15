@@ -92,4 +92,11 @@ public class GameState {
 		return full_move_clock;
 	}
 
+	/**
+	 * return all previous played moves.
+	 * @return returns a list of all played moves.
+	 */
+	public ArrayList<IMove> getHistory(){
+		return history;
+	}
 }
