@@ -50,6 +50,8 @@ public interface IPosition {
 	 */
 	public boolean canCastle(int king_to);
 	
+	public AnalysisResult getAnalysisResult();
+	
 	public Boolean colorCanCastle(Side color);
 	
 	public Set<Integer> getOccupiedSquaresByColor(Side color);
