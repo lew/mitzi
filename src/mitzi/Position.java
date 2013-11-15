@@ -1,5 +1,6 @@
 package mitzi;
 
+import java.lang.ref.SoftReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,7 +56,8 @@ public class Position implements IPosition {
 	private Side active_color;
 
 	// The following class members are used to prevent multiple computations
-	private Set<IMove> possible_moves; // Set of all possible moves
+	private SoftReference<Set<IMove>> possible_moves; // Set of all possible
+														// moves
 
 	private Boolean is_check;
 
@@ -559,7 +561,8 @@ public class Position implements IPosition {
 	public int getNumberOfPiecesByColor(Side side) {
 		int result = 0;
 		for (Piece piece : Piece.values()) {
-			result += num_occupied_squares_by_color_and_type[side.ordinal()*10+piece.ordinal()];
+			result += num_occupied_squares_by_color_and_type[side.ordinal()
+					* 10 + piece.ordinal()];
 		}
 		return result;
 	}
@@ -568,7 +571,8 @@ public class Position implements IPosition {
 	public int getNumberOfPiecesByType(Piece piece) {
 		int result = 0;
 		for (Side side : Side.values()) {
-			result += num_occupied_squares_by_color_and_type[side.ordinal()*10+piece.ordinal()];
+			result += num_occupied_squares_by_color_and_type[side.ordinal()
+					* 10 + piece.ordinal()];
 		}
 		return result;
 	}
@@ -581,23 +585,21 @@ public class Position implements IPosition {
 
 	@Override
 	public Set<IMove> getPossibleMoves() {
-
 		if (possible_moves == null) {
 			Set<IMove> total_set = new HashSet<IMove>();
-			Set<IMove> temp_set;
-
-			// all the active squares
-			Set<Integer> squares = getOccupiedSquaresByColor(active_color);
 
 			// loop over all squares
-			for (int square : squares) {
-				temp_set = getPossibleMovesFrom(square);
-				total_set.addAll(temp_set);
+			for (int square : getOccupiedSquaresByColor(active_color)) {
+				total_set.addAll(getPossibleMovesFrom(square));
 			}
-			possible_moves = total_set;
-		}
-		return possible_moves;
 
+			// cache it
+			possible_moves = new SoftReference<Set<IMove>>(total_set);
+			return total_set;
+		} else {
+			// return from cache
+			return possible_moves.get();
+		}
 	}
 
 	@Override
