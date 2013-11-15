@@ -8,18 +8,19 @@ import java.util.HashMap;
  * it for later lookup of moves, score, etc…
  * 
  */
-public class PositionCache {
+public class IPositionCache {
 
 	/**
 	 * A map from the Position's <code>hashCode</code> to a set of Positions.
 	 */
-	private static HashMap<Integer, SoftReference<Position>> position_cache = new HashMap<Integer, SoftReference<Position>>();
+	private static HashMap<Integer, SoftReference<IPosition>> position_cache = new HashMap<Integer, SoftReference<IPosition>>(
+			200000);
 
 	/**
 	 * Cannot be instantiated. For access to the static cache use
-	 * <code>PositionCache.getPosition(p)</code>.
+	 * <code>IPositionCache.getPosition(p)</code>.
 	 */
-	private PositionCache() {
+	private IPositionCache() {
 	}
 
 	/**
@@ -33,23 +34,20 @@ public class PositionCache {
 	 * @return a previously cached <code>Position</code> if available, otherwise
 	 *         the same object again
 	 */
-	public static Position getPosition(Position lookup) {
+	public static IPosition getPosition(IPosition lookup) {
 		int hash = lookup.hashCode();
-		SoftReference<Position> sr = position_cache.get(hash);
+		SoftReference<IPosition> sr = position_cache.get(hash);
 		if (sr == null) {
-			Position new_pos = new Position();
-			position_cache.put(hash,
-					new SoftReference<Position>(new_pos));
+			position_cache.put(hash, new SoftReference<IPosition>(lookup));
 			return lookup;
 		} else {
-			Position result = sr.get();
-			
-			//replace the old value, if there is a collision between the hashkeys
-			if(!lookup.equals(result)){
-				position_cache.put(hash,
-						new SoftReference<Position>(lookup));
+			IPosition result = sr.get();
+			// replace the old value, if there is a collision between the
+			// hashkeys
+			if (!lookup.equals(result)) {
+				position_cache.put(hash, new SoftReference<IPosition>(lookup));
 				return lookup;
-			}	
+			}
 			return result;
 		}
 	}
