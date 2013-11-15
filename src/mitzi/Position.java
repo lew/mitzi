@@ -140,8 +140,12 @@ public class Position implements IPosition {
 	}
 
 	public void updateAnalysisResult(AnalysisResult analysis_result) {
-		if (this.analysis_result.getPlysToEval0() < analysis_result
-				.getPlysToEval0()
+		if (analysis_result == null)
+			throw new NullPointerException();
+		
+		if (this.analysis_result == null
+				|| this.analysis_result.getPlysToEval0() < analysis_result
+						.getPlysToEval0()
 				|| (this.analysis_result.getPlysToEval0() == analysis_result
 						.getPlysToEval0() && this.analysis_result
 						.getPlysToSelDepth() < analysis_result
