@@ -58,7 +58,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	static private int bishop_pair_value = 50;
 
 	@Override
-	public int eval0(IPosition board) {
+	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
 
 		// Evaluate position - activity
@@ -70,16 +70,17 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		// Evaluate the pieces
 		score += evalPieces(board);
 
-		// AnalysisResult result = new AnalysisResult(score, null);
-		return score;
+		AnalysisResult result = new AnalysisResult(score, false, false, 0, 0,
+				Flag.EXACT);
+		return result;
 	}
 
 	@Override
 	public AnalysisResult evalBoard(IPosition board, int alpha, int beta) {
-
-		int score = quiesce(board, alpha, beta);
-
-		AnalysisResult result = new AnalysisResult(score, null, false, 0, 0, Flag.EXACT);
+		AnalysisResult result = quiesce(board, alpha, beta);
+		
+		//decrease the depth by one, because counted once too much (hopefully ;) ).
+		result.plys_to_seldepth--;
 		return result;
 	}
 
@@ -99,13 +100,16 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 *            the beta value of alpha-beta search
 	 * @return the value of the board
 	 */
-	private int quiesce(IPosition board, int alpha, int beta) {
+	private AnalysisResult quiesce(IPosition board, int alpha, int beta) {
 
-		int score = eval0(board);
-		if (score >= beta)
-			return beta;
-		if (score > alpha)
-			alpha = score;
+		AnalysisResult result = eval0(board);
+		if (result.score >= beta) {
+			result.score = beta;
+			result.plys_to_seldepth++;
+			return result;
+		}
+		if (result.score > alpha)
+			alpha = result.score;
 
 		Set<IMove> caputures = board.generateCaptures();
 		BasicMoveComparator move_comparator = new BasicMoveComparator(board);
@@ -114,16 +118,22 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		ArrayList<IMove> ordered_captures = new ArrayList<IMove>(caputures);
 		Collections.sort(ordered_captures,
 				Collections.reverseOrder(move_comparator));
+		
 		for (IMove move : caputures) {
 			IPosition pos = board.doMove(move).new_position;
-			score = -quiesce(pos, -beta, -alpha);
+			result = quiesce(pos, -beta, -alpha);
+			result.score = -result.score;
 
-			if (score >= beta)
-				return beta;
-			if (score > alpha)
-				alpha = score;
+			if (result.score >= beta) {
+				result.score = beta;
+				result.plys_to_seldepth++;
+				return result;
+			}
+			if (result.score > alpha)
+				alpha = result.score;
 		}
-		return alpha;
+		result.plys_to_seldepth++;
+		return result;
 
 	}
 

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +60,8 @@ public class Position implements IPosition {
 	private SoftReference<Set<IMove>> possible_moves; // Set of all possible
 														// moves
 
+	private LinkedList<IMove> best_moves = new LinkedList<IMove>();
+	
 	private AnalysisResult analysis_result = null;
 
 	private Boolean is_check;
@@ -75,7 +78,7 @@ public class Position implements IPosition {
 
 	private Map<Piece, Set<Integer>> occupied_squares_by_type = new HashMap<Piece, Set<Integer>>();
 
-	private int[] num_occupied_squares_by_color_and_type = new int[16];
+	private short[] num_occupied_squares_by_color_and_type = new short[16];
 
 	// --------------------------------------------------------
 
@@ -1101,6 +1104,21 @@ public class Position implements IPosition {
 		return false;
 	}
 
+	@Override
+	public LinkedList<IMove> getBestMoves(){
+		return best_moves;
+	}
+	
+	@Override
+	public void addBetterMove(IMove move){
+		best_moves.add(move);
+	}
+	
+	@Override
+	public void resetBestMoves(){
+		best_moves.clear();
+	}
+	
 	@Override
 	public Set<IMove> generateCaptures() {
 

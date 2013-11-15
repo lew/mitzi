@@ -2,6 +2,8 @@ package mitzi;
 
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * After creating a new <code>Position</code> instance, use this class to cache
@@ -10,11 +12,21 @@ import java.util.HashMap;
  */
 public class IPositionCache {
 
+	private static final int MAX_ENTRIES = 100000;
+
 	/**
 	 * A map from the Position's <code>hashCode</code> to a set of Positions.
 	 */
-	private static HashMap<Integer, SoftReference<IPosition>> position_cache = new HashMap<Integer, SoftReference<IPosition>>(
-			100000);
+	private static LinkedHashMap<Integer, SoftReference<IPosition>> position_cache = new LinkedHashMap<Integer, SoftReference<IPosition>>(
+			MAX_ENTRIES + 1, 1) {
+
+		private static final long serialVersionUID = 4582735742585308092L;
+
+		protected boolean removeEldestEntry(
+				Map.Entry<Integer, SoftReference<IPosition>> eldest) {
+			return size() > MAX_ENTRIES;
+		}
+	};
 
 	/**
 	 * Cannot be instantiated. For access to the static cache use
@@ -50,5 +62,9 @@ public class IPositionCache {
 			}
 			return result;
 		}
+	}
+
+	public static int getSize() {
+		return position_cache.size();
 	}
 }

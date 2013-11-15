@@ -1,7 +1,7 @@
 package mitzi;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -64,7 +64,9 @@ public class MitziBrain implements IBrain {
 	 * @param depth
 	 *            the remaining depth to search
 	 * @param alpha
+	 *            the alpha value
 	 * @param beta
+	 *            the beta value
 	 * @return returns the result of the evaluation
 	 */
 	private AnalysisResult evalBoard(IPosition position, int total_depth,
@@ -108,21 +110,40 @@ public class MitziBrain implements IBrain {
 			}
 		}
 
-		// base case (the side should alternate)
+		// base case
 		if (depth == 0) {
-			AnalysisResult result = board_analyzer.evalBoard(position, alpha,
-					beta);
+			AnalysisResult result = board_analyzer.evalBoard(position, alpha,beta);
+			//AnalysisResult result = board_analyzer.eval0(position);
 			return result;
 		}
 
-		// Sort the moves:
-		// TODO: use sorted list in (cached) Position
+		LinkedList<IMove> ordered_moves = new LinkedList<IMove>();
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
-		ArrayList<IMove> ordered_moves;
-		// no previous computation given, use basic heuristic
-		ordered_moves = new ArrayList<IMove>(moves);
-		Collections.sort(ordered_moves,
-				Collections.reverseOrder(move_comparator));
+		// Sort the moves:
+		if (old_result != null) {
+			ordered_moves.addAll(position.getBestMoves());
+			Collections.reverse(ordered_moves);
+
+			LinkedList<IMove> remaining_moves = new LinkedList<IMove>();
+			for (IMove move : moves)
+				if (!ordered_moves.contains(move))
+					remaining_moves.add(move);
+
+			Collections.sort(remaining_moves,
+					Collections.reverseOrder(move_comparator));
+
+			ordered_moves.addAll(remaining_moves);
+
+		} else {
+			// no previous computation given, use basic heuristic
+			ordered_moves.addAll(moves);
+			Collections.sort(ordered_moves,
+					Collections.reverseOrder(move_comparator));
+		}
+
+		//Delete the move, to recieve a better ordering (with larger depth)
+		if (old_result != null && old_result.plys_to_eval0 < depth)
+			position.resetBestMoves();
 
 		// create parent AnalysisResult
 		AnalysisResult parent = null;
@@ -146,6 +167,10 @@ public class MitziBrain implements IBrain {
 
 			int negaval = result.score * side_sign;
 
+			// Add move for orderring
+			if (negaval >= best_value - 50 && old_result != null && old_result.plys_to_eval0 < depth)
+				position.addBetterMove(move);
+			
 			// better variation found
 			if (negaval >= best_value) {
 				boolean truly_better = negaval > best_value;
@@ -173,7 +198,6 @@ public class MitziBrain implements IBrain {
 		}
 
 		// Transposition Table Store; game_state is the lookup key for parent
-
 		if (parent.score <= alpha_old)
 			parent.flag = Flag.UPPERBOUND;
 		else if (parent.score >= beta)
@@ -203,7 +227,7 @@ public class MitziBrain implements IBrain {
 		// Parameters for aspiration windows
 		int alpha = NEG_INF; // initial value
 		int beta = POS_INF; // initial value
-		int asp_window = 100; // often 50 or 25 is used
+		int asp_window = 50; // often 50 or 25 is used
 		int factor = 2; // factor for increasing if out of bounds
 
 		for (int current_depth = 1; current_depth <= searchDepth; current_depth++) {
@@ -232,12 +256,11 @@ public class MitziBrain implements IBrain {
 
 			alpha = result.score - asp_window;
 			beta = result.score + asp_window;
-
+			UCIReporter.sendInfoString("Table size: " + IPositionCache.getSize());
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
 
 		timer.cancel();
-		UCIReporter.sendInfoString("Boards found: " + table_counter);
 		UCIReporter.sendInfoPV(position);
 		return result.best_move;
 	}

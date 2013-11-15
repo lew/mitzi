@@ -1,5 +1,6 @@
 package mitzi;
 
+import java.util.LinkedList;
 import java.util.Set;
 
 public interface IPosition {
@@ -248,4 +249,10 @@ public interface IPosition {
 	 */
 	public Set<IMove> generateCaptures();
 
+	public LinkedList<IMove> getBestMoves();
+	
+	public void addBetterMove(IMove move);
+	
+	public void resetBestMoves();
+	
 }
