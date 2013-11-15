@@ -72,14 +72,14 @@ public class MitziBrain implements IBrain {
 	 * @param beta
 	 * @return returns a Variation tree
 	 */
-	private Variation evalBoard(IPosition board, int total_depth, int depth,
+	private Variation evalBoard(IPosition position, int total_depth, int depth,
 			int alpha, int beta, Variation old_tree) {
 
 		int alpha_old = alpha;
 
 		// Transposition Table Lookup; node is the lookup key for entry
 		// http://en.wikipedia.org/wiki/Negamax#NegaMax_with_Alpha_Beta_Pruning_and_Transposition_Tables
-		Variation entry = transposition_table.get(board);
+		Variation entry = transposition_table.get(position);
 		if (entry != null && entry.getDepth() >= depth) {
 			table_counter++;
 			if (entry.getFlag() == Flag.EXACT) {
@@ -95,16 +95,16 @@ public class MitziBrain implements IBrain {
 		}
 
 		// whose move is it?
-		Side side = board.getActiveColor();
+		Side side = position.getActiveColor();
 		int side_sign = Side.getSideSign(side);
 
 		// generate moves
-		Set<IMove> moves = board.getPossibleMoves();
+		Set<IMove> moves = position.getPossibleMoves();
 
 		// check for mate and stalemate (the side should alternate)
 		if (moves.isEmpty()) {
 			Variation base_variation;
-			if (board.isCheckPosition()) {
+			if (position.isCheckPosition()) {
 				base_variation = new Variation(null, NEG_INF * side_sign,
 						Side.getOppositeSide(side));
 			} else {
@@ -117,7 +117,7 @@ public class MitziBrain implements IBrain {
 
 		// base case (the side should alternate)
 		if (depth == 0) {
-			AnalysisResult result = board_analyzer.eval0(board);
+			AnalysisResult result = board_analyzer.eval0(position);
 			result.setPlysToEval0(0);
 			result.setPlysToSelDepth(0);
 			Variation base_variation = new Variation(null, result.score,
@@ -129,7 +129,7 @@ public class MitziBrain implements IBrain {
 		int best_value = NEG_INF; // this starts always at negative!
 
 		// Sort the moves:
-		BasicMoveComparator move_comparator = new BasicMoveComparator(board);
+		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
 		ArrayList<IMove> ordered_moves;
 		ArrayList<Variation> ordered_variations = null;
 		if ((old_tree == null || old_tree.getSubVariations().isEmpty())
@@ -190,10 +190,10 @@ public class MitziBrain implements IBrain {
 
 			Variation variation;
 			if (ordered_variations != null && i < ordered_variations.size()) {
-				variation = evalBoard(board.doMove(move).new_position, total_depth,
+				variation = evalBoard(position.doMove(move).new_position, total_depth,
 						depth - 1, -beta, -alpha, ordered_variations.get(i));
 			} else {
-				variation = evalBoard(board.doMove(move).new_position, total_depth,
+				variation = evalBoard(position.doMove(move).new_position, total_depth,
 						depth - 1, -beta, -alpha);
 			}
 			int negaval = variation.getValue() * side_sign;
@@ -218,7 +218,7 @@ public class MitziBrain implements IBrain {
 
 					principal_variation = parent.getPrincipalVariation();
 					UCIReporter.sendInfoPV(principal_variation, total_depth,
-							variation.getValue(), board.getActiveColor());
+							variation.getValue(), position.getActiveColor());
 
 				}
 			}
@@ -241,15 +241,15 @@ public class MitziBrain implements IBrain {
 
 		parent.setDepth(depth); // the depth of subvariations is not changed.
 								// (because it not needed)
-		transposition_table.put(board, parent);
+		transposition_table.put(position, parent);
 
 		return parent;
 
 	}
 
-	private Variation evalBoard(IPosition board, int total_depth, int depth,
+	private Variation evalBoard(IPosition position, int total_depth, int depth,
 			int alpha, int beta) {
-		return evalBoard(board, total_depth, depth, alpha, beta, null);
+		return evalBoard(position, total_depth, depth, alpha, beta, null);
 	}
 
 	@Override
