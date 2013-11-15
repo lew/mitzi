@@ -6,10 +6,20 @@ import java.util.Map;
 
 public class BasicMoveComparator implements Comparator<IMove> {
 
+	/**
+	 * saves the actual board, where the moves should be compared
+	 */
 	private IPosition board;
-	private Map<IMove, Integer> move_values = new HashMap<IMove, Integer>();
+	
+	/**
+	 * map, which maps a move to its value. Initial size set to 35 to prevent 
+	 */
+	private Map<IMove, Integer> move_values = new HashMap<IMove, Integer>(35,1);
 
-	private static final Map<Piece, Integer> src_values = new HashMap<Piece, Integer>();
+	/**
+	 * contains values for move comparison (for source piece)
+	 */
+	private static final Map<Piece, Integer> src_values = new HashMap<Piece, Integer>(6,1);
 	static {
 		// initialize src_values
 		src_values.put(Piece.QUEEN, 5);
@@ -20,7 +30,10 @@ public class BasicMoveComparator implements Comparator<IMove> {
 		src_values.put(Piece.KING, 0);
 	}
 
-	private static final Map<Piece, Integer> dest_values = new HashMap<Piece, Integer>();
+	/**
+	 * contains values for move comparison (for dest piece)
+	 */
+	private static final Map<Piece, Integer> dest_values = new HashMap<Piece, Integer>(6,1);
 	static {
 		// initialize dest_values
 		dest_values.put(Piece.QUEEN, 500);

@@ -32,10 +32,20 @@ public final class AnalysisResult {
 	 */
 	public int plys_to_seldepth = 0;
 
+	/**
+	 * The state of the result in alpha-beta search: exact, fail-high or
+	 * fail-low
+	 */
 	public Flag flag;
 
+	/**
+	 * The best move from current board.
+	 */
 	public IMove best_move;
 
+	/**
+	 * The position resulting from the best move.
+	 */
 	public IPosition best_child;
 
 	AnalysisResult(int score, Boolean is_stalemate, boolean needs_deeper,
@@ -53,6 +63,14 @@ public final class AnalysisResult {
 				plys_to_eval0, plys_to_seldepth, null);
 	}
 
+	/**
+	 * enables a comparison of two results.
+	 * 
+	 * @param o
+	 *            the other result.
+	 * @return 0 if there are the same or have the same value, 1 if the actual
+	 *         one is more valuable then the other one, -1 else.
+	 */
 	public int compareQualityTo(AnalysisResult o) {
 		if (o == null)
 			throw new NullPointerException();

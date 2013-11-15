@@ -14,6 +14,7 @@ import java.util.Set;
  */
 public class BoardAnalyzer implements IPositionAnalyzer {
 
+	// the square to array index from Position.java
 	protected static int[] square_to_array_index = { 64, 64, 64, 64, 64, 64,
 			64, 64, 64, 64, 64, 56, 48, 40, 32, 24, 16, 8, 0, 64, 64, 57, 49,
 			41, 33, 25, 17, 9, 1, 64, 64, 58, 50, 42, 34, 26, 18, 10, 2, 64,
@@ -47,9 +48,14 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			0, 2, 12, 20, 20, 12, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 
+	static private int[] piece_values = { 100, 500, 325, 325, 975, 000 };
+
 	// if not all Bishop and Knight has moved, moving the queen results in
 	// negative score
 	static private int PREMATURE_QUEEN = -17; // not yet implemented
+
+	// The player receives a bonus if the 2 bishops are alive.
+	static private int bishop_pair_value = 50;
 
 	@Override
 	public int eval0(IPosition board) {
@@ -68,6 +74,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		return score;
 	}
 
+	@Override
 	public AnalysisResult evalBoard(IPosition board, int alpha, int beta) {
 
 		int score = quiesce(board, alpha, beta);
@@ -76,6 +83,22 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		return result;
 	}
 
+	/**
+	 * Implements Quiescence search to avoid the horizon effect. The function
+	 * increase the search depth until no capture is possible, where only
+	 * captures are analyzed.
+	 * 
+	 * @see <a
+	 *      href="http://chessprogramming.wikispaces.com/Quiescence+Search">http://chessprogramming.wikispaces.com/Quiescence+Search</a>
+	 * 
+	 * @param board
+	 *            the board to be analyzed
+	 * @param alpha
+	 *            the alpha value of alpha-beta search
+	 * @param beta
+	 *            the beta value of alpha-beta search
+	 * @return the value of the board
+	 */
 	private int quiesce(IPosition board, int alpha, int beta) {
 
 		int score = eval0(board);
@@ -104,10 +127,15 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 	}
 
+	/**
+	 * Evaluates only the material value of the board.
+	 * 
+	 * @param board
+	 *            the actual board
+	 * @return the material value
+	 */
 	private int evalPieces(IPosition board) {
 		int score = 0;
-		int[] piece_values = { 100, 500, 325, 325, 975, 000 };
-		int bishop_pair_value = 50;
 
 		// basic evaluation
 		for (Side side : Side.values()) {
