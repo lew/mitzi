@@ -25,6 +25,10 @@ public final class AnalysisResult {
 	private int plys_to_seldepth = 0;
 
 	private Flag flag;
+	
+	public IMove best_move;
+	
+	public IPosition best_child;
 
 	AnalysisResult(int score, Boolean is_stalemate) {
 		this.score = score;
