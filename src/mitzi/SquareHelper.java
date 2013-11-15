@@ -153,6 +153,11 @@ public final class SquareHelper {
 				+ Integer.toString(getRow(square));
 	}
 
+	/**
+	 * converts the string representation of a square into a the ICCF notation.
+	 * @param notation the given square in string notation
+	 * @return the square in integer representation.
+	 */
 	public static int fromString(String notation) {
 		int i = 0;
 		while (letters[i].charAt(0) != notation.charAt(0)) {

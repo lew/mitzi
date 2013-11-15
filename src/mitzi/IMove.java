@@ -20,6 +20,10 @@ public interface IMove {
 	 */
 	public Piece getPromotion();
 
+	/**
+	 * 
+	 * @return the string representation of the move
+	 */
 	public String toString();
 
 }

@@ -14,7 +14,7 @@ public class IPositionCache {
 	 * A map from the Position's <code>hashCode</code> to a set of Positions.
 	 */
 	private static HashMap<Integer, SoftReference<IPosition>> position_cache = new HashMap<Integer, SoftReference<IPosition>>(
-			200000);
+			100000);
 
 	/**
 	 * Cannot be instantiated. For access to the static cache use

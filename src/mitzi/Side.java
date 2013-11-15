@@ -3,6 +3,11 @@ package mitzi;
 public enum Side {
 	BLACK, WHITE;
 
+	/**
+	 * returns the opposite side of the given side
+	 * @param side the given side
+	 * @return the opposite side
+	 */
 	public static Side getOppositeSide(Side side) {
 		switch (side) {
 		case BLACK:
@@ -12,6 +17,11 @@ public enum Side {
 		}
 	}
 
+	/**
+	 * returns the side sign of the given side
+	 * @param side the given side
+	 * @return -1 if side == black, 1 otherwise.
+	 */
 	public static int getSideSign(Side side) {
 		switch (side) {
 		case BLACK:

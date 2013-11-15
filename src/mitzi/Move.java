@@ -58,7 +58,21 @@ public final class Move implements IMove {
 			promotion = null;
 		}
 	}
+	
+	/**
+	 * 
+	 * Checks if a move is in a given List of moves
+	 * 
+	 * @param moves
+	 *            List of moves
+	 * @param move
+	 *            the move to be searched
+	 * @return true if move is in moves, else false
+	 */
+	public static boolean MovesListIncludesMove(Set<Move> moves, Move move) {
+		return moves.contains(move);
 
+	}
 	@Override
 	public int getFromSquare() {
 		return src;
@@ -86,20 +100,7 @@ public final class Move implements IMove {
 				+ SquareHelper.toString(getToSquare()) + promote_to;
 	}
 
-	/**
-	 * 
-	 * Checks if a move is in a given List of moves
-	 * 
-	 * @param moves
-	 *            List of moves
-	 * @param move
-	 *            the move to be searched
-	 * @return true if move is in moves, else false
-	 */
-	public static boolean MovesListIncludesMove(Set<Move> moves, Move move) {
-		return moves.contains(move);
 
-	}
 
 	@Override
 	public int hashCode() {
