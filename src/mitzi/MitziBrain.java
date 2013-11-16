@@ -75,7 +75,7 @@ public class MitziBrain implements IBrain {
 		int alpha_old = alpha;
 
 		// Cache lookup
-		position = IPositionCache.getPosition(position);
+		position = PositionCache.getPosition(position);
 
 		AnalysisResult old_result = position.getAnalysisResult();
 		if (old_result != null && old_result.plys_to_eval0 >= depth) {
@@ -256,7 +256,7 @@ public class MitziBrain implements IBrain {
 
 			alpha = result.score - asp_window;
 			beta = result.score + asp_window;
-			UCIReporter.sendInfoString("Table size: " + IPositionCache.getSize());
+			UCIReporter.sendInfoString("Table size: " + PositionCache.getSize());
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
 
