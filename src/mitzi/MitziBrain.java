@@ -33,11 +33,15 @@ public class MitziBrain implements IBrain {
 
 		private long old_mtime;
 		private long old_eval_counter;
+		private long old_eval_counter_seldepth;
 
 		@Override
 		public void run() {
 			long mtime = System.currentTimeMillis();
-			long eval_span = eval_counter - old_eval_counter;
+			long eval_span_0 = eval_counter - old_eval_counter;
+			long eval_span_sel = +BoardAnalyzer.eval_counter_seldepth
+					- old_eval_counter_seldepth;
+			long eval_span = eval_span_0 + eval_span_sel;
 
 			if (old_mtime != 0) {
 				long time_span = mtime - old_mtime;
@@ -46,7 +50,8 @@ public class MitziBrain implements IBrain {
 			}
 
 			old_mtime = mtime;
-			old_eval_counter += eval_span;
+			old_eval_counter += eval_span_0;
+			old_eval_counter_seldepth += eval_span_sel;
 
 		}
 	}
@@ -75,23 +80,21 @@ public class MitziBrain implements IBrain {
 		int alpha_old = alpha;
 
 		// Cache lookup
-		position = IPositionCache.getPosition(position);
+		AnalysisResult entry = ResultCache.getResult(position);
 
-		AnalysisResult old_result = position.getAnalysisResult();
-		if (old_result != null && old_result.plys_to_eval0 >= depth) {
+		if (entry != null && entry.plys_to_eval0 >= depth) {
 			table_counter++;
-			if (old_result.flag == Flag.EXACT) {
-				return old_result;
-			} else if (old_result.flag == Flag.LOWERBOUND)
-				alpha = Math.max(alpha, old_result.score);
-			else if (old_result.flag == Flag.UPPERBOUND)
-				beta = Math.min(beta, old_result.score);
+			if (entry.flag == Flag.EXACT)
+				return entry.tinyCopy();
+			else if (entry.flag == Flag.LOWERBOUND)
+				alpha = Math.max(alpha, entry.score);
+			else if (entry.flag == Flag.UPPERBOUND)
+				beta = Math.min(beta, entry.score);
 
-			if (alpha >= beta) {
-				return old_result;
-			}
+			if (alpha >= beta)
+				return entry.tinyCopy();
+
 		}
-
 		// whose move is it?
 		Side side = position.getActiveColor();
 		int side_sign = Side.getSideSign(side);
@@ -112,16 +115,17 @@ public class MitziBrain implements IBrain {
 
 		// base case
 		if (depth == 0) {
-			AnalysisResult result = board_analyzer.evalBoard(position, alpha,beta);
-			//AnalysisResult result = board_analyzer.eval0(position);
+			//AnalysisResult result = board_analyzer.evalBoard(position, alpha,
+			//		beta);
+			AnalysisResult result = board_analyzer.eval0(position);
 			return result;
 		}
 
 		LinkedList<IMove> ordered_moves = new LinkedList<IMove>();
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
 		// Sort the moves:
-		if (old_result != null) {
-			ordered_moves.addAll(position.getBestMoves());
+		if (entry != null) {
+			ordered_moves.addAll(entry.best_moves);
 			Collections.reverse(ordered_moves);
 
 			LinkedList<IMove> remaining_moves = new LinkedList<IMove>();
@@ -141,12 +145,17 @@ public class MitziBrain implements IBrain {
 					Collections.reverseOrder(move_comparator));
 		}
 
-		//Delete the move, to recieve a better ordering (with larger depth)
-		if (old_result != null && old_result.plys_to_eval0 < depth)
-			position.resetBestMoves();
+		// Delete the move, to recieve a better ordering (with larger depth)
+		// if (entry != null && old_result.plys_to_eval0 < depth)
+		// position.resetBestMoves();
 
+		if (entry != null && entry.plys_to_eval0 < depth)
+			entry.best_moves.clear();
+
+		AnalysisResult new_entry = null, parent = null;
+		if (entry == null)
+			new_entry = new AnalysisResult(0, null, false, 0, 0, null);
 		// create parent AnalysisResult
-		AnalysisResult parent = null;
 
 		int best_value = NEG_INF; // this starts always at negative!
 
@@ -163,28 +172,32 @@ public class MitziBrain implements IBrain {
 			AnalysisResult result = evalBoard(child_pos, total_depth,
 					depth - 1, -beta, -alpha);
 			eval_counter++;
-			child_pos.updateAnalysisResult(result);
+			// child_pos.updateAnalysisResult(result);
 
 			int negaval = result.score * side_sign;
 
-			// Add move for orderring
-			if (negaval >= best_value - 50 && old_result != null && old_result.plys_to_eval0 < depth)
-				position.addBetterMove(move);
-			
+			// Update Entry
+			if (negaval >= best_value - 50) {
+				if (entry != null && entry.plys_to_eval0 < depth)
+					entry.best_moves.add(move);
+				if (entry == null)
+					new_entry.best_moves.add(move);
+
+			}
 			// better variation found
 			if (negaval >= best_value) {
 				boolean truly_better = negaval > best_value;
 				best_value = negaval;
 
 				// update AnalysisResult
-				parent = result.tinyCopy();
+				parent = result; // change reference
 				parent.best_move = move;
-				parent.best_child = child_pos;
 				parent.plys_to_eval0++;
 				parent.plys_to_seldepth++;
 
 				// output to UCI
 				if (depth == total_depth && truly_better) {
+					position.updateAnalysisResult(parent);
 					UCIReporter.sendInfoPV(game_state.getPosition());
 				}
 			}
@@ -204,6 +217,14 @@ public class MitziBrain implements IBrain {
 			parent.flag = Flag.LOWERBOUND;
 		else
 			parent.flag = Flag.EXACT;
+
+		if (entry != null && entry.plys_to_eval0 < depth)
+			entry.tinySet(parent);
+
+		if (entry == null) {
+			new_entry.tinySet(parent);
+			ResultCache.setResult(position, new_entry);
+		}
 
 		return parent;
 
@@ -256,7 +277,8 @@ public class MitziBrain implements IBrain {
 
 			alpha = result.score - asp_window;
 			beta = result.score + asp_window;
-			UCIReporter.sendInfoString("Table size: " + IPositionCache.getSize());
+			UCIReporter.sendInfoString("Table size: "
+					+ ResultCache.getSize());
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
 
