@@ -3,10 +3,18 @@ package mitzi;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * This class implements the most basic search engine, the random move
+ * selection. All possible moves of the actual game state are computed and one
+ * of them is randomly selected.
+ * 
+ */
 public class RandyBrain implements IBrain {
 
+	/**
+	 * The current game state
+	 */
 	private GameState game_state;
-	private Set<IMove> moves;
 
 	@Override
 	public void set(GameState game_state) {
@@ -17,10 +25,7 @@ public class RandyBrain implements IBrain {
 	public IMove search(int movetime, int maxMoveTime, int searchDepth,
 			boolean infinite, Set<IMove> searchMoves) {
 
-		// ignores time limits and other restrictions
-		// take that, UCI…
-
-		moves = game_state.getPosition().getPossibleMoves();
+		Set<IMove> moves = game_state.getPosition().getPossibleMoves();
 
 		int randy = new Random().nextInt(moves.size());
 		int i = 0;
@@ -35,7 +40,8 @@ public class RandyBrain implements IBrain {
 
 	@Override
 	public IMove stop() {
-		//TODO: implement :)
+		// no need to implement the stop function, since RandyBrain is fast
+		// enough.
 		return null;
 	}
 

@@ -14,6 +14,9 @@ import java.util.List;
  */
 public final class SquareHelper {
 
+	/** 
+	 * the letters of the columns of the chessboard
+	 */
 	private static final String[] letters = { "a", "b", "c", "d", "e", "f",
 			"g", "h" };
 

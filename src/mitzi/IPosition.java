@@ -1,6 +1,5 @@
 package mitzi;
 
-import java.util.LinkedList;
 import java.util.Set;
 
 public interface IPosition {
@@ -232,22 +231,34 @@ public interface IPosition {
 	 * first getPossibleMoves() and then searches the given move in all possible
 	 * moves
 	 * 
-	 * @param move the move to be checked
+	 * @param move
+	 *            the move to be checked
 	 * @return true, if the move is possible
 	 */
 	public boolean isPossibleMove(IMove move);
 
 	/**
 	 * converts the given position in fen notation
+	 * 
 	 * @return a string of the actual position in fen notation
 	 */
 	public String toFEN();
 
 	/**
 	 * searches all moves, which are a capture and promotions
+	 * 
 	 * @return the desired set of moves of all captures and promotions.
 	 */
 	public Set<IMove> generateCaptures();
-	
+
+	/**
+	 * Since AnalysisResults are stored in the Transposition Tables
+	 * (ResultCache), it is important to ensure that the AnalysisResult
+	 * corresponding to the actual position should be used, if there are
+	 * collisions with hashvalues. Therefore a second one (this one) is created
+	 * to identify the position and these problems unlikely.
+	 * 
+	 * @return a different hashvalue
+	 */
 	public int hashCode2();
 }

@@ -4,29 +4,56 @@ import java.util.ArrayList;
 
 public class GameState {
 
+	/**
+	 * the actual position of the current game state
+	 */
 	private IPosition position;
 
+	/**
+	 * the history of played moves
+	 */
 	private ArrayList<IMove> history = new ArrayList<IMove>();
 
+	/**
+	 * This is the number of halfmoves since the last pawn advance or capture.
+	 * This is used to determine if a draw can be claimed under the fifty-move
+	 * rule.
+	 */
 	private int half_move_clock;
 
+	/**
+	 * The number of the full move. It starts at 1, and is incremented after
+	 * Black's move.
+	 */
 	private int full_move_clock;
 
 	private class GameClock {
 		// TODO study UCI time management
 	}
 
+	/**
+	 * creates a new Game with initial position.
+	 */
 	public GameState() {
 		position = new Position();
 		setToInitial();
 	}
-	
+
+	/**
+	 * sets the current game to the initial state.
+	 */
 	public void setToInitial() {
 		position.setToInitial();
 		half_move_clock = 0;
 		full_move_clock = 1;
 	}
 
+	/**
+	 * sets the current game to the position of the given fen string
+	 * 
+	 * @param fen
+	 *            the position in fen notation
+	 */
 	public void setToFEN(String fen) {
 		position = new Position();
 		position.setToFEN(fen);
@@ -37,7 +64,13 @@ public class GameState {
 		// set full move clock
 		full_move_clock = Integer.parseInt(fen_parts[5]);
 	}
-	
+
+	/**
+	 * Do the given move and update half_move_clock, full_move_clock and history
+	 * 
+	 * @param move
+	 *            the given move
+	 */
 	public void doMove(IMove move) {
 		mitzi.IPosition.MoveApplication mova = position.doMove(move);
 		if (mova.resets_half_move_clock) {
@@ -50,10 +83,16 @@ public class GameState {
 		position = mova.new_position;
 	}
 
+	/**
+	 * @return the actual position of the game
+	 */
 	public IPosition getPosition() {
 		return position;
 	}
 
+	/**
+	 * creates the fen string of the actual board.
+	 */
 	@Override
 	public String toString() {
 		StringBuilder fen = new StringBuilder();
@@ -94,9 +133,10 @@ public class GameState {
 
 	/**
 	 * return all previous played moves.
+	 * 
 	 * @return returns a list of all played moves.
 	 */
-	public ArrayList<IMove> getHistory(){
+	public ArrayList<IMove> getHistory() {
 		return history;
 	}
 }

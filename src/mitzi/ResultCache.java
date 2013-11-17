@@ -1,13 +1,16 @@
 package mitzi;
 
-import java.lang.ref.SoftReference;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * After creating a new <code>Position</code> instance, use this class to cache
- * it for later lookup of moves, score, etc…
+ * After creating a new <code>AnalysisResult</code> instance, use this class to
+ * cache it for later lookup of moves, score, etc. The AnalysisResults are
+ * indexed by the HashCode of the corresponding position, therefore it can
+ * happen, that different AnalysisResults have the same HashCode. In such a
+ * case, the old values get overridden. The AnalysisResults store a different
+ * hashvalue to reduce the probability of using a wrong AnalysisResult, if two
+ * positions have the same HashCode.
  * 
  */
 public class ResultCache {
@@ -15,7 +18,8 @@ public class ResultCache {
 	private static final int MAX_ENTRIES = 200000;
 
 	/**
-	 * A map from the Position's <code>hashCode</code> to a set of Positions.
+	 * A map from the Position's <code>hashCode</code> to the AnalysisResult.
+	 * The size of the table is limited with <code>MAX_ENTRIES</code>
 	 */
 	private static LinkedHashMap<Integer, AnalysisResult> position_cache = new LinkedHashMap<Integer, AnalysisResult>(
 			MAX_ENTRIES + 1, 1) {
@@ -30,21 +34,19 @@ public class ResultCache {
 
 	/**
 	 * Cannot be instantiated. For access to the static cache use
-	 * <code>IPositionCache.getPosition(p)</code>.
+	 * <code>ResultCache.getPosition(p)</code>.
 	 */
 	private ResultCache() {
 	}
 
 	/**
 	 * Looks up a <code>Position</code> in the cache and returns the saved value
-	 * if found, the specified <code>Position</code> otherwise. If the
-	 * <code>Position</code> is not yet in the cache it gets added in the
-	 * process.
+	 * if found and with coinciding second hashvalue. otherwise null.
 	 * 
 	 * @param lookup
 	 *            the <code>Position</code> to look up in the cache
-	 * @return a previously cached <code>Position</code> if available, otherwise
-	 *         the same object again
+	 * @return a previously cached <code>AnalysisResult</code> if available,
+	 *         null otherwise.
 	 */
 	public static AnalysisResult getResult(IPosition lookup) {
 		int hash = lookup.hashCode();
@@ -55,6 +57,11 @@ public class ResultCache {
 			return ce;
 	}
 
+	/**
+	 * stores a AnalysisResult corresponding to a Position. The second hashvalue is automatically set here.
+	 * @param pos the position corresponding to the AnalysisResult
+	 * @param ce the AnalysisResult
+	 */
 	public static void setResult(IPosition pos, AnalysisResult ce) {
 		ce.hashvalue = pos.hashCode2();
 		int hash = pos.hashCode();
@@ -62,6 +69,10 @@ public class ResultCache {
 
 	}
 
+	/** 
+	 * 
+	 * @return number of entries.
+	 */
 	public static int getSize() {
 		return position_cache.size();
 	}

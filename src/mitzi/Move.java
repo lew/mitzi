@@ -5,10 +5,19 @@ import java.util.Set;
 
 public final class Move implements IMove {
 
+	/**
+	 * the source square of the move
+	 */
 	private final int src;
 
+	/**
+	 * the destination square of the move
+	 */
 	private final int dest;
 
+	/**
+	 * the piece, resulting from promotion. null if no promotion
+	 */
 	private final Piece promotion;
 
 	/**
@@ -27,10 +36,24 @@ public final class Move implements IMove {
 		this.promotion = promotion;
 	}
 
+	/**
+	 * Move constructor (no promotion)
+	 * 
+	 * @param src
+	 *            Source square
+	 * @param dest
+	 *            Destination square
+	 */
 	public Move(int src, int dest) {
 		this(src, dest, null);
 	}
 
+	/**
+	 * Move constructor from string notation
+	 * 
+	 * @param notation
+	 *            the string representation of the move
+	 */
 	public Move(String notation) {
 		String[] squares = new String[2];
 
@@ -58,7 +81,7 @@ public final class Move implements IMove {
 			promotion = null;
 		}
 	}
-	
+
 	/**
 	 * 
 	 * Checks if a move is in a given List of moves
@@ -73,6 +96,7 @@ public final class Move implements IMove {
 		return moves.contains(move);
 
 	}
+
 	@Override
 	public int getFromSquare() {
 		return src;
@@ -99,8 +123,6 @@ public final class Move implements IMove {
 		return SquareHelper.toString(getFromSquare())
 				+ SquareHelper.toString(getToSquare()) + promote_to;
 	}
-
-
 
 	@Override
 	public int hashCode() {

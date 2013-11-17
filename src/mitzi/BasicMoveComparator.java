@@ -73,6 +73,9 @@ public class BasicMoveComparator implements Comparator<IMove> {
 		move_values.put(move, value);
 	}
 
+	/**
+	 * compares two moves by there value.
+	 */
 	@Override
 	public int compare(IMove m1, IMove m2) {
 		if (!move_values.containsKey(m1))

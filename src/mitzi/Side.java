@@ -1,5 +1,9 @@
 package mitzi;
 
+/**
+ * An enum containing the two different sides.
+ *
+ */
 public enum Side {
 	BLACK, WHITE;
 

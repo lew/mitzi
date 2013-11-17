@@ -88,7 +88,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	/**
 	 * Implements Quiescence search to avoid the horizon effect. The function
 	 * increase the search depth until no capture is possible, where only
-	 * captures are analyzed.
+	 * captures are analyzed. The optimal value is found using the negamax algorithm.
 	 * 
 	 * @see <a
 	 *      href="http://chessprogramming.wikispaces.com/Quiescence+Search">http://chessprogramming.wikispaces.com/Quiescence+Search</a>
