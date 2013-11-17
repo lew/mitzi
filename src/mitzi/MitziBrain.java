@@ -277,6 +277,7 @@ public class MitziBrain implements IBrain {
 
 			alpha = result.score - asp_window;
 			beta = result.score + asp_window;
+
 			UCIReporter.sendInfoString("Table size: "
 					+ ResultCache.getSize());
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
