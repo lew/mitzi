@@ -9,8 +9,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The class implements the position of the figures on a chess board. The board
+ * is represented as two 8*8 +1 arrays - one for the sides, one for the pieces.
+ * All accesses to a square outside the chessboard are mapped to the 65th entry
+ * of the board, which is always null. This map from square to array index is
+ * performed by the function <code>squareToArrayIndex(square) </code>, which
+ * looks up in the <code>square_to_array_index array</code>. For informations
+ * about the <code>int</code> value of a square, see
+ * <code>SqaureHelper.java</code>.
+ * 
+ */
 public class Position implements IPosition {
 
+	/**
+	 * the initial position of the sides
+	 */
 	protected static Side[] initial_side_board = { Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
 			Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK, Side.BLACK,
@@ -22,6 +36,9 @@ public class Position implements IPosition {
 			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE,
 			Side.WHITE, Side.WHITE, Side.WHITE, Side.WHITE, null };
 
+	/**
+	 * the initial position of the pieces
+	 */
 	protected static Piece[] initial_piece_board = { Piece.ROOK, Piece.KNIGHT,
 			Piece.BISHOP, Piece.QUEEN, Piece.KING, Piece.BISHOP, Piece.KNIGHT,
 			Piece.ROOK, Piece.PAWN, Piece.PAWN, Piece.PAWN, Piece.PAWN,
@@ -33,6 +50,10 @@ public class Position implements IPosition {
 			Piece.PAWN, Piece.ROOK, Piece.KNIGHT, Piece.BISHOP, Piece.QUEEN,
 			Piece.KING, Piece.BISHOP, Piece.KNIGHT, Piece.ROOK, null };
 
+	/**
+	 * this array maps the integer value of an square to the array index of
+	 * array representation of the board in this class
+	 */
 	protected static int[] square_to_array_index = { 64, 64, 64, 64, 64, 64,
 			64, 64, 64, 64, 64, 56, 48, 40, 32, 24, 16, 8, 0, 64, 64, 57, 49,
 			41, 33, 25, 17, 9, 1, 64, 64, 58, 50, 42, 34, 26, 18, 10, 2, 64,
@@ -42,43 +63,92 @@ public class Position implements IPosition {
 			64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
 			64, 64, 64 };
 
+	/**
+	 * the array of Sides, containing the information about the position of the
+	 * sides of the pieces
+	 */
 	private Side[] side_board = new Side[65];
 
+	/**
+	 * the array of Pieces, containing the information about the position of the
+	 * pieces
+	 */
 	private Piece[] piece_board = new Piece[65];
 
-	// squares c1, g1, c8 and g8 in ICCF numeric notation
-	// do not change the squares' order or bad things will happen!
-	// set to -1 if castling not allowed
+	/**
+	 * squares c1, g1, c8 and g8 in ICCF numeric notation. do not change the
+	 * squares' order or bad things will happen! set to -1 if castling not
+	 * allowed.
+	 */
 	private int[] castling = { -1, -1, -1, -1 };
 
+	/**
+	 * the square of the en_passant_target, -1 if none.
+	 */
 	private int en_passant_target = -1;
 
+	/**
+	 * the side, which has to move
+	 */
 	private Side active_color;
 
-	// The following class members are used to prevent multiple computations
-	private SoftReference<Set<IMove>> possible_moves; // Set of all possible
-														// moves
-	
+	/**
+	 * contains the information about the value of the position.
+	 */
 	private AnalysisResult analysis_result = null;
 
+	// The following class members are used to prevent multiple computations
+	/**
+	 * caching of the possible moves
+	 */
+	private SoftReference<Set<IMove>> possible_moves;
+
+	/**
+	 * caching if the current position is check.
+	 */
 	private Boolean is_check;
 
+	/**
+	 * caching if the current position is mate.
+	 */
 	private Boolean is_mate;
 
+	/**
+	 * caching if the current position is stalemate.
+	 */
 	private Boolean is_stale_mate;
 
 	// the following maps takes and Integer, representing the color, type or
 	// PieceValue and returns the set of squares or the number of squares!
+	/**
+	 * this map maps the PieceValue, i.e. 10*side.ordinal + piece.ordinal, to
+	 * the set of squares where the pieces of the side are positioned.
+	 */
 	private Map<Integer, Set<Integer>> occupied_squares_by_color_and_type = new HashMap<Integer, Set<Integer>>();
 
+	/**
+	 * this map maps the side, i.e. side.ordinal, to the set of squares where
+	 * the side has pieces.
+	 */
 	private Map<Side, Set<Integer>> occupied_squares_by_color = new HashMap<Side, Set<Integer>>();
 
+	/**
+	 * this map maps the piece, i.e. piece.ordinal, to the set of squares where
+	 * the pieces are positioned.
+	 */
 	private Map<Piece, Set<Integer>> occupied_squares_by_type = new HashMap<Piece, Set<Integer>>();
 
+	/**
+	 * caching the number of occupied squares for each side of an piece in an
+	 * small array.
+	 */
 	private byte[] num_occupied_squares_by_color_and_type = new byte[16];
 
-	// --------------------------------------------------------
+	// -----------------------------------------------------------------------------------------
 
+	/**
+	 * Resets and clears the stored class members.
+	 */
 	private void resetCache() {
 		possible_moves = null;
 		is_check = null;
@@ -90,12 +160,25 @@ public class Position implements IPosition {
 		occupied_squares_by_color.clear();
 	}
 
+	/**
+	 * computes the index for the internal array representation of an square
+	 * 
+	 * @param square
+	 *            the given square
+	 * @return the index
+	 */
 	private int squareToArrayIndex(int square) {
 		if (square < 0)
 			return 64;
 		return square_to_array_index[square];
 	}
 
+	/**
+	 * computes a copy of the actual board, only the necessary informations are
+	 * copied, plus <code>num_occupied_squares_by_color_and_type</code>
+	 * 
+	 * @return a incomplete copy of the board.
+	 */
 	private Position returnCopy() {
 		Position newBoard = new Position();
 
@@ -112,22 +195,47 @@ public class Position implements IPosition {
 		return newBoard;
 	}
 
+	/**
+	 * returns the Side, which occupies a given square
+	 * 
+	 * @return the side of the piece which is on the square
+	 */
 	public Side getSideFromBoard(int square) {
 		int i = squareToArrayIndex(square);
 		return side_board[i];
 	}
 
+	/**
+	 * returns the piece, which occupies a given square
+	 * 
+	 * @return the piece which is on the square
+	 */
 	public Piece getPieceFromBoard(int square) {
 		int i = squareToArrayIndex(square);
 		return piece_board[i];
 	}
 
+	/**
+	 * sets a piece on the board.
+	 * 
+	 * @param square
+	 *            the square, were the piece should be set
+	 * @param side
+	 *            the given side
+	 * @param piece
+	 *            the given piece
+	 */
 	private void setOnBoard(int square, Side side, Piece piece) {
 		int i = squareToArrayIndex(square);
 		side_board[i] = side;
 		piece_board[i] = piece;
 	}
 
+	/**
+	 * returns the opponents side of the actual board
+	 * 
+	 * @return the side of the opponent
+	 */
 	public Side getOpponentsColor() {
 		if (active_color == Side.BLACK)
 			return Side.WHITE;
@@ -135,10 +243,20 @@ public class Position implements IPosition {
 			return Side.BLACK;
 	}
 
+	/**
+	 * returns the eventual result of the position evaluation
+	 */
 	public AnalysisResult getAnalysisResult() {
 		return analysis_result;
 	}
 
+	/**
+	 * updates the result of the board. (only if it more valuable, i.e.
+	 * comparison of the depth)
+	 * 
+	 * @param analysis_result
+	 *            the new analysis result
+	 */
 	public void updateAnalysisResult(AnalysisResult analysis_result) {
 		if (analysis_result == null)
 			throw new NullPointerException();
@@ -148,6 +266,25 @@ public class Position implements IPosition {
 				|| (this.analysis_result.plys_to_eval0 == analysis_result.plys_to_eval0 && this.analysis_result.plys_to_seldepth < analysis_result.plys_to_seldepth)) {
 			this.analysis_result = analysis_result;
 		}
+	}
+
+	/**
+	 * checks is a move is a hit. there is no check, that the move is legal!.
+	 * 
+	 * @param move
+	 *            the move to be checked
+	 * @return true, if it is a hit, false otherwise
+	 */
+	public boolean isHit(IMove move) {
+		int dest = move.getToSquare();
+		int src = move.getFromSquare();
+
+		// a hit happens iff the dest is an enemy or its en passant
+		if (getSideFromBoard(dest) == Side.getOppositeSide(active_color)
+				|| (getPieceFromBoard(src) == Piece.PAWN && dest == this
+						.getEnPassant()))
+			return true;
+		return false;
 	}
 
 	@Override
@@ -1089,18 +1226,6 @@ public class Position implements IPosition {
 		return true;
 	}
 
-	public boolean isHit(IMove move) {
-		int dest = move.getToSquare();
-		int src = move.getFromSquare();
-
-		// a hit happens iff the dest is an enemy or its en passant
-		if (getSideFromBoard(dest) == Side.getOppositeSide(active_color)
-				|| (getPieceFromBoard(src) == Piece.PAWN && dest == this
-						.getEnPassant()))
-			return true;
-		return false;
-	}
-	
 	@Override
 	public Set<IMove> generateCaptures() {
 
@@ -1133,7 +1258,6 @@ public class Position implements IPosition {
 
 		result = prime * result + en_passant_target;
 
-		
 		return result;
 	}
 }

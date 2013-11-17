@@ -2,6 +2,11 @@ package mitzi;
 
 import java.util.Set;
 
+/**
+ * This class provides an interface for a generic chess for the positions on a
+ * chess board.
+ * 
+ */
 public interface IPosition {
 
 	/**
@@ -10,11 +15,11 @@ public interface IPosition {
 	public void setToInitial();
 
 	/**
-	 * Sets the board to a position given in Forsyth–Edwards Notation (FEN).
+	 * Sets the board to a position given in Forsyth�Edwards Notation (FEN).
 	 * 
 	 * @see <a
-	 *      href="https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation">Wikipedia
-	 *      - Forsyth–Edwards Notation</a>
+	 *      href="https://en.wikipedia.org/wiki/Forsyth-Edwards_Notation">Wikipedia
+	 *      - Forsyth-Edwards Notation</a>
 	 */
 	public void setToFEN(String fen);
 
@@ -30,7 +35,8 @@ public interface IPosition {
 	}
 
 	/**
-	 * Performs the given move and returns a new position.
+	 * Performs the given move and returns a new position. There is no check,
+	 * that the performed move is legal!
 	 * 
 	 * @param move
 	 *            the move, which should be performed. Please note, that the
