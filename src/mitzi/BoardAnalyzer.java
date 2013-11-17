@@ -90,7 +90,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	/**
 	 * Implements Quiescence search to avoid the horizon effect. The function
 	 * increase the search depth until no capture is possible, where only
-	 * captures are analyzed. The optimal value is found using the negamax algorithm.
+	 * captures are analyzed. The optimal value is found using the negamax
+	 * algorithm.
 	 * 
 	 * @see <a
 	 *      href="http://chessprogramming.wikispaces.com/Quiescence+Search">http://chessprogramming.wikispaces.com/Quiescence+Search</a>
@@ -104,15 +105,23 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * @return the value of the board
 	 */
 	private AnalysisResult quiesce(IPosition position, int alpha, int beta) {
-		
-		
+
 		int side_sign = Side.getSideSign(position.getActiveColor());
-		
-		if (position.isCheckPosition()) {
-			return new AnalysisResult(NEG_INF * side_sign, false, false, 0,
-					0, Flag.EXACT);
+
+		// generate moves
+		Set<IMove> moves = position.getPossibleMoves();
+
+		// check for mate and stalemate
+		if (moves.isEmpty()) {
+			eval_counter_seldepth++;
+			if (position.isCheckPosition()) {
+				return new AnalysisResult(NEG_INF * side_sign, false, false, 0,
+						0, Flag.EXACT);
+			} else {
+				return new AnalysisResult(0, true, false, 0, 0, Flag.EXACT);
+			}
 		}
-		
+
 		AnalysisResult result = eval0(position);
 		eval_counter_seldepth++;
 
