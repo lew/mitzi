@@ -81,7 +81,6 @@ public class MitziBrain implements IBrain {
 
 		// Cache lookup
 		AnalysisResult entry = ResultCache.getResult(position);
-
 		if (entry != null && entry.plys_to_eval0 >= depth) {
 			table_counter++;
 			if (entry.flag == Flag.EXACT)
@@ -102,7 +101,7 @@ public class MitziBrain implements IBrain {
 		// generate moves
 		Set<IMove> moves = position.getPossibleMoves();
 
-		// check for mate and stalemate (the side should alternate)
+		// check for mate and stalemate
 		if (moves.isEmpty()) {
 			eval_counter++;
 			if (position.isCheckPosition()) {
@@ -115,9 +114,9 @@ public class MitziBrain implements IBrain {
 
 		// base case
 		if (depth == 0) {
-			//AnalysisResult result = board_analyzer.evalBoard(position, alpha,
-			//		beta);
-			AnalysisResult result = board_analyzer.eval0(position);
+			AnalysisResult result = board_analyzer.evalBoard(position, alpha,
+					beta);
+			//AnalysisResult result = board_analyzer.eval0(position);
 			return result;
 		}
 
@@ -145,17 +144,14 @@ public class MitziBrain implements IBrain {
 					Collections.reverseOrder(move_comparator));
 		}
 
-		// Delete the move, to recieve a better ordering (with larger depth)
-		// if (entry != null && old_result.plys_to_eval0 < depth)
-		// position.resetBestMoves();
-
 		if (entry != null && entry.plys_to_eval0 < depth)
 			entry.best_moves.clear();
 
+		// create new AnalysisResult and parent
 		AnalysisResult new_entry = null, parent = null;
 		if (entry == null)
 			new_entry = new AnalysisResult(0, null, false, 0, 0, null);
-		// create parent AnalysisResult
+		
 
 		int best_value = NEG_INF; // this starts always at negative!
 
@@ -172,7 +168,6 @@ public class MitziBrain implements IBrain {
 			AnalysisResult result = evalBoard(child_pos, total_depth,
 					depth - 1, -beta, -alpha);
 			eval_counter++;
-			// child_pos.updateAnalysisResult(result);
 
 			int negaval = result.score * side_sign;
 
