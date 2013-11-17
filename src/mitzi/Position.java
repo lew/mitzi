@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,8 +58,6 @@ public class Position implements IPosition {
 	// The following class members are used to prevent multiple computations
 	private SoftReference<Set<IMove>> possible_moves; // Set of all possible
 														// moves
-
-	private LinkedList<IMove> best_moves = new LinkedList<IMove>();
 	
 	private AnalysisResult analysis_result = null;
 
@@ -1103,21 +1100,6 @@ public class Position implements IPosition {
 			return true;
 		return false;
 	}
-
-	@Override
-	public LinkedList<IMove> getBestMoves(){
-		return best_moves;
-	}
-	
-	@Override
-	public void addBetterMove(IMove move){
-		best_moves.add(move);
-	}
-	
-	@Override
-	public void resetBestMoves(){
-		best_moves.clear();
-	}
 	
 	@Override
 	public Set<IMove> generateCaptures() {
@@ -1128,6 +1110,29 @@ public class Position implements IPosition {
 		for (IMove move : poss_moves)
 			if (isHit(move) || move.getPromotion() != null)
 				result.add(move);
+		return result;
+	}
+
+	@Override
+	public int hashCode2() {
+		final int prime = 23;
+		int result = 1;
+
+		for (Side element : side_board)
+			result = prime * result
+					+ (element == null ? 0 : element.ordinal() + 1);
+
+		for (Piece element : piece_board)
+			result = prime * result
+					+ (element == null ? 0 : element.ordinal() + 1);
+
+		for (int element : castling)
+			result = prime * result + element;
+
+		result = prime * result + active_color.ordinal();
+
+		result = prime * result + en_passant_target;
+
 		return result;
 	}
 }

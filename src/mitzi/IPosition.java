@@ -248,11 +248,6 @@ public interface IPosition {
 	 * @return the desired set of moves of all captures and promotions.
 	 */
 	public Set<IMove> generateCaptures();
-
-	public LinkedList<IMove> getBestMoves();
 	
-	public void addBetterMove(IMove move);
-	
-	public void resetBestMoves();
-	
+	public int hashCode2();
 }

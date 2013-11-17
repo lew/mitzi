@@ -6,8 +6,6 @@ import java.util.Set;
 
 /**
  * 
- * @author Hofer
- * 
  *         This class computes the value of a board in a proper way, see
  *         http://philemon.cycovery.com/site/part2.html for more details.
  * 
@@ -57,6 +55,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	// The player receives a bonus if the 2 bishops are alive.
 	static private int bishop_pair_value = 50;
 
+	
+	static public long eval_counter_seldepth = 0;
 	@Override
 	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
@@ -81,6 +81,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		
 		//decrease the depth by one, because counted once too much (hopefully ;) ).
 		result.plys_to_seldepth--;
+		eval_counter_seldepth--;
 		return result;
 	}
 
@@ -103,6 +104,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	private AnalysisResult quiesce(IPosition board, int alpha, int beta) {
 
 		AnalysisResult result = eval0(board);
+		eval_counter_seldepth++;
 		if (result.score >= beta) {
 			result.score = beta;
 			result.plys_to_seldepth++;

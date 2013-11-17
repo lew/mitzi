@@ -46,8 +46,12 @@ public final class AnalysisResult {
 	/**
 	 * The position resulting from the best move.
 	 */
-	public IPosition best_child;
+	//public IPosition best_child;
 
+	public int hashvalue;
+	
+	public LinkedList<IMove> best_moves = new LinkedList<IMove>();
+	
 	AnalysisResult(int score, Boolean is_stalemate, boolean needs_deeper,
 			int plys_to_eval0, int plys_to_seldepth, Flag flag) {
 		this.score = score;
@@ -58,11 +62,38 @@ public final class AnalysisResult {
 		this.flag = flag;
 	}
 
+	AnalysisResult(int score, Boolean is_stalemate, boolean needs_deeper,
+			int plys_to_eval0, int plys_to_seldepth, Flag flag, IMove best_move, int hashvalue){
+					this.score = score;
+		this.is_stalemate = is_stalemate;
+		this.needs_deeper = needs_deeper;
+		this.plys_to_eval0 = plys_to_eval0;
+		this.plys_to_seldepth = plys_to_seldepth;
+		this.flag = flag;
+		this.best_move = best_move;
+		this.hashvalue = hashvalue;
+}
+	
 	public AnalysisResult tinyCopy() {
 		return new AnalysisResult(score, is_stalemate, needs_deeper,
-				plys_to_eval0, plys_to_seldepth, null);
+				plys_to_eval0, plys_to_seldepth, null, best_move, 0);
+	}
+	
+	public void tinySet(int score, boolean is_stalemate,boolean needs_deeper,
+			int plys_to_eval0, int plys_to_seldepth, Flag flag, IMove best_move) {
+		this.score = score;
+		this.is_stalemate = is_stalemate;
+		this.needs_deeper = needs_deeper;
+		this.plys_to_eval0 = plys_to_eval0;
+		this.plys_to_seldepth = plys_to_seldepth;
+		this.flag = flag;
+		this.best_move = best_move;
 	}
 
+	public void tinySet(AnalysisResult ar){
+		tinySet(ar.score, ar.is_stalemate,ar.needs_deeper,
+				ar. plys_to_eval0, ar.plys_to_seldepth, ar.flag, ar.best_move);
+	}
 	/**
 	 * enables a comparison of two results.
 	 * 
@@ -94,11 +125,16 @@ public final class AnalysisResult {
 		return -1;
 	}
 
-	public LinkedList<IMove> getPV() {
+	public LinkedList<IMove> getPV(IPosition pos) {
 		LinkedList<IMove> pv = new LinkedList<IMove>();
+		IPosition best_child;
+		AnalysisResult ar;
 		if (best_move != null) {
 			pv.add(best_move);
-			pv.addAll(best_child.getAnalysisResult().getPV());
+			best_child= pos.doMove(best_move).new_position;
+			ar=ResultCache.getResult(best_child);
+			if(ar!= null)
+				pv.addAll(ar.getPV(best_child));
 		}
 		return pv;
 	}

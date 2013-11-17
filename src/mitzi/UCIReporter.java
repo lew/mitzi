@@ -93,9 +93,11 @@ public final class UCIReporter {
 			System.out.print("info score cp " + result.score + " depth "
 					+ result.plys_to_eval0 + " pv");
 		}
-		for (IMove move : result.getPV()) {
+		
+		for (IMove move : result.getPV(position)) {
 			System.out.print(" " + move);
 		}
+		
 		System.out.println();
 	}
 }
