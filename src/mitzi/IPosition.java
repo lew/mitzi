@@ -260,5 +260,5 @@ public interface IPosition {
 	 * 
 	 * @return a different hashvalue
 	 */
-	public int hashCode2();
+	public long hashCode2();
 }

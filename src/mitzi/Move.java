@@ -8,12 +8,12 @@ public final class Move implements IMove {
 	/**
 	 * the source square of the move
 	 */
-	private final int src;
+	private final short src;
 
 	/**
 	 * the destination square of the move
 	 */
-	private final int dest;
+	private final short dest;
 
 	/**
 	 * the piece, resulting from promotion. null if no promotion
@@ -31,8 +31,8 @@ public final class Move implements IMove {
 	 *            Promotion (if no, then omit)
 	 */
 	public Move(int src, int dest, Piece promotion) {
-		this.src = src;
-		this.dest = dest;
+		this.src = (short) src;
+		this.dest = (short) dest;
 		this.promotion = promotion;
 	}
 
@@ -60,8 +60,8 @@ public final class Move implements IMove {
 		squares[0] = notation.substring(0, 2);
 		squares[1] = notation.substring(2, 4);
 
-		src = SquareHelper.fromString(squares[0]);
-		dest = SquareHelper.fromString(squares[1]);
+		src = (short) SquareHelper.fromString(squares[0]);
+		dest = (short) SquareHelper.fromString(squares[1]);
 
 		if (notation.length() > 4) {
 			String promo_string = notation.substring(4, 5).toLowerCase(

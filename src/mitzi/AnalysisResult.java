@@ -7,7 +7,7 @@ public final class AnalysisResult {
 	/**
 	 * The boards score in centipawns.
 	 */
-	public int score;
+	public short score;
 
 	/**
 	 * If true, the board is a stalemate position. I. e. no moves are possible
@@ -25,12 +25,12 @@ public final class AnalysisResult {
 	 * The distance to (complete) search depth at which this result was
 	 * obtained.
 	 */
-	public int plys_to_eval0 = 0;
+	public byte plys_to_eval0 = 0;
 
 	/**
 	 * The distance to selective search depth at which this result was obtained.
 	 */
-	public int plys_to_seldepth = 0;
+	public byte plys_to_seldepth = 0;
 
 	/**
 	 * The state of the result in alpha-beta search: exact, fail-high or
@@ -50,7 +50,7 @@ public final class AnalysisResult {
 	 * collisions with hashvalues. Therefore a second one (this one) is created
 	 * to identify the position and these problems unlikely.
 	 **/
-	public int hashvalue;
+	public long hashvalue;
 
 	/**
 	 * A sorted list of the better moves in reverse order, i.e. the last moves
@@ -60,22 +60,22 @@ public final class AnalysisResult {
 
 	AnalysisResult(int score, Boolean is_stalemate, boolean needs_deeper,
 			int plys_to_eval0, int plys_to_seldepth, Flag flag) {
-		this.score = score;
+		this.score = (short) score;
 		this.is_stalemate = is_stalemate;
 		this.needs_deeper = needs_deeper;
-		this.plys_to_eval0 = plys_to_eval0;
-		this.plys_to_seldepth = plys_to_seldepth;
+		this.plys_to_eval0 = (byte) plys_to_eval0;
+		this.plys_to_seldepth = (byte) plys_to_seldepth;
 		this.flag = flag;
 	}
 
 	AnalysisResult(int score, Boolean is_stalemate, boolean needs_deeper,
 			int plys_to_eval0, int plys_to_seldepth, Flag flag,
-			IMove best_move, int hashvalue) {
-		this.score = score;
+			IMove best_move, long hashvalue) {
+		this.score = (short) score;
 		this.is_stalemate = is_stalemate;
 		this.needs_deeper = needs_deeper;
-		this.plys_to_eval0 = plys_to_eval0;
-		this.plys_to_seldepth = plys_to_seldepth;
+		this.plys_to_eval0 = (byte) plys_to_eval0;
+		this.plys_to_seldepth = (byte) plys_to_seldepth;
 		this.flag = flag;
 		this.best_move = best_move;
 		this.hashvalue = hashvalue;
@@ -113,11 +113,11 @@ public final class AnalysisResult {
 	 */
 	public void tinySet(int score, boolean is_stalemate, boolean needs_deeper,
 			int plys_to_eval0, int plys_to_seldepth, Flag flag, IMove best_move) {
-		this.score = score;
+		this.score = (short) score;
 		this.is_stalemate = is_stalemate;
 		this.needs_deeper = needs_deeper;
-		this.plys_to_eval0 = plys_to_eval0;
-		this.plys_to_seldepth = plys_to_seldepth;
+		this.plys_to_eval0 = (byte) plys_to_eval0;
+		this.plys_to_seldepth = (byte) plys_to_seldepth;
 		this.flag = flag;
 		this.best_move = best_move;
 	}

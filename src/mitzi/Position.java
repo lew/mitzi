@@ -75,7 +75,7 @@ public class Position implements IPosition {
 
 	private Map<Piece, Set<Integer>> occupied_squares_by_type = new HashMap<Piece, Set<Integer>>();
 
-	private short[] num_occupied_squares_by_color_and_type = new short[16];
+	private byte[] num_occupied_squares_by_color_and_type = new byte[16];
 
 	// --------------------------------------------------------
 
@@ -1114,9 +1114,9 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public int hashCode2() {
+	public long hashCode2() {
 		final int prime = 23;
-		int result = 1;
+		long result = 1;
 
 		for (Side element : side_board)
 			result = prime * result
@@ -1133,6 +1133,7 @@ public class Position implements IPosition {
 
 		result = prime * result + en_passant_target;
 
+		
 		return result;
 	}
 }
