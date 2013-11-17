@@ -1,5 +1,7 @@
 package mitzi;
 
+import static mitzi.MateScores.NEG_INF;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
@@ -102,12 +104,19 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * @return the value of the board
 	 */
 	private AnalysisResult quiesce(IPosition position, int alpha, int beta) {
-
+		
+		
+		int side_sign = Side.getSideSign(position.getActiveColor());
+		
+		if (position.isCheckPosition()) {
+			return new AnalysisResult(NEG_INF * side_sign, false, false, 0,
+					0, Flag.EXACT);
+		}
+		
 		AnalysisResult result = eval0(position);
 		eval_counter_seldepth++;
 
-		int best_value = MateScores.NEG_INF;
-		int side_sign = Side.getSideSign(position.getActiveColor());
+		int best_value = NEG_INF;
 		int negaval = result.score * side_sign;
 
 		// alpha beta cutoff
