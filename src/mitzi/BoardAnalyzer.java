@@ -6,8 +6,8 @@ import java.util.Set;
 
 /**
  * 
- *         This class computes the value of a board in a proper way, see
- *         http://philemon.cycovery.com/site/part2.html for more details.
+ * This class computes the value of a board in a proper way, see
+ * http://philemon.cycovery.com/site/part2.html for more details.
  * 
  */
 public class BoardAnalyzer implements IPositionAnalyzer {
@@ -55,8 +55,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	// The player receives a bonus if the 2 bishops are alive.
 	static private int bishop_pair_value = 50;
 
-	
 	static public long eval_counter_seldepth = 0;
+
 	@Override
 	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
@@ -78,9 +78,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	@Override
 	public AnalysisResult evalBoard(IPosition board, int alpha, int beta) {
 		AnalysisResult result = quiesce(board, alpha, beta);
-		
-		//decrease the depth by one, because counted once too much (hopefully ;) ).
-		result.plys_to_seldepth--;
+
+		// decrease the depth by one, because counted once too much (hopefully
+		// ;) ).
 		eval_counter_seldepth--;
 		return result;
 	}
@@ -93,49 +93,64 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * @see <a
 	 *      href="http://chessprogramming.wikispaces.com/Quiescence+Search">http://chessprogramming.wikispaces.com/Quiescence+Search</a>
 	 * 
-	 * @param board
-	 *            the board to be analyzed
+	 * @param position
+	 *            the position to be analyzed
 	 * @param alpha
 	 *            the alpha value of alpha-beta search
 	 * @param beta
 	 *            the beta value of alpha-beta search
 	 * @return the value of the board
 	 */
-	private AnalysisResult quiesce(IPosition board, int alpha, int beta) {
+	private AnalysisResult quiesce(IPosition position, int alpha, int beta) {
 
-		AnalysisResult result = eval0(board);
+		AnalysisResult result = eval0(position);
 		eval_counter_seldepth++;
-		if (result.score >= beta) {
-			result.score = beta;
-			result.plys_to_seldepth++;
-			return result;
-		}
-		if (result.score > alpha)
-			alpha = result.score;
 
-		Set<IMove> caputures = board.generateCaptures();
-		BasicMoveComparator move_comparator = new BasicMoveComparator(board);
+		int best_value = MateScores.NEG_INF;
+		int side_sign = Side.getSideSign(position.getActiveColor());
+		int negaval = result.score * side_sign;
+
+		// alpha beta cutoff
+		alpha = Math.max(alpha, negaval);
+		if (alpha >= beta)
+			return result;
+
+		Set<IMove> caputures = position.generateCaptures();
+
+		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
 
 		// no previous computation given, use basic heuristic
 		ArrayList<IMove> ordered_captures = new ArrayList<IMove>(caputures);
 		Collections.sort(ordered_captures,
 				Collections.reverseOrder(move_comparator));
-		
-		for (IMove move : caputures) {
-			IPosition pos = board.doMove(move).new_position;
-			result = quiesce(pos, -beta, -alpha);
-			result.score = -result.score;
 
-			if (result.score >= beta) {
-				result.score = beta;
-				result.plys_to_seldepth++;
-				return result;
+		AnalysisResult parent = null;
+
+		for (IMove move : ordered_captures) {
+			IPosition pos = position.doMove(move).new_position;
+			result = quiesce(pos, -beta, -alpha);
+
+			negaval = result.score * side_sign;
+
+			// better variation found
+			if (negaval >= best_value) {
+				best_value = negaval;
+
+				// update AnalysisResult
+				parent = result;
+				parent.plys_to_seldepth++;
 			}
-			if (result.score > alpha)
-				alpha = result.score;
+
+			// alpha beta cutoff
+			alpha = Math.max(alpha, negaval);
+			if (alpha >= beta)
+				break;
+
 		}
-		result.plys_to_seldepth++;
-		return result;
+		if (parent == null)
+			return result;
+		else
+			return parent;
 
 	}
 
