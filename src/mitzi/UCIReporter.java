@@ -81,7 +81,7 @@ public final class UCIReporter {
 				&& position.getActiveColor() == Side.BLACK) {
 			System.out.print("info score mate -"
 					+ ((result.plys_to_eval0 + 1) / 2) + " depth "
-					+ result.plys_to_eval0 + " sel_depth "
+					+ result.plys_to_eval0 + " seldepth "
 					+ result.plys_to_seldepth + " pv");
 		} else if (result.score == NEG_INF
 				&& position.getActiveColor() == Side.BLACK
@@ -89,11 +89,11 @@ public final class UCIReporter {
 				&& position.getActiveColor() == Side.WHITE) {
 			System.out.print("info score mate "
 					+ ((result.plys_to_eval0 + 1) / 2) + " depth "
-					+ result.plys_to_eval0 + " sel_depth "
+					+ result.plys_to_eval0 + " seldepth "
 					+ result.plys_to_seldepth + " pv");
 		} else {
 			System.out.print("info score cp " + result.score + " depth "
-					+ result.plys_to_eval0 + " sel_depth "
+					+ result.plys_to_eval0 + " seldepth "
 					+ result.plys_to_seldepth +" pv");
 		}
 		
