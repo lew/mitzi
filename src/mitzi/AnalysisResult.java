@@ -2,6 +2,35 @@ package mitzi;
 
 import java.util.LinkedList;
 
+/*
+ * Size of the class:
+ * Header:	   8 bytes
+ * short :     2 bytes
+ * Boolean:    16 bytes (8 header + 1 boolean + 7 round up to multiple of 8)
+ * boolean:    1 byte
+ * 2*byte:	   2 bytes
+ * Flag: 	   4 bytes (like int? )
+ * IMove:      16 bytes ( 8 header + 2 short+ 2 short + 4 Piece (like int) + 0 round up to multiple of 8)
+ * long:       8 bytes
+ * linkedList: 24 + (8 + 24 + 16)k = 24 + 48k bytes  
+ * 				(list: 8 header + 8 reference to first elem + 4 size + 8k reference to each node + 4 round up 24+ 8k)
+ * 				 (node: 8 header + 8 reference to next node + 8 reference to class = 24)
+ * 				 (class: 16 byte)	
+ * 
+ * round up:   7 byte
+ * 	total size: 88 + 48k bytes. 
+ * 
+ * k = 3 : 232 bytes
+ * k = 5 : 328 bytes
+ * k =10 : 568 bytes
+ * 
+ * lets assume that a single analysis need about  500 bytes.
+ * Then a 500 MB TranspositionTable can hold about 1 Mio entries.
+ * 
+ * http://www.javamex.com/tutorials/memory/object_memory_usage.shtml
+ * http://www.sandeshshrestha.com/blog/memory-used-by-java-data-types/
+ */
+
 public final class AnalysisResult {
 
 	/**
@@ -161,7 +190,6 @@ public final class AnalysisResult {
 		if (this.plys_to_eval0 == o.plys_to_eval0
 				&& this.plys_to_seldepth == o.plys_to_seldepth)
 			return 0;
-
 		return -1;
 	}
 
