@@ -63,6 +63,8 @@ public final class UCIReporter {
 				+ move_number);
 	}
 
+	private static String last_pv = "";
+
 	/**
 	 * The Principal variation (PV) is a sequence of moves that programs
 	 * consider best and therefore expect to be played. Also all infos belonging
@@ -75,32 +77,36 @@ public final class UCIReporter {
 		AnalysisResult result = position.getAnalysisResult();
 		if (result == null)
 			return;
-					
+
+		StringBuilder pv = new StringBuilder();
+
 		if (result.score == NEG_INF && position.getActiveColor() == Side.WHITE
 				|| result.score == POS_INF
 				&& position.getActiveColor() == Side.BLACK) {
-			System.out.print("info score mate -"
-					+ ((result.plys_to_eval0 + 1) / 2) + " depth "
-					+ result.plys_to_eval0 + " seldepth "
+			pv.append("info score mate -" + ((result.plys_to_eval0 + 1) / 2)
+					+ " depth " + result.plys_to_eval0 + " seldepth "
 					+ result.plys_to_seldepth + " pv");
 		} else if (result.score == NEG_INF
 				&& position.getActiveColor() == Side.BLACK
 				|| result.score == POS_INF
 				&& position.getActiveColor() == Side.WHITE) {
-			System.out.print("info score mate "
-					+ ((result.plys_to_eval0 + 1) / 2) + " depth "
-					+ result.plys_to_eval0 + " seldepth "
+			pv.append("info score mate " + ((result.plys_to_eval0 + 1) / 2)
+					+ " depth " + result.plys_to_eval0 + " seldepth "
 					+ result.plys_to_seldepth + " pv");
 		} else {
-			System.out.print("info score cp " + result.score + " depth "
+			pv.append("info score cp " + result.score + " depth "
 					+ result.plys_to_eval0 + " seldepth "
-					+ result.plys_to_seldepth +" pv");
+					+ result.plys_to_seldepth + " pv");
 		}
-		
+
 		for (IMove move : result.getPV(position)) {
-			System.out.print(" " + move);
+			pv.append(" " + move);
 		}
-		
-		System.out.println();
+
+		String new_pv = pv.toString();
+		if (!last_pv.equals(new_pv)) {
+			System.out.println(new_pv);
+			last_pv = new_pv;
+		}
 	}
 }
