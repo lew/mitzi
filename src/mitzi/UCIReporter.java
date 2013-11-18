@@ -12,9 +12,11 @@ public final class UCIReporter {
 	 * NODES: number of nodes searched
 	 * 
 	 * NPS: number of nodes per second searched
+	 * 
+	 * HASHFULL: the hash is x permill full
 	 */
 	public static enum InfoType {
-		DEPTH("depth"), NODES("nodes"), NPS("nps");
+		DEPTH("depth"), NODES("nodes"), NPS("nps"), HASHFULL("hashfull");
 
 		public String string;
 

@@ -68,12 +68,19 @@ public class ResultCache {
 		position_cache.put(hash, ce);
 
 	}
+	
+	/**
+	 * 
+	 * @return the number of stored results in this cache
+	 */
+	public static int size() {
+		return position_cache.size();
+	}
 
 	/** 
-	 * 
-	 * @return number of entries.
+	 * @return the hash is x permill full
 	 */
-	public static int getSize() {
-		return position_cache.size();
+	public static int getHashfull() {
+		return (int) ((double) position_cache.size() / MAX_ENTRIES * 1000);
 	}
 }

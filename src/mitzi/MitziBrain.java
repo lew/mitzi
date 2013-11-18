@@ -47,6 +47,8 @@ public class MitziBrain implements IBrain {
 				long time_span = mtime - old_mtime;
 				UCIReporter.sendInfoNum(InfoType.NPS, eval_span * 1000
 						/ time_span);
+				
+				UCIReporter.sendInfoNum(InfoType.HASHFULL, ResultCache.getHashfull());
 			}
 
 			old_mtime = mtime;
@@ -273,8 +275,6 @@ public class MitziBrain implements IBrain {
 			alpha = result.score - asp_window;
 			beta = result.score + asp_window;
 
-			UCIReporter.sendInfoString("Table size: "
-					+ ResultCache.getSize());
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
 
