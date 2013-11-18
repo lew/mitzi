@@ -66,21 +66,26 @@ public class GameState {
 	}
 
 	/**
-	 * Do the given move and update half_move_clock, full_move_clock and history
+	 * Do the given move and update half_move_clock, full_move_clock and
+	 * history. It is checked, if the move is valid or not.
 	 * 
 	 * @param move
 	 *            the given move
 	 */
 	public void doMove(IMove move) {
-		mitzi.IPosition.MoveApplication mova = position.doMove(move);
-		if (mova.resets_half_move_clock) {
-			half_move_clock = 0;
+		if (position.isPossibleMove(move)) {
+			mitzi.IPosition.MoveApplication mova = position.doMove(move);
+			if (mova.resets_half_move_clock) {
+				half_move_clock = 0;
+			}
+			if (position.getActiveColor() == Side.BLACK) {
+				full_move_clock++;
+			}
+			history.add(move);
+			position = mova.new_position;
+		} else {
+			throw new IllegalArgumentException("INVALID MOVE");
 		}
-		if (position.getActiveColor() == Side.BLACK) {
-			full_move_clock++;
-		}
-		history.add(move);
-		position = mova.new_position;
 	}
 
 	/**
