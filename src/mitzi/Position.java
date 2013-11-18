@@ -261,9 +261,7 @@ public class Position implements IPosition {
 		if (analysis_result == null)
 			throw new NullPointerException();
 
-		if (this.analysis_result == null
-				|| this.analysis_result.plys_to_eval0 < analysis_result.plys_to_eval0
-				|| (this.analysis_result.plys_to_eval0 == analysis_result.plys_to_eval0 && this.analysis_result.plys_to_seldepth < analysis_result.plys_to_seldepth)) {
+		if (this.analysis_result == null || this.analysis_result.compareQualityTo(analysis_result) <= 0) {
 			this.analysis_result = analysis_result;
 		}
 	}
