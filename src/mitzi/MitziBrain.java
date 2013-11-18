@@ -189,7 +189,7 @@ public class MitziBrain implements IBrain {
 				// update AnalysisResult
 				parent = result; // change reference
 				parent.best_move = move;
-				parent.plys_to_eval0++;
+				parent.plys_to_eval0 = (byte) depth;
 				parent.plys_to_seldepth++;
 
 				// output to UCI
