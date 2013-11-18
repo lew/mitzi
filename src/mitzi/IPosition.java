@@ -1,5 +1,6 @@
 package mitzi;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -15,7 +16,7 @@ public interface IPosition {
 	public void setToInitial();
 
 	/**
-	 * Sets the board to a position given in Forsyth–Edwards Notation (FEN).
+	 * Sets the board to a position given in Forsythï¿½Edwards Notation (FEN).
 	 * 
 	 * @see <a
 	 *      href="https://en.wikipedia.org/wiki/Forsyth-Edwards_Notation">Wikipedia
@@ -168,7 +169,7 @@ public interface IPosition {
 	 * 
 	 * @return a set of all valid and possible moves.
 	 */
-	public Set<IMove> getPossibleMoves();
+	public List<IMove> getPossibleMoves();
 
 	/**
 	 * Computes all possible moves for the active side from a specific square.
@@ -178,7 +179,7 @@ public interface IPosition {
 	 *            the given square
 	 * @return a set of all valid and possible moves from the given square.
 	 */
-	public Set<IMove> getPossibleMovesFrom(int square);
+	public List<IMove> getPossibleMovesFrom(int square);
 
 	/**
 	 * Computes all possible moves for the active side to a specific square.
@@ -190,7 +191,7 @@ public interface IPosition {
 	 *            the given square
 	 * @return a set of all valid and possible moves to the given square.
 	 */
-	public Set<IMove> getPossibleMovesTo(int square);
+	public List<IMove> getPossibleMovesTo(int square);
 
 	/**
 	 * returns the side of the piece on a given square
@@ -255,7 +256,7 @@ public interface IPosition {
 	 * 
 	 * @return the desired set of moves of all captures and promotions.
 	 */
-	public Set<IMove> generateCaptures();
+	public List<IMove> generateCaptures();
 
 	/**
 	 * Since AnalysisResults are stored in the Transposition Tables

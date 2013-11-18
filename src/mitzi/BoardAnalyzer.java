@@ -4,6 +4,7 @@ import static mitzi.MateScores.NEG_INF;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -109,7 +110,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		int side_sign = Side.getSideSign(position.getActiveColor());
 
 		// generate moves
-		Set<IMove> moves = position.getPossibleMoves();
+		List<IMove> moves = position.getPossibleMoves();
 
 		// check for mate and stalemate
 		if (moves.isEmpty()) {
@@ -133,7 +134,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		if (alpha >= beta)
 			return result;
 
-		Set<IMove> caputures = position.generateCaptures();
+		List<IMove> caputures = position.generateCaptures();
 
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
 

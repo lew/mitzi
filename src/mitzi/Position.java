@@ -1,6 +1,7 @@
 package mitzi;
 
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -101,7 +102,7 @@ public class Position implements IPosition {
 	/**
 	 * caching of the possible moves
 	 */
-	private SoftReference<Set<IMove>> possible_moves;
+	private SoftReference<List<IMove>> possible_moves;
 
 	/**
 	 * caching if the current position is check.
@@ -737,18 +738,18 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public Set<IMove> getPossibleMoves() {
+	public List<IMove> getPossibleMoves() {
 		if (possible_moves == null) {
-			Set<IMove> total_set = new HashSet<IMove>();
+			List<IMove> total_list = new ArrayList<IMove>(40);
 
 			// loop over all squares
 			for (int square : getOccupiedSquaresByColor(active_color)) {
-				total_set.addAll(getPossibleMovesFrom(square));
+				total_list.addAll(getPossibleMovesFrom(square));
 			}
 
 			// cache it
-			possible_moves = new SoftReference<Set<IMove>>(total_set);
-			return total_set;
+			possible_moves = new SoftReference<List<IMove>>(total_list);
+			return total_list;
 		} else {
 			// return from cache
 			return possible_moves.get();
@@ -756,13 +757,13 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public Set<IMove> getPossibleMovesFrom(int square) {
+	public List<IMove> getPossibleMovesFrom(int square) {
 		// The case, that the destination is the opponents king cannot happen.
 
 		Piece type = getPieceFromBoard(square);
 		Side opp_color = getOpponentsColor();
 		List<Integer> squares;
-		Set<IMove> moves = new HashSet<IMove>();
+		List<IMove> moves = new ArrayList<IMove>();
 		Move move;
 
 		// Types BISHOP, QUEEN, ROOK
@@ -868,7 +869,7 @@ public class Position implements IPosition {
 				}
 
 			}
-			// Usual turn and en passente is possible, no promotion
+			// Usual turn and en passant is possible, no promotion
 			else {
 				if (getSideFromBoard(square
 						+ Direction.pawnDirection(active_color).offset) == null) {
@@ -979,11 +980,9 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public Set<IMove> getPossibleMovesTo(int square) {
-
-		Set<IMove> result = new HashSet<IMove>();
-
-		Set<IMove> possible_moves = getPossibleMoves();
+	public List<IMove> getPossibleMovesTo(int square) {
+		List<IMove> possible_moves = getPossibleMoves();
+		List<IMove> result = new ArrayList<IMove>(possible_moves.size());
 
 		for (IMove move : possible_moves) {
 			if (move.getToSquare() == square)
@@ -1068,7 +1067,7 @@ public class Position implements IPosition {
 	public boolean isMatePosition() {
 		if (is_mate == null) {
 			is_mate = true;
-			Set<IMove> moves = getPossibleMoves();
+			List<IMove> moves = getPossibleMoves();
 			if (moves.isEmpty() && isCheckPosition())
 				return true;
 			is_mate = false;
@@ -1080,7 +1079,7 @@ public class Position implements IPosition {
 	public boolean isStaleMatePosition() {
 		if (is_stale_mate == null) {
 			is_stale_mate = true;
-			Set<IMove> moves = getPossibleMoves();
+			List<IMove> moves = getPossibleMoves();
 			if (moves.isEmpty())
 				return true;
 			is_stale_mate = false;
@@ -1091,7 +1090,7 @@ public class Position implements IPosition {
 	@Override
 	public boolean isPossibleMove(IMove move) {
 
-		Set<IMove> possible_moves = getPossibleMoves();
+		List<IMove> possible_moves = getPossibleMoves();
 
 		return possible_moves.contains(move);
 	}
@@ -1225,10 +1224,9 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public Set<IMove> generateCaptures() {
-
-		Set<IMove> result = new HashSet<IMove>();
-		Set<IMove> poss_moves = getPossibleMoves();
+	public List<IMove> generateCaptures() {
+		List<IMove> poss_moves = getPossibleMoves();
+		List<IMove> result = new ArrayList<IMove>(poss_moves.size());
 
 		for (IMove move : poss_moves)
 			if (isHit(move) || move.getPromotion() != null)

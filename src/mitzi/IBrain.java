@@ -1,6 +1,6 @@
 package mitzi;
 
-import java.util.Set;
+import java.util.List;
 
 public interface IBrain {
 
@@ -31,7 +31,7 @@ public interface IBrain {
 	 * @return the hopefully best move
 	 */
 	public IMove search(int movetime, int maxMoveTime, int searchDepth,
-			boolean infinite, Set<IMove> searchMoves);
+			boolean infinite, List<IMove> searchMoves);
 
 	/**
 	 * Stop calculating immediately and return the best move.

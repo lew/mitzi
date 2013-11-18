@@ -1,7 +1,7 @@
 package mitzi;
 
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * This class implements the most basic search engine, the random move
@@ -23,9 +23,9 @@ public class RandyBrain implements IBrain {
 
 	@Override
 	public IMove search(int movetime, int maxMoveTime, int searchDepth,
-			boolean infinite, Set<IMove> searchMoves) {
+			boolean infinite, List<IMove> searchMoves) {
 
-		Set<IMove> moves = game_state.getPosition().getPossibleMoves();
+		List<IMove> moves = game_state.getPosition().getPossibleMoves();
 
 		int randy = new Random().nextInt(moves.size());
 		int i = 0;

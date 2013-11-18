@@ -1,8 +1,8 @@
 package mitzi;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -101,7 +101,7 @@ public class MitziBrain implements IBrain {
 		int side_sign = Side.getSideSign(side);
 
 		// generate moves
-		Set<IMove> moves = position.getPossibleMoves();
+		List<IMove> moves = position.getPossibleMoves();
 
 		// check for mate and stalemate
 		if (moves.isEmpty()) {
@@ -122,14 +122,14 @@ public class MitziBrain implements IBrain {
 			return result;
 		}
 
-		LinkedList<IMove> ordered_moves = new LinkedList<IMove>();
+		List<IMove> ordered_moves = new ArrayList<IMove>(40);
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
 		// Sort the moves:
 		if (entry != null) {
 			ordered_moves.addAll(entry.best_moves);
 			Collections.reverse(ordered_moves);
 
-			LinkedList<IMove> remaining_moves = new LinkedList<IMove>();
+			List<IMove> remaining_moves = new ArrayList<IMove>(40);
 			for (IMove move : moves)
 				if (!ordered_moves.contains(move))
 					remaining_moves.add(move);
@@ -229,7 +229,7 @@ public class MitziBrain implements IBrain {
 
 	@Override
 	public IMove search(int movetime, int maxMoveTime, int searchDepth,
-			boolean infinite, Set<IMove> searchMoves) {
+			boolean infinite, List<IMove> searchMoves) {
 
 		// first of all, ignoring the timings and restriction to certain
 		// moves...
