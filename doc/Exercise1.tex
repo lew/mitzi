@@ -1,0 +1,137 @@
+\documentclass [12pt ,a4paper, naustrian]{scrartcl}
+
+\usepackage [latin1]{inputenc}
+\usepackage [naustrian]{babel}
+\usepackage {lmodern}
+\usepackage [T1]{fontenc}
+
+\usepackage {fancyhdr}
+\usepackage {varioref}
+\usepackage[colorlinks=true,linkcolor=black]{hyperref}
+
+
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {amsthm}
+\usepackage {parskip}
+
+\usepackage{xcolor}
+\usepackage[pdftex]{graphicx}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+
+
+\DeclareMathOperator{\spn}{span}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{conj}[thm]{Vermutung}
+\newtheorem{bsp}[thm]{Beispiel}
+\newtheorem{bem}[thm]{Remark}
+
+\theoremstyle{remark}
+\newtheorem*{note}{Notiz}
+\newtheorem{case}{Case}
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{To-Do:} #1}}
+\author{Christoph Hofer\\ 0955139 \and Stefan Lew \\ ???}
+
+\title{Documentation Mitzi - Exercise 1}
+\fancyhf{}
+\pagestyle {fancy}
+\lhead {\textsc {\nouppercase{\leftmark}}}
+\setlength\headheight{15pt}
+\lfoot {Christoph Hofer, Stefan Lew}
+\rfoot {Seite \thepage}
+\renewcommand{\footrulewidth}{0.5 pt}
+\renewcommand{\headheight}{29 pt}
+
+\begin{document}
+\maketitle
+\newpage
+
+\section{Implementation of chess pieces}
+	The different chess pieces and the two are represented as an \verb+enum+ in \verb+Piece.java+ and \verb+Side.java+. The class \verb+Side+ additionally provides methods for getting the opposite side and the sign of the color (+ for white and - for black), which is particularly important board evaluation and negamax algorithm.
+	
+\section{Implementation of a simple chess board}
+	The chess board is implemented via the class \verb+GameState+. The class stores the position of the pieces, counts the \verb+full_move_clock+, \verb+halfe_move_clock+ and saves the history of all played moves. A move can be performed via the method \verb+doMove()+ which additionally checks if the move is valid or not.	
+	
+	\subsection{Implementation of the position class}
+		The class \verb+Position+ contains the main information of the chess board. The class contains among others:
+		\begin{itemize}
+			\item \verb+side_board+: An array of 65 \verb+Sides+, representing the color (side) if the several pieces.
+			\item \verb+piece_board+: An array of 65 \verb+Pieces+, representing the piece on a the different squares.
+			\item \verb+castling+: An array, which contains the square where the king can castle. It contains -1, if it is not possible.
+			\item \verb+en_passant_target+: The square, where the en-passant target is positioned.
+			\item \verb+active_color+: The side, which has to move.
+			\item \verb+analysis_result+: This class stores information of the value of the position and is of no interest for this exercise.
+		\end{itemize}
+		The arrays contains \verb+null+ if at a square is no pieces. The additional entry    is reserved for illegal squares and is always set to \verb+null+. Furthermore the class stores data, which is computed once and reuses it.
+		
+		The class is able to:
+		\begin{itemize}
+			\item read and set Pieces on the board.
+			\item reset the board to initial state. 
+			\item compute an copy of the board, where only the necessary members are copied.
+			\item compute all valid moves for the active side and for each square.
+			\item perform a given move
+			\item check if a move is valid
+			\item check if a move is a hit
+			\item check if castling for a side is possible
+			\item check if the current position is a check, mate or stale mate position.
+			\item return a string representation of the position (FEN notation, \url{see http://en.wikipedia.org/wiki/Forsyth-Edwards_Notation})
+			
+		\end{itemize}
+		
+	\subsection{Representation of squares}
+	\label{sec:squares}
+	We represent the squares as integer, however we do not use the usual notation 1,2,3, \ldots , but we use the so called ICCF numeric notation (see \url{http://en.wikipedia.org/wiki/ICCF_numeric_notation}). The class \verb+SquareHelper+ provides methods to work with the notation:
+	\begin{itemize}
+		\item conversion: \verb+int+ $\leftrightarrow$ \verb+[row][column]+
+		\item check if a square is black or white.
+		\item check if a square is valid.
+		\item conversation to string representation.
+		\item receiving squares in a given \verb+Direction+.
+	\end{itemize}
+		
+	\subsection{The enum Direction}
+		The enum \verb+Direction+ contains the offset for the integer value of the square for each direction. Since the knight does not use the usual directions, it needs a separate offset. To simplify the code, an additional function was generated to return the capturing direction for a pawn for a certain side.
+
+\section{Implementation of chess moves}
+		The class \verb+Move+ implements a move in a chess game. A move consists of 
+		\begin{itemize}
+			\item the source square
+			\item the destination square
+			\item a \verb+Piece+ representing the promotion of the pawn.
+		\end{itemize}
+		
+\section{The random chess player}
+	The random chess player implemented in \verb+RandyBrain+ uses the function \verb+search+ to choose randomly a possible move.
+\end{document}
