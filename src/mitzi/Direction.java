@@ -2,6 +2,11 @@ package mitzi;
 
 import java.util.EnumSet;
 
+/**
+ * This class represents stores the information about the offset for moving a
+ * piece from a square in a specific direction. The offset for a knight is
+ * different for the other figures. 
+ */
 public enum Direction {
 	EAST(10, 21), NORTHEAST(11, 12), NORTH(1, -8), NORTHWEST(-9, -19), WEST(
 			-10, -21), SOUTHWEST(-11, -12), SOUTH(-1, 8), SOUTHEAST(9, 19);
