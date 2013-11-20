@@ -1,6 +1,7 @@
 package mitzi;
 
 import static mitzi.MateScores.NEG_INF;
+import static mitzi.MateScores.POS_INF;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,8 +81,79 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 	@Override
 	public AnalysisResult evalBoard(IPosition board, int alpha, int beta) {
-		AnalysisResult result = eval0(board);
-		return result;
+		return quiesce(board, alpha, beta);
+	}
+
+	/**
+	 * Implements Quiescence search to avoid the horizon effect. The function
+	 * increase the search depth until no capture is possible, where only
+	 * captures are analyzed. The optimal value is found using the negamax
+	 * algorithm.
+	 * 
+	 * @see <a
+	 *      href="http://chessprogramming.wikispaces.com/Quiescence+Search">http://chessprogramming.wikispaces.com/Quiescence+Search</a>
+	 * 
+	 * @param position
+	 *            the position to be analyzed
+	 * @param alpha
+	 *            the alpha value of alpha-beta search
+	 * @param beta
+	 *            the beta value of alpha-beta search
+	 * @return the value of the board
+	 */
+	private AnalysisResult quiesce(IPosition position, int alpha, int beta) {
+
+		int side_sign = Side.getSideSign(position.getActiveColor());
+
+		// generate moves
+		List<IMove> moves = position.getPossibleMoves();
+
+		// check for mate and stalemate
+		if (moves.isEmpty()) {
+			eval_counter_seldepth++;
+			if (position.isCheckPosition()) {
+				return new AnalysisResult(NEG_INF * side_sign, false, false, 0,
+						0, Flag.EXACT);
+			} else {
+				return new AnalysisResult(0, true, false, 0, 0, Flag.EXACT);
+			}
+		}
+
+		AnalysisResult standing_pat = eval0(position);
+		eval_counter_seldepth++;
+
+		int negaval = standing_pat.score * side_sign;
+
+		// alpha beta cutoff
+		if (negaval >= beta)
+			return standing_pat;
+		alpha = Math.max(alpha, negaval);
+
+		List<IMove> caputures = position.generateCaptures();
+
+		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
+
+		// no previous computation given, use basic heuristic
+		ArrayList<IMove> ordered_captures = new ArrayList<IMove>(caputures);
+		Collections.sort(ordered_captures,
+				Collections.reverseOrder(move_comparator));
+
+		for (IMove move : ordered_captures) {
+			IPosition pos = position.doMove(move).new_position;
+			AnalysisResult result = quiesce(pos, -beta, -alpha);
+
+			negaval = result.score * side_sign;
+
+			if (negaval >= beta) {
+				result.plys_to_seldepth++;
+				return result;
+			}
+			alpha = Math.max(alpha, negaval);
+
+		}
+
+		return new AnalysisResult(alpha, false, false, 0, 1, Flag.EXACT);
+
 	}
 
 	/**
