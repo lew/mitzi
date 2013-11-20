@@ -193,10 +193,13 @@ public class MitziBrain implements IBrain {
 				best_value = negaval;
 
 				// update AnalysisResult
+				byte old_seldepth = (parent == null ? 0
+						: parent.plys_to_seldepth);
 				parent = result; // change reference
 				parent.best_move = move;
 				parent.plys_to_eval0 = (byte) Math.max(depth, 0);
-				parent.plys_to_seldepth++;
+				parent.plys_to_seldepth = (byte) Math.max(old_seldepth,
+						parent.plys_to_seldepth + 1);
 
 				// output to UCI
 				if (depth == total_depth && truly_better) {
