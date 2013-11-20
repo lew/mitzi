@@ -16,7 +16,7 @@ public interface IPosition {
 	public void setToInitial();
 
 	/**
-	 * Sets the board to a position given in Forsyth�Edwards Notation (FEN).
+	 * Sets the board to a position given in Forsyth-Edwards Notation (FEN).
 	 * 
 	 * @see <a
 	 *      href="https://en.wikipedia.org/wiki/Forsyth-Edwards_Notation">Wikipedia
