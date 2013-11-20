@@ -10,50 +10,23 @@ public class BasicMoveComparator implements Comparator<IMove> {
 	 * saves the actual board, where the moves should be compared
 	 */
 	private IPosition board;
-	
-	/**
-	 * map, which maps a move to its value. Initial size set to 35 to prevent 
-	 */
-	private Map<IMove, Integer> move_values = new HashMap<IMove, Integer>(35,1);
 
 	/**
-	 * contains values for move comparison (for source piece)
+	 * map, which maps a move to its value. Initial size set to 35 to prevent
 	 */
-	private static final Map<Piece, Integer> src_values = new HashMap<Piece, Integer>(6,1);
-	static {
-		// initialize src_values
-		src_values.put(Piece.QUEEN, 5);
-		src_values.put(Piece.ROOK, 4);
-		src_values.put(Piece.BISHOP, 3);
-		src_values.put(Piece.KNIGHT, 2);
-		src_values.put(Piece.PAWN, 1);
-		src_values.put(Piece.KING, 0);
-	}
+	private Map<IMove, Integer> move_values = new HashMap<IMove, Integer>(35, 1);
 
 	/**
-	 * contains values for move comparison (for dest piece)
+	 * contains values for move comparison
 	 */
-	private static final Map<Piece, Integer> dest_values = new HashMap<Piece, Integer>(6,1);
-	static {
-		// initialize dest_values
-		dest_values.put(Piece.QUEEN, 500);
-		dest_values.put(Piece.ROOK, 400);
-		dest_values.put(Piece.BISHOP, 300);
-		dest_values.put(Piece.KNIGHT, 200);
-		dest_values.put(Piece.PAWN, 100);
-		dest_values.put(null, 0);
-	}
+	private static final int[] piece_values = { 100, 500, 325, 325, 975, 000 };
 
 	public BasicMoveComparator(IPosition board) {
 		this.board = board;
 	}
 
 	/**
-	 * Grades an IMove by the following system: Capturing counts most, then
-	 * moving a piece.
-	 * 
-	 * Among all captures, capturing a more valuable piece counts more. Among
-	 * moves of pieces, moving a more valuable piece counts more.
+	 * Grades an IMove by some heuristics.
 	 * 
 	 * Ignoring special situations like en passant and castling.
 	 * 
@@ -64,11 +37,18 @@ public class BasicMoveComparator implements Comparator<IMove> {
 
 		// moved figure
 		Piece src_piece = board.getPieceFromBoard(move.getFromSquare());
-		value += src_values.get(src_piece);
 
 		// captured figure
 		Piece dest_piece = board.getPieceFromBoard(move.getToSquare());
-		value += dest_values.get(dest_piece);
+
+		if (dest_piece != null) {
+			// try to get advantage in exchange
+			value += (piece_values[dest_piece.ordinal()] - piece_values[src_piece
+					.ordinal()]);
+		} else {
+			// move with more powerful pieces
+			value += piece_values[src_piece.ordinal()];
+		}
 
 		move_values.put(move, value);
 	}
