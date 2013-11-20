@@ -182,14 +182,10 @@ public final class AnalysisResult {
 		if (this.plys_to_eval0 > o.plys_to_eval0)
 			return 1;
 
-		// or (equally deep results) and (deeper or equal selective results)
-		if (this.plys_to_eval0 == o.plys_to_eval0
-				&& this.plys_to_seldepth > o.plys_to_seldepth)
-			return 1;
-
 		if (this.plys_to_eval0 == o.plys_to_eval0
 				&& this.plys_to_seldepth == o.plys_to_seldepth)
 			return 0;
+		
 		return -1;
 	}
 

@@ -47,8 +47,9 @@ public class MitziBrain implements IBrain {
 				long time_span = mtime - old_mtime;
 				UCIReporter.sendInfoNum(InfoType.NPS, eval_span * 1000
 						/ time_span);
-				
-				UCIReporter.sendInfoNum(InfoType.HASHFULL, ResultCache.getHashfull());
+
+				UCIReporter.sendInfoNum(InfoType.HASHFULL,
+						ResultCache.getHashfull());
 			}
 
 			old_mtime = mtime;
@@ -94,8 +95,8 @@ public class MitziBrain implements IBrain {
 
 			if (alpha >= beta)
 				return entry.tinyCopy();
-
 		}
+
 		// whose move is it?
 		Side side = position.getActiveColor();
 		int side_sign = Side.getSideSign(side);
@@ -114,17 +115,24 @@ public class MitziBrain implements IBrain {
 			}
 		}
 
-		// base case
-		if (depth == 0) {
-			AnalysisResult result = board_analyzer.evalBoard(position, alpha,
-					beta);
-			//AnalysisResult result = board_analyzer.eval0(position);
-			return result;
+		// base of complete tree search
+		if (depth <= 0) {
+			List<IMove> capture_moves = position.generateCaptures();
+			if (capture_moves.isEmpty()) {
+				// position is a tree in selective search
+				AnalysisResult result = board_analyzer.evalBoard(position,
+						alpha, beta);
+				eval_counter++;
+				return result;
+			} else {
+				// capture possible pieces and evaluate deeper
+				moves = capture_moves;
+			}
 		}
 
+		// Sort the moves:
 		List<IMove> ordered_moves = new ArrayList<IMove>(40);
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
-		// Sort the moves:
 		if (entry != null) {
 			ordered_moves.addAll(entry.best_moves);
 			Collections.reverse(ordered_moves);
@@ -153,7 +161,6 @@ public class MitziBrain implements IBrain {
 		AnalysisResult new_entry = null, parent = null;
 		if (entry == null)
 			new_entry = new AnalysisResult(0, null, false, 0, 0, null);
-		
 
 		int best_value = NEG_INF; // this starts always at negative!
 
@@ -169,18 +176,17 @@ public class MitziBrain implements IBrain {
 			IPosition child_pos = position.doMove(move).new_position;
 			AnalysisResult result = evalBoard(child_pos, total_depth,
 					depth - 1, -beta, -alpha);
-			eval_counter++;
 
 			int negaval = result.score * side_sign;
 
-			// Update Entry
-			if (negaval >= best_value - 50) {
+			// update best_moves cache
+			if (negaval >= best_value) {
 				if (entry != null && entry.plys_to_eval0 < depth)
 					entry.best_moves.add(move);
 				if (entry == null)
 					new_entry.best_moves.add(move);
-
 			}
+
 			// better variation found
 			if (negaval >= best_value) {
 				boolean truly_better = negaval > best_value;
@@ -189,7 +195,7 @@ public class MitziBrain implements IBrain {
 				// update AnalysisResult
 				parent = result; // change reference
 				parent.best_move = move;
-				parent.plys_to_eval0 = (byte) depth;
+				parent.plys_to_eval0 = (byte) Math.max(depth, 0);
 				parent.plys_to_seldepth++;
 
 				// output to UCI

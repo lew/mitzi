@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class ResultCache {
 
-	private static final int MAX_ENTRIES = 200000;
+	private static final int MAX_ENTRIES = 600000;
 
 	/**
 	 * A map from the Position's <code>hashCode</code> to the AnalysisResult.
