@@ -18,30 +18,32 @@
 \usepackage{xcolor}
 \usepackage[pdftex]{graphicx}
 
-%\usepackage{listings}
+\usepackage{listings}
 \usepackage{color}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
-%{
-%\lstset{frame=tb,
-%  language=Java,
-%  aboveskip=3mm,
-%  belowskip=3mm,
-%  showstringspaces=false,
-%  columns=flexible,
-%  basicstyle={\small\ttfamily},
-%  numbers=none,
-%  numberstyle=\tiny\color{gray},
-%  keywordstyle=\color{blue},
-%  commentstyle=\color{dkgreen},
-%  stringstyle=\color{mauve},
-%  breaklines=true,
-%  breakatwhitespace=true
-%  tabsize=3
-%}
+{
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2,
+  showspaces=false,
+  showtabs=false,
+}
 
 \DeclareMathOperator{\spn}{span}
 
@@ -60,10 +62,9 @@
 \newtheorem*{note}{Notiz}
 \newtheorem{case}{Case}
 
-\newcommand{\todo}[1]{\textcolor{red}{\textbf{To-Do:} #1}}
-\author{Christoph Hofer\\ 0955139 \and Stefan Lew \\ ???}
+\author{Christoph Hofer\\ 0955139 \and Stefan Lew \\ 0856722}
 
-\title{Documentation Mitzi - Exercise 1}
+\title{Mitzi - Exercise 1}
 \fancyhf{}
 \pagestyle {fancy}
 \lhead {\textsc {\nouppercase{\leftmark}}}
@@ -134,4 +135,46 @@
 		
 \section{The random chess player}
 	The random chess player implemented in \verb+RandyBrain+ uses the function \verb+search+ to choose randomly a possible move.
+
+\section{The Code}
+
+\subsubsection*{ChessGame.java}
+\lstinputlisting{../src/mitzi/ChessGame.java}
+
+\subsubsection*{Direction.java}
+\lstinputlisting{../src/mitzi/Direction.java}
+
+\subsubsection*{Piece.java}
+\lstinputlisting{../src/mitzi/Piece.java}
+
+\subsubsection*{Side.java}
+\lstinputlisting{../src/mitzi/Side.java}
+
+\subsubsection*{IBrain.java}
+\lstinputlisting{../src/mitzi/IBrain.java}
+
+\subsubsection*{IMove.java}
+\lstinputlisting{../src/mitzi/IMove.java}
+
+\subsubsection*{IPosition.java}
+\lstinputlisting{../src/mitzi/IPosition.java}
+
+\subsubsection*{RandyBrain.java}
+\lstinputlisting{../src/mitzi/RandyBrain.java}
+
+\subsubsection*{HumanBrain.java}
+\lstinputlisting{../src/mitzi/HumanBrain.java}
+
+\subsubsection*{Move.java}
+\lstinputlisting{../src/mitzi/Move.java}
+
+\subsubsection*{Position.java}
+\lstinputlisting{../src/mitzi/Position.java}
+
+\subsubsection*{PieceHelper.java}
+\lstinputlisting{../src/mitzi/PieceHelper.java}
+
+\subsubsection*{SquareHelper.java}
+\lstinputlisting{../src/mitzi/SquareHelper.java}
+
 \end{document}
