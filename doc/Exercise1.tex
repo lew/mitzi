@@ -1,6 +1,6 @@
 \documentclass [12pt ,a4paper, naustrian]{scrartcl}
 
-\usepackage [latin1]{inputenc}
+\usepackage []{inputenc}
 \usepackage [naustrian]{babel}
 \usepackage {lmodern}
 \usepackage [T1]{fontenc}
@@ -77,7 +77,8 @@
 \begin{document}
 \maketitle
 \newpage
-
+\tableofcontents
+\newpage
 \section{Implementation of chess pieces}
 	The different chess pieces and the two are represented as an \verb+enum+ in \verb+Piece.java+ and \verb+Side.java+. The class \verb+Side+ additionally provides methods for getting the opposite side and the sign of the color (+ for white and - for black), which is particularly important board evaluation and negamax algorithm.
 	
@@ -92,13 +93,13 @@
 			\item \verb+castling+: An array, which contains the square where the king can castle. It contains -1, if it is not possible.
 			\item \verb+en_passant_target+: The square, where the en-passant target is positioned.
 			\item \verb+active_color+: The side, which has to move.
-			\item \verb+analysis_result+: This class stores information of the value of the position and is of no interest for this exercise.
+			
 		\end{itemize}
-		The arrays contains \verb+null+ if at a square is no pieces. The additional entry    is reserved for illegal squares and is always set to \verb+null+. Furthermore the class stores data, which is computed once and reuses it.
+		The arrays contains \verb+null+ if at a square is no pieces. The additional entry    is reserved for illegal squares and is always set to \verb+null+. Furthermore the class stores data, which is computed once and reuses them.
 		
 		The class is able to:
 		\begin{itemize}
-			\item read and set Pieces on the board.
+			\item read and set \verb+Pieces+ on the board.
 			\item reset the board to initial state. 
 			\item compute an copy of the board, where only the necessary members are copied.
 			\item compute all valid moves for the active side and for each square.
@@ -113,7 +114,7 @@
 		
 	\subsection{Representation of squares}
 	\label{sec:squares}
-	We represent the squares as integer, however we do not use the usual notation 1,2,3, \ldots , but we use the so called ICCF numeric notation (see \url{http://en.wikipedia.org/wiki/ICCF_numeric_notation}). The class \verb+SquareHelper+ provides methods to work with the notation:
+	We represent the squares as integer, however we do not use the usual notation 1,2,3, \ldots , but we use the so called ICCF numeric notation (see \url{http://en.wikipedia.org/wiki/ICCF_numeric_notation}). The square a1 has a value of 11, the square b3 of 23\ldots . The class \verb+SquareHelper+ provides methods to work with the notation:
 	\begin{itemize}
 		\item conversion: \verb+int+ $\leftrightarrow$ \verb+[row][column]+
 		\item check if a square is black or white.
@@ -141,14 +142,17 @@
 \subsubsection*{ChessGame.java}
 \lstinputlisting{../src/mitzi/ChessGame.java}
 
-\subsubsection*{Direction.java}
-\lstinputlisting{../src/mitzi/Direction.java}
-
 \subsubsection*{Piece.java}
 \lstinputlisting{../src/mitzi/Piece.java}
 
 \subsubsection*{Side.java}
 \lstinputlisting{../src/mitzi/Side.java}
+
+\subsubsection*{PieceHelper.java}
+\lstinputlisting{../src/mitzi/PieceHelper.java}
+
+\subsubsection*{SquareHelper.java}
+\lstinputlisting{../src/mitzi/SquareHelper.java}
 
 \subsubsection*{IBrain.java}
 \lstinputlisting{../src/mitzi/IBrain.java}
@@ -168,13 +172,12 @@
 \subsubsection*{Move.java}
 \lstinputlisting{../src/mitzi/Move.java}
 
+\subsubsection*{Direction.java}
+\lstinputlisting{../src/mitzi/Direction.java}
+
 \subsubsection*{Position.java}
 \lstinputlisting{../src/mitzi/Position.java}
 
-\subsubsection*{PieceHelper.java}
-\lstinputlisting{../src/mitzi/PieceHelper.java}
 
-\subsubsection*{SquareHelper.java}
-\lstinputlisting{../src/mitzi/SquareHelper.java}
 
 \end{document}
