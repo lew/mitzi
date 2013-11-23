@@ -14,7 +14,7 @@ import java.util.List;
  */
 public final class SquareHelper {
 
-	/** 
+	/**
 	 * the letters of the columns of the chessboard
 	 */
 	private static final String[] letters = { "a", "b", "c", "d", "e", "f",
@@ -158,7 +158,9 @@ public final class SquareHelper {
 
 	/**
 	 * converts the string representation of a square into a the ICCF notation.
-	 * @param notation the given square in string notation
+	 * 
+	 * @param notation
+	 *            the given square in string notation
 	 * @return the square in integer representation.
 	 */
 	public static int fromString(String notation) {
@@ -167,5 +169,63 @@ public final class SquareHelper {
 			i++;
 		}
 		return (i + 1) * 10 + Character.getNumericValue(notation.charAt(1));
+	}
+
+	/**
+	 * returns the number for the i_th row seen from a given side. i.e. the last
+	 * row for black is 1, the 3rd row for white is 3, the 3rd row for black is
+	 * 6;
+	 * 
+	 * @param side
+	 *            the given side
+	 * @param i_th
+	 *            the i_th row, where the (global) row number is wanted.
+	 * @return the (global) row number.
+	 */
+	public static int getRowForSide(Side side, int i_th) {
+		if (side == Side.BLACK)
+			return 9 - i_th;
+		else
+			return i_th;
+	}
+
+	/**
+	 * gives an ordered list of all squares in the same column as the source
+	 * square (from south to north) except the source square
+	 * 
+	 * @param source_square the given square
+	 * @return a list of squares in this column
+	 */
+	public static List<Integer> getAllSquaresInColumn(int source_square) {
+
+		ArrayList<Integer> square_list = new ArrayList<Integer>();
+
+		int square = getColumn(source_square)*10 + 1;
+		while (getColumn(square) <= 8) {
+			if (square != source_square)
+				square_list.add(square);
+			square += Direction.NORTH.offset;
+		}
+		return square_list;
+	}
+	
+	/**
+	 * gives an ordered list of all squares in the same row as the source
+	 * square (from west to east) except the source square
+	 * 
+	 * @param source_square the given square
+	 * @return a list of squares in this row
+	 */
+	public static List<Integer> getAllSquaresInRow(int source_square) {
+
+		ArrayList<Integer> square_list = new ArrayList<Integer>();
+
+		int square = getRow(source_square)%10  +10;
+		while (getRow(square)<=8) {
+			if (square != source_square)
+				square_list.add(square);
+			square += Direction.EAST.offset;
+		}
+		return square_list;
 	}
 }

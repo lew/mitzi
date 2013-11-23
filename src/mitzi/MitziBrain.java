@@ -171,18 +171,17 @@ public class MitziBrain implements IBrain {
 
 			int negaval = result.score * side_sign;
 
-			// update best_moves cache
+			// better variation found
 			if (negaval >= best_value) {
+
+				boolean truly_better = negaval > best_value;
+				best_value = negaval;
+				
+				//update cache entry
 				if (entry != null && entry.plys_to_eval0 < depth)
 					entry.best_moves.add(move);
 				if (entry == null)
 					new_entry.best_moves.add(move);
-			}
-
-			// better variation found
-			if (negaval >= best_value) {
-				boolean truly_better = negaval > best_value;
-				best_value = negaval;
 
 				// update AnalysisResult
 				byte old_seldepth = (parent == null ? 0
@@ -252,7 +251,7 @@ public class MitziBrain implements IBrain {
 		// Parameters for aspiration windows
 		int alpha = NEG_INF; // initial value
 		int beta = POS_INF; // initial value
-		int asp_window = 50; // often 50 or 25 is used
+		int asp_window = 25; // often 50 or 25 is used
 		int factor = 2; // factor for increasing if out of bounds
 
 		for (int current_depth = 1; current_depth <= searchDepth; current_depth++) {
