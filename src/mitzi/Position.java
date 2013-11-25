@@ -262,7 +262,8 @@ public class Position implements IPosition {
 		if (analysis_result == null)
 			throw new NullPointerException();
 
-		if (this.analysis_result == null || this.analysis_result.compareQualityTo(analysis_result) <= 0) {
+		if (this.analysis_result == null
+				|| this.analysis_result.compareQualityTo(analysis_result) <= 0) {
 			this.analysis_result = analysis_result;
 		}
 	}
@@ -519,13 +520,12 @@ public class Position implements IPosition {
 
 		// Change active_color after move
 		newBoard.active_color = Side.getOppositeSide(active_color);
-		if (active_color == Side.BLACK)
 
-			// Update en_passant
-			if (piece == Piece.PAWN && Math.abs(dest - src) == 2)
-				newBoard.en_passant_target = (dest + src) / 2;
-			else
-				newBoard.en_passant_target = -1;
+		// Update en_passant
+		if (piece == Piece.PAWN && Math.abs(dest - src) == 2)
+			newBoard.en_passant_target = (dest + src) / 2;
+		else
+			newBoard.en_passant_target = -1;
 
 		// Update castling
 		if (piece == Piece.KING) {
