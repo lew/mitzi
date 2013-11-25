@@ -80,6 +80,7 @@ public class MitziBrain implements IBrain {
 	private AnalysisResult evalBoard(IPosition position, int total_depth,
 			int depth, int alpha, int beta) {
 
+		// ---------------------------------------------------------------------------------------
 		int alpha_old = alpha;
 
 		// Cache lookup
@@ -96,7 +97,7 @@ public class MitziBrain implements IBrain {
 			if (alpha >= beta)
 				return entry.tinyCopy();
 		}
-
+		// ---------------------------------------------------------------------------------------
 		// whose move is it?
 		Side side = position.getActiveColor();
 		int side_sign = Side.getSideSign(side);
@@ -104,6 +105,7 @@ public class MitziBrain implements IBrain {
 		// generate moves
 		List<IMove> moves = position.getPossibleMoves();
 
+		// ---------------------------------------------------------------------------------------
 		// check for mate and stalemate
 		if (moves.isEmpty()) {
 			eval_counter++;
@@ -114,7 +116,7 @@ public class MitziBrain implements IBrain {
 				return new AnalysisResult(0, true, false, 0, 0, Flag.EXACT);
 			}
 		}
-
+		// ---------------------------------------------------------------------------------------
 		// base of complete tree search
 		if (depth == 0) {
 			// position is a leaf node
@@ -122,29 +124,41 @@ public class MitziBrain implements IBrain {
 			return board_analyzer.evalBoard(position, alpha, beta);
 		}
 
+		// ---------------------------------------------------------------------------------------
 		// Sort the moves:
-		List<IMove> ordered_moves = new ArrayList<IMove>(40);
+		ArrayList<IMove> ordered_moves = new ArrayList<IMove>(40);
+		ArrayList<IMove> remaining_moves = new ArrayList<IMove>(40);
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
+
+		// Get Killer Moves:
+		List<IMove> killer_moves = KillerMoves.getKillerMoves(total_depth
+				- depth);
+		
+		// if possible use the moves from Position cache as the moves with
+		// highest priority
 		if (entry != null) {
 			ordered_moves.addAll(entry.best_moves);
-			Collections.reverse(ordered_moves);
 
-			List<IMove> remaining_moves = new ArrayList<IMove>(40);
-			for (IMove move : moves)
-				if (!ordered_moves.contains(move))
-					remaining_moves.add(move);
-
-			Collections.sort(remaining_moves,
-					Collections.reverseOrder(move_comparator));
-
-			ordered_moves.addAll(remaining_moves);
+			for (IMove k_move : killer_moves)
+				if (position.isPossibleMove(k_move)
+						&& !ordered_moves.contains(k_move))
+					ordered_moves.add(k_move);
 
 		} else {
-			// no previous computation given, use basic heuristic
-			ordered_moves.addAll(moves);
-			Collections.sort(ordered_moves,
-					Collections.reverseOrder(move_comparator));
+			// Killer_moves have highest priority
+			for (IMove k_move : killer_moves)
+				if (position.isPossibleMove(k_move))
+					ordered_moves.add(k_move);
 		}
+		// add the remaining moves and sort them using a basic heuristic
+		for (IMove move : moves)
+			if (!ordered_moves.contains(move))
+				remaining_moves.add(move);
+
+		Collections.sort(remaining_moves,
+				Collections.reverseOrder(move_comparator));
+		ordered_moves.addAll(remaining_moves);
+		// ---------------------------------------------------------------------------------------
 
 		if (entry != null && entry.plys_to_eval0 < depth)
 			entry.best_moves.clear();
@@ -176,8 +190,8 @@ public class MitziBrain implements IBrain {
 
 				boolean truly_better = negaval > best_value;
 				best_value = negaval;
-				
-				//update cache entry
+
+				// update cache entry
 				if (entry != null && entry.plys_to_eval0 < depth)
 					entry.best_moves.add(move);
 				if (entry == null)
@@ -207,12 +221,17 @@ public class MitziBrain implements IBrain {
 
 			// alpha beta cutoff
 			alpha = Math.max(alpha, negaval);
-			if (alpha >= beta)
+			if (alpha >= beta){
+				//set also KillerMove:
+				if(!killer_moves.contains(move))
+					KillerMoves.addKillerMove(total_depth - depth, move, killer_moves);
 				break;
+			}
 
-			i++; // keep ordered_moves and ordered_variations in sync
+			i++;
 		}
 
+		// ---------------------------------------------------------------------------------------
 		// Transposition Table Store; game_state is the lookup key for parent
 		if (parent.score <= alpha_old)
 			parent.flag = Flag.UPPERBOUND;
@@ -221,11 +240,15 @@ public class MitziBrain implements IBrain {
 		else
 			parent.flag = Flag.EXACT;
 
-		if (entry != null && entry.plys_to_eval0 < depth)
+		if (entry != null && entry.plys_to_eval0 < depth){
 			entry.tinySet(parent);
+			Collections.reverse(entry.best_moves);
+			}
+		
 
 		if (entry == null) {
 			new_entry.tinySet(parent);
+			Collections.reverse(new_entry.best_moves);
 			ResultCache.setResult(position, new_entry);
 		}
 
