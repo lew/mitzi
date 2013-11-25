@@ -701,8 +701,8 @@ public class Position implements IPosition {
 			for (int i = 1; i < 9; i++)
 				for (int j = 1; j < 9; j++) {
 					square = SquareHelper.getSquare(i, j);
-					if (color == getSideFromBoard(square)
-							&& type == getPieceFromBoard(square))
+					if (type == getPieceFromBoard(square)
+							&& color == getSideFromBoard(square))
 						set.add(square);
 				}
 			occupied_squares_by_color_and_type.put(value, set);
