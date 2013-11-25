@@ -2,6 +2,7 @@ package mitzi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * In brief, each square of the chessboard has a two-digit designation. The
@@ -22,6 +23,47 @@ public final class SquareHelper {
 
 	private SquareHelper() {
 	};
+
+	private static Vector<Vector<List<Integer>>> squares_direction = new Vector<Vector<List<Integer>>>(
+			89);
+	private static Vector<List<Integer>> squares_direction_knight = new Vector<List<Integer>>(
+			89);
+
+	static {
+		squares_direction.setSize(89);
+		squares_direction_knight.setSize(89);
+		for (int i = 1; i < 9; i++)
+			for (int j = 1; j < 9; j++) {
+				int source_square = getSquare(i, j);
+				Vector<List<Integer>> dir_list = new Vector<List<Integer>>(8);
+				dir_list.setSize(8);
+				List<Integer> dir_list_knight = new ArrayList<Integer>(8);
+
+				// compute squares for pieces except the knight
+				for (Direction dir : Direction.values()) {
+					ArrayList<Integer> square_list = new ArrayList<Integer>();
+
+					int square = source_square + dir.offset;
+					while (isValidSquare(square)) {
+						square_list.add(square);
+						square += dir.offset;
+					}
+					dir_list.set(dir.ordinal(), square_list);
+				}
+
+				// squares for Knight
+				for (Direction dir : Direction.values()) {
+
+					int square = source_square + dir.knight_offset;
+					if (isValidSquare(square)) {
+						dir_list_knight.add(square);
+					}
+				}
+				squares_direction.set(source_square, dir_list);
+				squares_direction_knight.set(source_square, dir_list_knight);
+			}
+
+	}
 
 	/**
 	 * Returns the integer value of the square's column. Starting with 1 at
@@ -92,15 +134,16 @@ public final class SquareHelper {
 	public static List<Integer> getAllSquaresInDirection(int source_square,
 			Direction direction) {
 
-		ArrayList<Integer> square_list = new ArrayList<Integer>();
-
-		int square = source_square += direction.offset;
-		while (isValidSquare(square)) {
-			square_list.add(square);
-			square += direction.offset;
-		}
-
-		return square_list;
+		/*
+		 * ArrayList<Integer> square_list = new ArrayList<Integer>();
+		 * 
+		 * int square = source_square += direction.offset; while
+		 * (isValidSquare(square)) { square_list.add(square); square +=
+		 * direction.offset; }
+		 * 
+		 * return square_list;
+		 */
+		return squares_direction.get(source_square).get(direction.ordinal());
 	}
 
 	/**
@@ -113,16 +156,15 @@ public final class SquareHelper {
 	 */
 	public static List<Integer> getAllSquaresByKnightStep(int source_square) {
 
-		ArrayList<Integer> square_list = new ArrayList<Integer>();
+		/*
+		 * ArrayList<Integer> square_list = new ArrayList<Integer>();
+		 * 
+		 * for (Direction direction : Direction.values()) { int square =
+		 * source_square + direction.knight_offset; if (isValidSquare(square)) {
+		 * square_list.add(square); } }
+		 */
 
-		for (Direction direction : Direction.values()) {
-			int square = source_square + direction.knight_offset;
-			if (isValidSquare(square)) {
-				square_list.add(square);
-			}
-		}
-
-		return square_list;
+		return squares_direction_knight.get(source_square);
 	}
 
 	/**
@@ -193,14 +235,15 @@ public final class SquareHelper {
 	 * gives an ordered list of all squares in the same column as the source
 	 * square (from south to north) except the source square
 	 * 
-	 * @param source_square the given square
+	 * @param source_square
+	 *            the given square
 	 * @return a list of squares in this column
 	 */
 	public static List<Integer> getAllSquaresInColumn(int source_square) {
 
 		ArrayList<Integer> square_list = new ArrayList<Integer>();
 
-		int square = getColumn(source_square)*10 + 1;
+		int square = getColumn(source_square) * 10 + 1;
 		while (getColumn(square) <= 8) {
 			if (square != source_square)
 				square_list.add(square);
@@ -208,20 +251,21 @@ public final class SquareHelper {
 		}
 		return square_list;
 	}
-	
+
 	/**
-	 * gives an ordered list of all squares in the same row as the source
-	 * square (from west to east) except the source square
+	 * gives an ordered list of all squares in the same row as the source square
+	 * (from west to east) except the source square
 	 * 
-	 * @param source_square the given square
+	 * @param source_square
+	 *            the given square
 	 * @return a list of squares in this row
 	 */
 	public static List<Integer> getAllSquaresInRow(int source_square) {
 
 		ArrayList<Integer> square_list = new ArrayList<Integer>();
 
-		int square = getRow(source_square)%10  +10;
-		while (getRow(square)<=8) {
+		int square = getRow(source_square) % 10 + 10;
+		while (getRow(square) <= 8) {
 			if (square != source_square)
 				square_list.add(square);
 			square += Direction.EAST.offset;
