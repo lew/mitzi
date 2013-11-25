@@ -135,6 +135,14 @@ public interface IPosition {
 	public Set<Integer> getOccupiedSquaresByColorAndType(Side color, Piece type);
 
 	/**
+	 * returns the square, where the king for a side is positioned.
+	 * 
+	 * @param side the given side
+	 * @return the square where the king is
+	 */
+	public int getKingPos(Side side);
+	
+	/**
 	 * Returns the number of occupied squares by a given side.
 	 * 
 	 * @param color

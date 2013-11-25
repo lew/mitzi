@@ -145,6 +145,10 @@ public class Position implements IPosition {
 	 */
 	private byte[] num_occupied_squares_by_color_and_type = new byte[16];
 
+	/**
+	 * caching the positions of the kings. (indexed by the ordinal of the side)
+	 */
+	private byte[] king_pos = new byte[2];
 	// -----------------------------------------------------------------------------------------
 
 	/**
@@ -193,6 +197,7 @@ public class Position implements IPosition {
 		System.arraycopy(num_occupied_squares_by_color_and_type, 0,
 				newBoard.num_occupied_squares_by_color_and_type, 0, 16);
 
+		System.arraycopy(king_pos, 0, newBoard.king_pos, 0, 2);
 		return newBoard;
 	}
 
@@ -325,6 +330,8 @@ public class Position implements IPosition {
 		num_occupied_squares_by_color_and_type[Side.BLACK.ordinal() * 10
 				+ Piece.PAWN.ordinal()] = 8;
 
+		king_pos[Side.WHITE.ordinal()]=51;
+		king_pos[Side.BLACK.ordinal()]=58;
 		resetCache();
 	}
 
@@ -379,6 +386,7 @@ public class Position implements IPosition {
 					break;
 				case 'K':
 					setOnBoard(square, Side.WHITE, Piece.KING);
+					king_pos[Side.WHITE.ordinal()]=(byte) square;
 					num_occupied_squares_by_color_and_type[Side.WHITE.ordinal()
 							* 10 + Piece.KING.ordinal()]++;
 					break;
@@ -409,6 +417,7 @@ public class Position implements IPosition {
 					break;
 				case 'k':
 					setOnBoard(square, Side.BLACK, Piece.KING);
+					king_pos[Side.BLACK.ordinal()]=(byte) square;
 					num_occupied_squares_by_color_and_type[Side.BLACK.ordinal()
 							* 10 + Piece.KING.ordinal()]++;
 					break;
@@ -529,6 +538,7 @@ public class Position implements IPosition {
 
 		// Update castling
 		if (piece == Piece.KING) {
+			newBoard.king_pos[active_color.ordinal()]=(byte) dest;
 			if (active_color == Side.WHITE && src == 51) {
 				newBoard.castling[0] = -1;
 				newBoard.castling[1] = -1;
@@ -996,9 +1006,7 @@ public class Position implements IPosition {
 	public boolean isCheckPosition() {
 		if (is_check == null) {
 			is_check = true;
-			Set<Integer> temp_king_pos = getOccupiedSquaresByColorAndType(
-					active_color, Piece.KING);
-			int king_pos = temp_king_pos.iterator().next();
+			int king_pos = getKingPos(active_color);
 
 			// go in each direction
 			for (Direction direction : Direction.values()) {
@@ -1255,5 +1263,10 @@ public class Position implements IPosition {
 		result = prime * result + en_passant_target;
 
 		return result;
+	}
+
+	@Override
+	public int getKingPos(Side side) {
+		return king_pos[side.ordinal()];
 	}
 }
