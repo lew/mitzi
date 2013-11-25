@@ -101,7 +101,7 @@ public final class UCIReporter {
 					+ result.plys_to_seldepth + " pv");
 		}
 
-		for (IMove move : result.getPV(position)) {
+		for (IMove move : result.getPV(position, result.plys_to_eval0)) {
 			pv.append(" " + move);
 		}
 

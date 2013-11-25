@@ -197,16 +197,17 @@ public final class AnalysisResult {
 	 *            the position, where the PV starts
 	 * @return a linked list with the PV
 	 */
-	public LinkedList<IMove> getPV(IPosition pos) {
+	public LinkedList<IMove> getPV(IPosition pos, int counter) {
 		LinkedList<IMove> pv = new LinkedList<IMove>();
 		IPosition best_child;
 		AnalysisResult ar;
-		if (best_move != null) {
+		if (best_move != null && counter >=0) {
 			pv.add(best_move);
 			best_child = pos.doMove(best_move).new_position;
 			ar = ResultCache.getResult(best_child);
+			counter--;
 			if (ar != null)
-				pv.addAll(ar.getPV(best_child));
+				pv.addAll(ar.getPV(best_child, counter));
 		}
 		return pv;
 	}
