@@ -87,7 +87,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	@Override
 	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
-
+		board.cacheOccupiedSquares();
+		
 		// Evaluate Diagonals and lines
 		score += evalLinesAndDiagonals(board);
 
@@ -436,9 +437,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 					}
 
-					int king_pos = board
-							.getOccupiedSquaresByColorAndType(opp_side,
-									Piece.KING).iterator().next();
+					int king_pos = board.getKingPos(opp_side);
 					if (SquareHelper.getRow(king_pos) == SquareHelper
 							.getRowForSide(side, 8))
 						rook_7 = true;

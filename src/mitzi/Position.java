@@ -149,6 +149,7 @@ public class Position implements IPosition {
 	 * caching the positions of the kings. (indexed by the ordinal of the side)
 	 */
 	private byte[] king_pos = new byte[2];
+
 	// -----------------------------------------------------------------------------------------
 
 	/**
@@ -330,8 +331,8 @@ public class Position implements IPosition {
 		num_occupied_squares_by_color_and_type[Side.BLACK.ordinal() * 10
 				+ Piece.PAWN.ordinal()] = 8;
 
-		king_pos[Side.WHITE.ordinal()]=51;
-		king_pos[Side.BLACK.ordinal()]=58;
+		king_pos[Side.WHITE.ordinal()] = 51;
+		king_pos[Side.BLACK.ordinal()] = 58;
 		resetCache();
 	}
 
@@ -386,7 +387,7 @@ public class Position implements IPosition {
 					break;
 				case 'K':
 					setOnBoard(square, Side.WHITE, Piece.KING);
-					king_pos[Side.WHITE.ordinal()]=(byte) square;
+					king_pos[Side.WHITE.ordinal()] = (byte) square;
 					num_occupied_squares_by_color_and_type[Side.WHITE.ordinal()
 							* 10 + Piece.KING.ordinal()]++;
 					break;
@@ -417,7 +418,7 @@ public class Position implements IPosition {
 					break;
 				case 'k':
 					setOnBoard(square, Side.BLACK, Piece.KING);
-					king_pos[Side.BLACK.ordinal()]=(byte) square;
+					king_pos[Side.BLACK.ordinal()] = (byte) square;
 					num_occupied_squares_by_color_and_type[Side.BLACK.ordinal()
 							* 10 + Piece.KING.ordinal()]++;
 					break;
@@ -538,7 +539,7 @@ public class Position implements IPosition {
 
 		// Update castling
 		if (piece == Piece.KING) {
-			newBoard.king_pos[active_color.ordinal()]=(byte) dest;
+			newBoard.king_pos[active_color.ordinal()] = (byte) dest;
 			if (active_color == Side.WHITE && src == 51) {
 				newBoard.castling[0] = -1;
 				newBoard.castling[1] = -1;
@@ -707,14 +708,17 @@ public class Position implements IPosition {
 		if (occupied_squares_by_color_and_type.containsKey(value) == false) {
 			int square;
 			Set<Integer> set = new HashSet<Integer>();
-
-			for (int i = 1; i < 9; i++)
-				for (int j = 1; j < 9; j++) {
-					square = SquareHelper.getSquare(i, j);
-					if (type == getPieceFromBoard(square)
-							&& color == getSideFromBoard(square))
-						set.add(square);
-				}
+			if (type == Piece.KING)
+				set.add((int) king_pos[color.ordinal()]);
+			else {
+				for (int i = 1; i < 9; i++)
+					for (int j = 1; j < 9; j++) {
+						square = SquareHelper.getSquare(i, j);
+						if (type == getPieceFromBoard(square)
+								&& color == getSideFromBoard(square))
+							set.add(square);
+					}
+			}
 			occupied_squares_by_color_and_type.put(value, set);
 			return set;
 		}
@@ -1268,5 +1272,100 @@ public class Position implements IPosition {
 	@Override
 	public int getKingPos(Side side) {
 		return king_pos[side.ordinal()];
+	}
+
+	@Override
+	public void cacheOccupiedSquares() {
+		int square;
+		Side s;
+		Piece p;
+		Set<Integer> w_pawn = new HashSet<Integer>();
+		Set<Integer> w_rook = new HashSet<Integer>();
+		Set<Integer> w_bishop = new HashSet<Integer>();
+		Set<Integer> w_knight = new HashSet<Integer>();
+		Set<Integer> w_queen = new HashSet<Integer>();
+
+		Set<Integer> b_pawn = new HashSet<Integer>();
+		Set<Integer> b_rook = new HashSet<Integer>();
+		Set<Integer> b_bishop = new HashSet<Integer>();
+		Set<Integer> b_knight = new HashSet<Integer>();
+		Set<Integer> b_queen = new HashSet<Integer>();
+
+		for (int i = 1; i < 9; i++)
+			for (int j = 1; j < 9; j++) {
+				square = SquareHelper.getSquare(i, j);
+				s = getSideFromBoard(square);
+				if(s==null)
+					continue;
+				p = getPieceFromBoard(square);
+				switch (s) {
+				case WHITE:
+					switch (p) {
+					case PAWN:
+						w_pawn.add(square);
+						break;
+					case ROOK:
+						w_rook.add(square);
+						break;
+					case BISHOP:
+						w_bishop.add(square);
+						break;
+					case KNIGHT:
+						w_knight.add(square);
+						break;
+					case QUEEN:
+						w_queen.add(square);
+						break;
+					default:
+						break;
+					}
+					break;
+				case BLACK:
+					switch (p) {
+					case PAWN:
+						b_pawn.add(square);
+						break;
+					case ROOK:
+						b_rook.add(square);
+						break;
+					case BISHOP:
+						b_bishop.add(square);
+						break;
+					case KNIGHT:
+						b_knight.add(square);
+						break;
+					case QUEEN:
+						b_queen.add(square);
+						break;
+					default:
+						break;
+					}
+					break;
+				}
+
+			}
+
+		occupied_squares_by_color_and_type.put(Side.WHITE.ordinal() * 10
+				+ Piece.PAWN.ordinal(), w_pawn);
+		occupied_squares_by_color_and_type.put(Side.WHITE.ordinal() * 10
+				+ Piece.ROOK.ordinal(), w_rook);
+		occupied_squares_by_color_and_type.put(Side.WHITE.ordinal() * 10
+				+ Piece.BISHOP.ordinal(), w_bishop);
+		occupied_squares_by_color_and_type.put(Side.WHITE.ordinal() * 10
+				+ Piece.KNIGHT.ordinal(), w_knight);
+		occupied_squares_by_color_and_type.put(Side.WHITE.ordinal() * 10
+				+ Piece.QUEEN.ordinal(), w_queen);
+
+		occupied_squares_by_color_and_type.put(Side.BLACK.ordinal() * 10
+				+ Piece.PAWN.ordinal(), b_pawn);
+		occupied_squares_by_color_and_type.put(Side.BLACK.ordinal() * 10
+				+ Piece.ROOK.ordinal(), b_rook);
+		occupied_squares_by_color_and_type.put(Side.BLACK.ordinal() * 10
+				+ Piece.BISHOP.ordinal(), b_bishop);
+		occupied_squares_by_color_and_type.put(Side.BLACK.ordinal() * 10
+				+ Piece.KNIGHT.ordinal(), b_knight);
+		occupied_squares_by_color_and_type.put(Side.BLACK.ordinal() * 10
+				+ Piece.QUEEN.ordinal(), b_queen);
+
 	}
 }

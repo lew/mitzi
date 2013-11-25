@@ -276,4 +276,6 @@ public interface IPosition {
 	 * @return a different hashvalue
 	 */
 	public long hashCode2();
+	
+	public void cacheOccupiedSquares();
 }
