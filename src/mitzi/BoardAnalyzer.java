@@ -88,7 +88,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
 		board.cacheOccupiedSquares();
-		
+
 		// Evaluate Diagonals and lines
 		score += evalLinesAndDiagonals(board);
 
@@ -238,11 +238,11 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			else
 				for (int squ : squares)
 					score -= piece_activity_q[63 - square_to_array_index[squ]];
-			
+
 			if ((squares.contains(SquareHelper.getSquare(
-							SquareHelper.getRowForSide(side, 1), 4))))
+					SquareHelper.getRowForSide(side, 1), 4))))
 				queen_startpos = true;
-			
+
 			// Bishop
 			squares = board
 					.getOccupiedSquaresByColorAndType(side, Piece.BISHOP);
@@ -252,7 +252,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			else
 				for (int squ : squares)
 					score -= piece_activity_b_k[63 - square_to_array_index[squ]];
-			
+
 			if (!queen_startpos
 					&& (squares.contains(SquareHelper.getSquare(
 							SquareHelper.getRowForSide(side, 1), 3)) || squares
@@ -276,7 +276,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 							.contains(SquareHelper.getSquare(
 									SquareHelper.getRowForSide(side, 1), 2))))
 				queen_moved_last = false;
-			
+
 			// Rook
 			squares = board.getOccupiedSquaresByColorAndType(side, Piece.ROOK);
 			if (side == Side.WHITE)
@@ -285,11 +285,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			else
 				for (int squ : squares)
 					score -= piece_activity_r[63 - square_to_array_index[squ]];
-			
-			if(!queen_startpos && !queen_moved_last)
-				score += side_sign*PREMATURE_QUEEN;
-				
-				
+
+			if (!queen_startpos && !queen_moved_last)
+				score += side_sign * PREMATURE_QUEEN;
 
 		}
 		return score;
@@ -369,8 +367,13 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 				boolean half_open = true;
 				boolean open = true;
+				List<Integer> squares = new ArrayList<Integer>(
+						SquareHelper.getAllSquaresInDirection(square,
+								Direction.NORTH));
+				squares.addAll(SquareHelper.getAllSquaresInDirection(square,
+						Direction.SOUTH));
 
-				for (int squ : SquareHelper.getAllSquaresInColumn(square)) {
+				for (int squ : squares) {
 					if (board.getPieceFromBoard(squ) == Piece.PAWN) {
 						if (board.getSideFromBoard(squ) == board
 								.getActiveColor()) {

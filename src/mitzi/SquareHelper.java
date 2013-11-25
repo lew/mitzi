@@ -239,6 +239,7 @@ public final class SquareHelper {
 	 *            the given square
 	 * @return a list of squares in this column
 	 */
+	/*
 	public static List<Integer> getAllSquaresInColumn(int source_square) {
 
 		ArrayList<Integer> square_list = new ArrayList<Integer>();
@@ -250,7 +251,7 @@ public final class SquareHelper {
 			square += Direction.NORTH.offset;
 		}
 		return square_list;
-	}
+	}*/
 
 	/**
 	 * gives an ordered list of all squares in the same row as the source square
@@ -260,6 +261,7 @@ public final class SquareHelper {
 	 *            the given square
 	 * @return a list of squares in this row
 	 */
+	/*
 	public static List<Integer> getAllSquaresInRow(int source_square) {
 
 		ArrayList<Integer> square_list = new ArrayList<Integer>();
@@ -272,4 +274,5 @@ public final class SquareHelper {
 		}
 		return square_list;
 	}
+	*/
 }
