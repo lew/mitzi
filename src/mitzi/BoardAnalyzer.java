@@ -109,7 +109,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	@Override
 	public AnalysisResult evalBoard(IPosition position, int alpha, int beta) {
 		AnalysisResult result = quiesce(position, alpha, beta);
-		result.score *= Side.getSideSign(position.getActiveColor());
+		//The analysis result should always contain the pure value (not perturbed via side_sign)
+		//result.score *= Side.getSideSign(position.getActiveColor());
 
 		return result;
 	}
@@ -182,7 +183,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 		}
 
-		return new AnalysisResult(alpha, false, false, 0, 1, Flag.EXACT);
+		//The analysis result should always contain the pure value (not perturbed via side_sign)
+		return new AnalysisResult(negaval*side_sign, false, false, 0, 1, Flag.EXACT);
 
 	}
 
