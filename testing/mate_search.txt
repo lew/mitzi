@@ -8,15 +8,20 @@ MATE IN 2
 position fen 1r6/4b2k/1q1pNrpp/p2Pp3/4P3/1P1R3Q/5PPP/5RK1 w - - 0 40
 position fen 3r1b1k/5Q1p/p2p1P2/5R2/4q2P/1P2P3/PB5K/8 w - - 0 40
 position fen 6r1/p3p1rk/1p1pPp1p/q3n2R/4P3/3BR2P/PPP2QP1/7K w - - 0 40
+position fen r2q1k1r/ppp1bB1p/2np4/6N1/3PP1bP/8/PPP5/RNB2RK1 w - - 0 40
+position fen 8/6kp/5R1p/p3P3/8/5PKP/3B4/q2q4 w - - 0 40
 
 MATE IN 3
 ---------
 position fen r1b1r1k1/1pq1bp1p/p3pBp1/3pR3/7Q/2PB4/PP3PPP/5RK1 w - - 0 40
 position fen 1r3r1k/5Bpp/8/8/P2qQ3/5R2/1b4PP/5K2 w - - 0 40
+position fen 6k1/p1b3p1/4p2r/1Pp4b/3pPp1q/1P1P1P2/2P1QR2/R5KN b - - 0 40
+position fen 1rb1k2r/2p2ppp/2p5/4p3/2P1n1q1/3Q4/PPPB2PP/2KR2NR w k - 0 40
 
 MATE IN 4
 ---------
 position fen 2q1nk1r/4Rp2/1ppp1P2/6Pp/3p1B2/3P3P/PPP1Q3/6K1 w - - 0 40
+position fen 6k1/3p1pp1/3Q3p/1r1n4/3B4/P4P2/P2KR2P/6Nq w - - 0 40
 
 MATE IN 5
 ---------
@@ -24,3 +29,8 @@ position fen 6rk/R7/2pp3p/1pP2n2/1P2B1Q1/nr5P/7K/4q3 w - - 0 40
 
 MATE IN 6
 ---------
+position fen r1b2rk1/ppp2p2/6n1/8/4B3/2B2PP1/qPP1N1P1/2KR3R w - - 0 40
+
+MATE IN 11
+---------
+position fen 8/8/8/4k3/8/8/8/3BKR2 w - - 0 40
