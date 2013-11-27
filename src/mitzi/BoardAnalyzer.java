@@ -107,8 +107,11 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	}
 
 	@Override
-	public AnalysisResult evalBoard(IPosition board, int alpha, int beta) {
-		return quiesce(board, alpha, beta);
+	public AnalysisResult evalBoard(IPosition position, int alpha, int beta) {
+		AnalysisResult result = quiesce(position, alpha, beta);
+		result.score *= Side.getSideSign(position.getActiveColor());
+
+		return result;
 	}
 
 	/**
