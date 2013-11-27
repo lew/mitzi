@@ -44,11 +44,10 @@ public class BasicMoveComparator implements Comparator<IMove> {
 		if (dest_piece != null) {
 			// try to get advantage in exchange
 			value += (piece_values[dest_piece.ordinal()] - piece_values[src_piece
-					.ordinal()]);
-		} else {
-			// move with more powerful pieces
-			value += piece_values[src_piece.ordinal()];
+					.ordinal()] + 1) * 1024;
 		}
+		// move with more powerful pieces
+		value += piece_values[src_piece.ordinal()];
 
 		move_values.put(move, value);
 	}
