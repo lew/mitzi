@@ -588,8 +588,7 @@ public class Position implements IPosition {
 
 		// Set the right color
 		if (active_color != color)
-			;
-		active_color = getOpponentsColor();
+			active_color = getOpponentsColor();
 
 		// check for castling
 		if (!isCheckPosition()) {
@@ -1295,7 +1294,7 @@ public class Position implements IPosition {
 			for (int j = 1; j < 9; j++) {
 				square = SquareHelper.getSquare(i, j);
 				s = getSideFromBoard(square);
-				if(s==null)
+				if (s == null)
 					continue;
 				p = getPieceFromBoard(square);
 				switch (s) {
