@@ -109,9 +109,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	@Override
 	public AnalysisResult evalBoard(IPosition position, int alpha, int beta) {
 		AnalysisResult result = quiesce(position, alpha, beta);
-		//The analysis result should always contain the pure value (not perturbed via side_sign)
-		//result.score *= Side.getSideSign(position.getActiveColor());
-
+		
+		// The analysis result should always contain the pure value (not
+		// perturbed via side_sign)
 		return result;
 	}
 
@@ -150,6 +150,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			}
 		}
 
+		//evaluation of the current board.
 		AnalysisResult standing_pat = eval0(position);
 		eval_counter_seldepth++;
 
@@ -160,8 +161,10 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			return standing_pat;
 		alpha = Math.max(alpha, negaval);
 
+		//Generate possible Captures
 		List<IMove> caputures = position.generateCaptures();
 
+		//Generate MoveComperator
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
 
 		// no previous computation given, use basic heuristic
@@ -169,22 +172,37 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		Collections.sort(ordered_captures,
 				Collections.reverseOrder(move_comparator));
 
+		AnalysisResult result = null;
+		int best_value = NEG_INF;
+
 		for (IMove move : ordered_captures) {
 			IPosition pos = position.doMove(move).new_position;
-			AnalysisResult result = quiesce(pos, -beta, -alpha);
+			AnalysisResult result_temp = quiesce(pos, -beta, -alpha);
 
-			negaval = result.score * side_sign;
+			negaval = result_temp.score * side_sign;
+			
+			//find the best result
+			if (negaval >= best_value) {
+				best_value = negaval;
+				result = result_temp;
+			}
 
+			//cut-off
 			if (negaval >= beta) {
 				result.plys_to_seldepth++;
 				return result;
 			}
 			alpha = Math.max(alpha, negaval);
-
 		}
 
-		//The analysis result should always contain the pure value (not perturbed via side_sign)
-		return new AnalysisResult(negaval*side_sign, false, false, 0, 1, Flag.EXACT);
+
+		//the standing_pat was computed in this depth
+		if(result==null)
+			return standing_pat;
+		
+		//the result comes from a depth below
+		result.plys_to_seldepth++;
+		return result;
 
 	}
 
