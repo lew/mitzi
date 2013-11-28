@@ -97,15 +97,24 @@ public class MitziBrain implements IBrain {
 			if (alpha >= beta)
 				return entry.tinyCopy();
 		}
+
+		// ---------------------------------------------------------------------------------------
+		// base of complete tree search
+		if (depth == 0) {
+			// position is a leaf node
+			eval_counter++;
+			return board_analyzer.evalBoard(position, alpha, beta);
+		}
+		
 		// ---------------------------------------------------------------------------------------
 		// whose move is it?
 		Side side = position.getActiveColor();
 		int side_sign = Side.getSideSign(side);
 
+		// ---------------------------------------------------------------------------------------
 		// generate moves
 		List<IMove> moves = position.getPossibleMoves();
 
-		// ---------------------------------------------------------------------------------------
 		// check for mate and stalemate
 		if (moves.isEmpty()) {
 			eval_counter++;
@@ -116,14 +125,6 @@ public class MitziBrain implements IBrain {
 				return new AnalysisResult(0, true, false, 0, 0, Flag.EXACT);
 			}
 		}
-		// ---------------------------------------------------------------------------------------
-		// base of complete tree search
-		if (depth == 0) {
-			// position is a leaf node
-			eval_counter++;
-			return board_analyzer.evalBoard(position, alpha, beta);
-		}
-
 		// ---------------------------------------------------------------------------------------
 		// Sort the moves:
 		ArrayList<IMove> ordered_moves = new ArrayList<IMove>(40);
