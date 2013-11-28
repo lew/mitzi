@@ -204,22 +204,17 @@ public class MitziBrain implements IBrain {
 					new_entry.best_moves.add(move);
 
 				// update AnalysisResult
-				byte old_seldepth = (parent == null ? 0
-						: parent.plys_to_seldepth);
 				parent = result; // change reference
 				parent.best_move = move;
-				if (best_value == POS_INF) {
+				if (best_value == POS_INF) 
 					// mate found
-					parent.plys_to_seldepth++;
 					parent.plys_to_eval0 = (byte) Math.max(depth, 0);
-				} else {
-					parent.plys_to_seldepth = (byte) Math.max(old_seldepth,
-							parent.plys_to_seldepth + 1);
-					parent.plys_to_eval0 = (byte) Math.max(depth, 0);
-				}
+				 else
+					 parent.plys_to_eval0 = (byte) Math.max(depth, 0);
+				
 
 				// output to UCI
-				if (depth == total_depth && truly_better) {
+				if (depth == total_depth ){//&& truly_better) {
 					position.updateAnalysisResult(parent);
 					UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 				}
