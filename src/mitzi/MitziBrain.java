@@ -18,11 +18,17 @@ public class MitziBrain implements IBrain {
 	private long table_counter = 0;
 
 	private IPositionAnalyzer board_analyzer = new BoardAnalyzer();
+	
+	private long start_mtime = System.currentTimeMillis();
 
 	@Override
 	public void set(GameState game_state) {
 		this.game_state = game_state;
 		this.eval_counter = 0;
+	}
+	
+	private long runTime() {
+		return System.currentTimeMillis() - start_mtime;
 	}
 
 	/**
@@ -30,7 +36,6 @@ public class MitziBrain implements IBrain {
 	 * 
 	 */
 	class UCIUpdater extends TimerTask {
-
 		private long old_mtime;
 		private long old_eval_counter;
 		private long old_eval_counter_seldepth;
@@ -38,6 +43,7 @@ public class MitziBrain implements IBrain {
 		@Override
 		public void run() {
 			long mtime = System.currentTimeMillis();
+
 			long eval_span_0 = eval_counter - old_eval_counter;
 			long eval_span_sel = +BoardAnalyzer.eval_counter_seldepth
 					- old_eval_counter_seldepth;
@@ -216,7 +222,7 @@ public class MitziBrain implements IBrain {
 				// output to UCI
 				if (depth == total_depth && truly_better) {
 					position.updateAnalysisResult(parent);
-					UCIReporter.sendInfoPV(game_state.getPosition());
+					UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 				}
 			}
 
@@ -268,6 +274,7 @@ public class MitziBrain implements IBrain {
 
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
+		start_mtime = System.currentTimeMillis();
 
 		// iterative deepening
 		AnalysisResult result = null;
@@ -307,9 +314,9 @@ public class MitziBrain implements IBrain {
 
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
-
+		
 		timer.cancel();
-		UCIReporter.sendInfoPV(position);
+		UCIReporter.sendInfoPV(position, runTime());
 		return result.best_move;
 	}
 

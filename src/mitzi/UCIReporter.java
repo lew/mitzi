@@ -74,8 +74,10 @@ public final class UCIReporter {
 	 * 
 	 * @param position
 	 *            a Position with an AnalysisResult
+	 * @param time
+	 *            the time searched in ms
 	 */
-	public static void sendInfoPV(IPosition position) {
+	public static void sendInfoPV(IPosition position, long time) {
 		AnalysisResult result = position.getAnalysisResult();
 		if (result == null)
 			return;
@@ -107,7 +109,8 @@ public final class UCIReporter {
 
 		String new_pv = pv.toString();
 		if (!last_pv.equals(new_pv)) {
-			System.out.println(new_pv);
+			System.out.print(new_pv);
+			System.out.println(" time " + time);
 			last_pv = new_pv;
 		}
 	}
