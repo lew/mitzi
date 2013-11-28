@@ -214,7 +214,7 @@ public class MitziBrain implements IBrain {
 				
 
 				// output to UCI
-				if (depth == total_depth ){//&& truly_better) {
+				if (depth == total_depth && truly_better) {
 					position.updateAnalysisResult(parent);
 					UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 				}
