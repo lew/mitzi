@@ -2,7 +2,6 @@ package mitzi;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * In brief, each square of the chessboard has a two-digit designation. The
@@ -24,20 +23,21 @@ public final class SquareHelper {
 	private SquareHelper() {
 	};
 
-	private static Vector<Vector<List<Integer>>> squares_direction = new Vector<Vector<List<Integer>>>(
-			89);
-	private static Vector<List<Integer>> squares_direction_knight = new Vector<List<Integer>>(
-			89);
+	private static ArrayList<ArrayList<List<Integer>>> squares_direction = new ArrayList<ArrayList<List<Integer>>>();
+	private static ArrayList<List<Integer>> squares_direction_knight = new ArrayList<List<Integer>>();
 
 	static {
-		squares_direction.setSize(89);
-		squares_direction_knight.setSize(89);
+		for(int i=0;i<89;i++){
+			squares_direction.add(null);
+			squares_direction_knight.add(null);
+		}
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
 				int source_square = getSquare(i, j);
-				Vector<List<Integer>> dir_list = new Vector<List<Integer>>(8);
-				dir_list.setSize(8);
-				List<Integer> dir_list_knight = new ArrayList<Integer>(8);
+				ArrayList<List<Integer>> dir_list = new ArrayList<List<Integer>>();
+				for(int k=0;k<9;k++)
+					dir_list.add(null);
+				ArrayList<Integer> dir_list_knight = new ArrayList<Integer>();
 
 				// compute squares for pieces except the knight
 				for (Direction dir : Direction.values()) {
