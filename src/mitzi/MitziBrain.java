@@ -108,7 +108,6 @@ public class MitziBrain implements IBrain {
 		// base of complete tree search
 		if (depth == 0) {
 			// position is a leaf node
-			eval_counter++;
 			return board_analyzer.evalBoard(position, alpha, beta);
 		}
 		
