@@ -109,7 +109,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	@Override
 	public AnalysisResult evalBoard(IPosition position, int alpha, int beta) {
 		AnalysisResult result = quiesce(position, alpha, beta);
-		
+
 		// The analysis result should always contain the pure value (not
 		// perturbed via side_sign)
 		return result;
@@ -150,7 +150,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			}
 		}
 
-		//evaluation of the current board.
+		// evaluation of the current board.
 		AnalysisResult standing_pat = eval0(position);
 		eval_counter_seldepth++;
 
@@ -161,10 +161,10 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			return standing_pat;
 		alpha = Math.max(alpha, negaval);
 
-		//Generate possible Captures
+		// Generate possible Captures
 		List<IMove> caputures = position.generateCaptures();
 
-		//Generate MoveComperator
+		// Generate MoveComperator
 		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
 
 		// no previous computation given, use basic heuristic
@@ -180,14 +180,14 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			AnalysisResult result_temp = quiesce(pos, -beta, -alpha);
 
 			negaval = result_temp.score * side_sign;
-			
-			//find the best result
+
+			// find the best result
 			if (negaval > best_value) {
 				best_value = negaval;
 				result = result_temp;
 			}
 
-			//cut-off
+			// cut-off
 			if (negaval >= beta) {
 				result.plys_to_seldepth++;
 				return result;
@@ -195,12 +195,11 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			alpha = Math.max(alpha, negaval);
 		}
 
-
-		//the standing_pat was computed in this depth
-		if(result==null)
+		// the standing_pat was computed in this depth
+		if (result == null)
 			return standing_pat;
-		
-		//the result comes from a depth below
+
+		// the result comes from a depth below
 		result.plys_to_seldepth++;
 		return result;
 

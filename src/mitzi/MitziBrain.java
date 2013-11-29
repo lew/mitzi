@@ -18,7 +18,7 @@ public class MitziBrain implements IBrain {
 	private long table_counter = 0;
 
 	private IPositionAnalyzer board_analyzer = new BoardAnalyzer();
-	
+
 	private long start_mtime = System.currentTimeMillis();
 
 	@Override
@@ -26,7 +26,7 @@ public class MitziBrain implements IBrain {
 		this.game_state = game_state;
 		this.eval_counter = 0;
 	}
-	
+
 	private long runTime() {
 		return System.currentTimeMillis() - start_mtime;
 	}
@@ -110,7 +110,7 @@ public class MitziBrain implements IBrain {
 			// position is a leaf node
 			return board_analyzer.evalBoard(position, alpha, beta);
 		}
-		
+
 		// ---------------------------------------------------------------------------------------
 		// whose move is it?
 		Side side = position.getActiveColor();
@@ -139,7 +139,7 @@ public class MitziBrain implements IBrain {
 		// Get Killer Moves:
 		List<IMove> killer_moves = KillerMoves.getKillerMoves(total_depth
 				- depth);
-		
+
 		// if possible use the moves from Position cache as the moves with
 		// highest priority
 		if (entry != null) {
@@ -193,7 +193,7 @@ public class MitziBrain implements IBrain {
 
 			// better variation found
 			if (negaval > best_value) {
-		
+
 				best_value = negaval;
 
 				// update cache entry
@@ -205,15 +205,15 @@ public class MitziBrain implements IBrain {
 				// update AnalysisResult
 				parent = result; // change reference
 				parent.best_move = move;
-				if (best_value == POS_INF) 
+				if (best_value == POS_INF)
 					// mate found
-					parent.plys_to_eval0 =(byte) depth;
-				 else
-					 parent.plys_to_eval0 = (byte) depth;
-								
+					parent.plys_to_eval0 = (byte) depth;
+				else
+					parent.plys_to_eval0 = (byte) depth;
+
 				// output to UCI
-				//boolean truly_better = negaval > best_value;
-				if (depth == total_depth){ //&& truly_better) {
+				// boolean truly_better = negaval > best_value;
+				if (depth == total_depth) { // && truly_better) {
 					position.updateAnalysisResult(parent);
 					UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 				}
@@ -221,10 +221,11 @@ public class MitziBrain implements IBrain {
 
 			// alpha beta cutoff
 			alpha = Math.max(alpha, negaval);
-			if (alpha >= beta){
-				//set also KillerMove:
-				if(!killer_moves.contains(move))
-					KillerMoves.addKillerMove(total_depth - depth, move, killer_moves);
+			if (alpha >= beta) {
+				// set also KillerMove:
+				if (!killer_moves.contains(move))
+					KillerMoves.addKillerMove(total_depth - depth, move,
+							killer_moves);
 				break;
 			}
 
@@ -240,11 +241,10 @@ public class MitziBrain implements IBrain {
 		else
 			parent.flag = Flag.EXACT;
 
-		if (entry != null && entry.plys_to_eval0 < depth){
+		if (entry != null && entry.plys_to_eval0 < depth) {
 			entry.tinySet(parent);
 			Collections.reverse(entry.best_moves);
-			}
-		
+		}
 
 		if (entry == null) {
 			new_entry.tinySet(parent);
@@ -307,7 +307,7 @@ public class MitziBrain implements IBrain {
 
 			UCIReporter.sendInfoString("Boards found: " + table_counter);
 		}
-		
+
 		timer.cancel();
 		UCIReporter.sendInfoPV(position, runTime());
 		KillerMoves.updateKillerMove();
