@@ -775,6 +775,8 @@ public class Position implements IPosition {
 
 		Piece type = getPieceFromBoard(square);
 		Side opp_color = getOpponentsColor();
+		
+		ArrayList<List<Integer>> all_squares = SquareHelper.getSquaresAllDirections(square);
 		List<Integer> squares;
 		List<IMove> moves = new ArrayList<IMove>();
 		Move move;
@@ -796,7 +798,7 @@ public class Position implements IPosition {
 					continue;
 				} else {
 					// do stuff
-					squares = SquareHelper.getAllSquaresInDirection(square,
+					squares = SquareHelper.getAllSquaresInDirection(all_squares,
 							direction);
 
 					for (Integer new_square : squares) {
@@ -1010,11 +1012,11 @@ public class Position implements IPosition {
 		if (is_check == null) {
 			is_check = true;
 			int king_pos = getKingPos(active_color);
-
+			ArrayList<List<Integer>> all_squares = SquareHelper.getSquaresAllDirections(king_pos);
 			// go in each direction
 			for (Direction direction : Direction.values()) {
 				List<Integer> line = SquareHelper.getAllSquaresInDirection(
-						king_pos, direction);
+						all_squares, direction);
 				// go until…
 				int iter = 0;
 				for (int square : line) {

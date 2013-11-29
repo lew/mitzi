@@ -1,5 +1,6 @@
 package mitzi;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,5 +36,11 @@ public class KillerMoves {
 		if (entry.size() == MAX_SIZE)
 			entry.iterator().remove();
 		entry.add(move);
+	}
+	
+	static void updateKillerMove(){
+		for(int i = 2;killer_moves.containsKey(i);i++)
+			killer_moves.put(i-2, killer_moves.get(i));
+		
 	}
 }

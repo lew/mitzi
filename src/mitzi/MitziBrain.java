@@ -192,9 +192,8 @@ public class MitziBrain implements IBrain {
 			int negaval = result.score * side_sign;
 
 			// better variation found
-			if (negaval >= best_value) {
-
-				boolean truly_better = negaval > best_value;
+			if (negaval > best_value) {
+		
 				best_value = negaval;
 
 				// update cache entry
@@ -208,13 +207,13 @@ public class MitziBrain implements IBrain {
 				parent.best_move = move;
 				if (best_value == POS_INF) 
 					// mate found
-					parent.plys_to_eval0 = (byte) Math.max(depth, 0);
+					parent.plys_to_eval0 =(byte) depth;
 				 else
-					 parent.plys_to_eval0 = (byte) Math.max(depth, 0);
-				
-
+					 parent.plys_to_eval0 = (byte) depth;
+								
 				// output to UCI
-				if (depth == total_depth && truly_better) {
+				//boolean truly_better = negaval > best_value;
+				if (depth == total_depth){ //&& truly_better) {
 					position.updateAnalysisResult(parent);
 					UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 				}
@@ -311,6 +310,7 @@ public class MitziBrain implements IBrain {
 		
 		timer.cancel();
 		UCIReporter.sendInfoPV(position, runTime());
+		KillerMoves.updateKillerMove();
 		return result.best_move;
 	}
 

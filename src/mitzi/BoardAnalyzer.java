@@ -182,7 +182,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			negaval = result_temp.score * side_sign;
 			
 			//find the best result
-			if (negaval >= best_value) {
+			if (negaval > best_value) {
 				best_value = negaval;
 				result = result_temp;
 			}
