@@ -192,7 +192,7 @@ public class MitziBrain implements IBrain {
 			int negaval = result.score * side_sign;
 
 			// better variation found
-			if (negaval > best_value) {
+			if (negaval > best_value || parent == null) {
 
 				best_value = negaval;
 
