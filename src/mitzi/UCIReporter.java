@@ -87,14 +87,16 @@ public final class UCIReporter {
 		if (result.score == NEG_INF && position.getActiveColor() == Side.WHITE
 				|| result.score == POS_INF
 				&& position.getActiveColor() == Side.BLACK) {
-			pv.append("info score mate -" + ((result.plys_to_seldepth + 1) / 2)
+			pv.append("info score mate -"
+					+ ((result.plys_to_eval0 + result.plys_to_seldepth + 1) / 2)
 					+ " depth " + result.plys_to_eval0 + " seldepth "
 					+ (result.plys_to_seldepth + result.plys_to_eval0) + " pv");
 		} else if (result.score == NEG_INF
 				&& position.getActiveColor() == Side.BLACK
 				|| result.score == POS_INF
 				&& position.getActiveColor() == Side.WHITE) {
-			pv.append("info score mate " + ((result.plys_to_seldepth + 1) / 2)
+			pv.append("info score mate "
+					+ ((result.plys_to_eval0 + result.plys_to_seldepth + 1) / 2)
 					+ " depth " + result.plys_to_eval0 + " seldepth "
 					+ (result.plys_to_seldepth + result.plys_to_eval0) + " pv");
 		} else {
