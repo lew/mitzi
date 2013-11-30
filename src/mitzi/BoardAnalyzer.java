@@ -25,6 +25,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
 			64, 64, 64 };
 
+	static private int[] piece_values = { 100, 500, 325, 325, 975, 000 };
+
 	// The following arrays contains the value of a piece on a specific square,
 	// always in favor of white. Since the arrays are symmetric w.r.t. the
 	// columns, BLACK uses 63-i entry with opposite sign.
@@ -49,11 +51,31 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			0, 2, 12, 20, 20, 12, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 
-	static private int[] piece_values = { 100, 500, 325, 325, 975, 000 };
+	static private int[] pawn_positions_w = { 0, 0, 0, 0, 0, 0, 0, 0, 28, 28,
+			35, 42, 45, 35, 28, 28, -9, -3, 7, 12, 15, 7, -3, -9, -10, -10, 6,
+			9, 10, 6, -11, -10, -11, -11, 4, 5, 6, 2, -11, -11, -11, -11, 0, 0,
+			1, 0, -11, -11, -6, -6, 4, 5, 5, 4, -6, -6, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	static private int[] pawn_positions_b = { 0, 0, 0, 0, 0, 0, 0, 0, -6, -6,
+			4, 5, 5, 4, -6, -6, -11, -11, 0, 0, 1, 0, -11, -11, -10, -11, 6,
+			10, 9, 6, -10, -10, -9, -3, 7, 15, 12, 7, -3, -9, -11, -11, 2, 6,
+			5, 4, -11, -11, 28, 28, 35, 45, 42, 35, 28, 28, 0, 0, 0, 0, 0, 0,
+			0, 0 };
+
+	static private int[] twin_pawns = { 0, 0, 1, 2, 3, 4, 7, 0 };
+
+	static private int[] covered_pawns = { 0, 0, 4, 6, 8, 12, 16, 0 };
+
+	static private int[] passed_pawn = { 0, 2, 10, 20, 40, 60, 70, 0 };
+
+	static private int[] passed_pawn_with_king = { 0, 0, 0, 0, 10, 50, 80, 0 };
+
+	static private int[] blocked_passed_pawn = { 0, 0, -8, -16, -32, -45, -58,
+			0 };
 
 	// if not all Bishop and Knight has moved, moving the queen results in
 	// negative score
-	static private int PREMATURE_QUEEN = -17; // not yet implemented
+	static private int PREMATURE_QUEEN = -17;
 
 	// bonus, if the rook is on an open line (no other pawns)
 	static private int ROOK_OPEN_LINE = 20;
@@ -72,9 +94,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	// ROOK_7TH_2ND and counts for each rook (both on the 7th row)
 	static private int REINFORCED_ROOK_7TH_2ND = 40;
 
-	static private int PASSED_ROOK_SUPPORT = 10; // not yet implemented
+	static private int PASSED_ROOK_SUPPORT = 10; 
 	static private int ENDGAME_BISHOP_BONUS = 10; // not yet implemented
-	static private int BISHOP_BASELINE_CAGED = -12; // not yet implemented
+	static private int BISHOP_BASELINE_CAGED = -12; 
 
 	// bonus if a queen is covered on the 7th row by a rook
 	static private int REINFORCING_QUEEN_7TH_2ND = 20;
@@ -82,12 +104,20 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	// The player receives a bonus if the 2 bishops are alive.
 	static private int bishop_pair_value = 25;
 
+	static private int MULTI_PAWN = -10;
+
+	static private int ISOLATED_PAWN = -20;
+
+	static private int COVERED_PASSED_7TH_PAWN = 90;
+
 	static public long eval_counter_seldepth = 0;
 
 	@Override
 	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
 		board.cacheOccupiedSquares();
+		// Evaluate Pawn Stucture
+		score += evalPawns(board);
 
 		// Evaluate Diagonals and lines
 		score += evalLinesAndDiagonals(board);
@@ -393,7 +423,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	private int evalLinesAndDiagonals(IPosition board) {
 		int score = 0;
 
-		Set<Integer> squares_rook;
+		Set<Integer> squares_rook, squares_bishop;
 		Piece p;
 		Side s;
 
@@ -498,6 +528,112 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 				}
 
 			}
+			squares_bishop = board.getOccupiedSquaresByColorAndType(side,
+					Piece.BISHOP);
+			int row_s = SquareHelper.getRowForSide(side, 1);
+			boolean bishop_caged = false;
+			for (int square : squares_bishop)
+				if ((square == SquareHelper.getSquare(row_s, 3) || square == SquareHelper
+						.getSquare(row_s, 6))
+						&& (board.getPieceFromBoard(square
+								+ Direction.pawnDirection(side).offset) == Piece.PAWN && board
+								.getSideFromBoard(square
+										+ Direction.pawnDirection(side).offset) == side)) {
+					bishop_caged = true;
+					for (Direction dir : Direction
+							.pawnCapturingDirections(side)) {
+						if (board.getPieceFromBoard(square + dir.offset) != Piece.PAWN
+								|| board.getSideFromBoard(square + dir.offset) != side)
+							bishop_caged = false;
+					}
+				}
+			if(bishop_caged==true)
+				score+= side_sign* BISHOP_BASELINE_CAGED;
+		}
+		return score;
+	}
+
+	private int evalPawns(IPosition position) {
+
+		int score = 0;
+		int row, col, col_2, row_side;
+		boolean isolated, covered, passed;
+		for (Side side : Side.values()) {
+			int side_sign = Side.getSideSign(side);
+			Side opp_side = Side.getOppositeSide(side);
+			Set<Integer> squares_pawn = position
+					.getOccupiedSquaresByColorAndType(side, Piece.PAWN);
+			Set<Integer> squares_pawn_opp = position
+					.getOccupiedSquaresByColorAndType(opp_side, Piece.PAWN);
+
+			if (side == Side.WHITE)
+				for (int squ : squares_pawn)
+					score += pawn_positions_w[square_to_array_index[squ]];
+			else
+				for (int squ : squares_pawn)
+					score -= pawn_positions_b[square_to_array_index[squ]];
+
+			for (int squ_1 : squares_pawn) {
+				row = SquareHelper.getRow(squ_1);
+				col = SquareHelper.getColumn(squ_1);
+
+				row_side = SquareHelper.getRowForSide(side, row);
+
+				isolated = true;
+				covered = false;
+				for (int squ_2 : squares_pawn) {
+					col_2 = SquareHelper.getColumn(squ_2);
+					if (col == col_2)
+						// TODO: maybe dont increase malus for triple,.. pawns
+						score += side_sign * MULTI_PAWN;
+					else if (col == col_2 + 1 || col == col_2 - 1) {
+						isolated = false;
+
+						if (row == SquareHelper.getRow(squ_2))
+							score += side_sign * twin_pawns[row_side];
+						else if (row == SquareHelper.getRow(squ_2
+								- Direction.pawnDirection(side).offset))
+							// TODO: maybe dont increase bonus for pawns covered
+							// by 2 pawns
+							covered = true;
+						score += side_sign * covered_pawns[row_side];
+					}
+
+				}
+				if (isolated == true)
+					score += side_sign * ISOLATED_PAWN;
+
+				passed = true;
+				for (int squ_2 : squares_pawn_opp) {
+
+					col_2 = SquareHelper.getColumn(squ_2);
+					if (col == col_2 || col == col_2 + 1 || col == col_2 - 1)
+						passed = false;
+					else
+						for (Direction dir : Direction
+								.pawnCapturingDirections(side))
+							if (squ_1 + dir.offset == position.getKingPos(side))
+								score += side_sign
+										* passed_pawn_with_king[row_side];
+					if (squ_1 + Direction.pawnDirection(side).offset == squ_2)
+						score += side_sign * blocked_passed_pawn[row_side];
+				}
+
+				if (passed == true) {
+					score += side_sign * passed_pawn[row_side];
+					if (covered == true
+							&& row == SquareHelper.getRowForSide(side, 7))
+						;
+					score += side_sign * COVERED_PASSED_7TH_PAWN;
+					if (position.getPieceFromBoard(squ_1
+							- Direction.pawnDirection(side).offset) == Piece.ROOK
+							&& position.getSideFromBoard(squ_1
+									- Direction.pawnDirection(side).offset) == side)
+						score += side_sign * PASSED_ROOK_SUPPORT;
+				}
+
+			}
+
 		}
 		return score;
 	}
