@@ -21,6 +21,14 @@ public class BasicMoveComparator implements Comparator<IMove> {
 	 */
 	private static final int[] piece_values = { 100, 500, 325, 325, 975, 000 };
 
+	private static final int[] center_values = { -1, -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, 0, 2, 4, 7, 7, 4, 3, 0, -1, -1, 1, 5, 8, 12, 12, 8,
+			5, 1, -1, -1, 3, 8, 12, 17, 17, 12, 8, 3, -1, -1, 6, 10, 15, 20,
+			20, 15, 10, 6, -1, -1, 6, 10, 15, 20, 20, 15, 10, 6, -1, -1, 3, 8,
+			12, 17, 17, 12, 8, 3, -1, -1, 1, 5, 8, 12, 12, 8, 5, 1, -1, -1, 0,
+			2, 4, 7, 7, 4, 2, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+
 	public BasicMoveComparator(IPosition board) {
 		this.board = board;
 	}
@@ -43,11 +51,15 @@ public class BasicMoveComparator implements Comparator<IMove> {
 
 		if (dest_piece != null) {
 			// try to get advantage in exchange
-			value += (piece_values[dest_piece.ordinal()] - piece_values[src_piece
-					.ordinal()] + 1) * 1024;
+			value += (piece_values[dest_piece.ordinal()]
+					- piece_values[src_piece.ordinal()] + 1) * 16;
 		}
 		// move with more powerful pieces
 		value += piece_values[src_piece.ordinal()];
+
+		// move to the center (but away with the king)
+		value += (center_values[move.getToSquare()] - center_values[move
+				.getFromSquare()]) * (src_piece == Piece.KING ? -1 : 1);
 
 		move_values.put(move, value);
 	}
