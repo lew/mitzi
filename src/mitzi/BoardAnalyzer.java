@@ -94,9 +94,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	// ROOK_7TH_2ND and counts for each rook (both on the 7th row)
 	static private int REINFORCED_ROOK_7TH_2ND = 40;
 
-	static private int PASSED_ROOK_SUPPORT = 10; 
+	static private int PASSED_ROOK_SUPPORT = 10;
 	static private int ENDGAME_BISHOP_BONUS = 10; // not yet implemented
-	static private int BISHOP_BASELINE_CAGED = -12; 
+	static private int BISHOP_BASELINE_CAGED = -12;
 
 	// bonus if a queen is covered on the 7th row by a rook
 	static private int REINFORCING_QUEEN_7TH_2ND = 20;
@@ -547,8 +547,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 							bishop_caged = false;
 					}
 				}
-			if(bishop_caged==true)
-				score+= side_sign* BISHOP_BASELINE_CAGED;
+			if (bishop_caged == true)
+				score += side_sign * BISHOP_BASELINE_CAGED;
 		}
 		return score;
 	}
@@ -623,8 +623,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 					score += side_sign * passed_pawn[row_side];
 					if (covered == true
 							&& row == SquareHelper.getRowForSide(side, 7))
-						;
-					score += side_sign * COVERED_PASSED_7TH_PAWN;
+						score += side_sign * COVERED_PASSED_7TH_PAWN;
 					if (position.getPieceFromBoard(squ_1
 							- Direction.pawnDirection(side).offset) == Piece.ROOK
 							&& position.getSideFromBoard(squ_1
