@@ -57,10 +57,19 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			1, 0, -11, -11, -6, -6, 4, 5, 5, 4, -6, -6, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	static private int[] pawn_positions_b = { 0, 0, 0, 0, 0, 0, 0, 0, -6, -6,
-			4, 5, 5, 4, -6, -6, -11, -11, 0, 0, 1, 0, -11, -11, -10, -11, 6,
-			10, 9, 6, -10, -10, -9, -3, 7, 15, 12, 7, -3, -9, -11, -11, 2, 6,
-			5, 4, -11, -11, 28, 28, 35, 45, 42, 35, 28, 28, 0, 0, 0, 0, 0, 0,
-			0, 0 };
+			4, 5, 5, 4, -6, -6, -11, -11, 0, 0, 1, 0, -11, -11, -11, -11, 4, 5,
+			6, 2, -11, -11, -10, -10, 6, 9, 10, 6, -11, -10, -9, -3, 7, 12, 15,
+			7, -3, -9, 28, 28, 35, 42, 45, 35, 28, 28, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	static private int[] king_positions_w = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -10, -15,
+			-10, 0, 0, 5, 10, 18, -8, -3, -8, 23, 10 };
+
+	static private int[] king_positions_b = { 5, 10, 18, -8, -3, -8, 23, 10, 0,
+			0, 0, -10, -15, -10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	static private int[] twin_pawns = { 0, 0, 1, 2, 3, 4, 7, 0 };
 
@@ -110,7 +119,13 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 	static private int COVERED_PASSED_7TH_PAWN = 90;
 
+	static private int CASTLING_LOSS = -40;
+
 	static public long eval_counter_seldepth = 0;
+
+	// the number of pieces, when the endgame starts (a first draft, needs to be
+	// optimized)
+	static public int ENDGAME_THRESHOLD = 8;
 
 	@Override
 	public AnalysisResult eval0(IPosition board) {
@@ -130,6 +145,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 		// Evaluate the pieces
 		score += evalPieces(board);
+
+		// Evaluate the King's position (not in endgame)
+		score += evalKingPos(board);
 
 		AnalysisResult result = new AnalysisResult(score, false, false, 0, 0,
 				Flag.EXACT);
@@ -634,6 +652,35 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			}
 
 		}
+		return score;
+	}
+
+	static private int evalKingPos(IPosition position) {
+		int score = 0;
+		int count_fig = position.getNumberOfPiecesByColor(Side.WHITE)
+				+ position.getNumberOfPiecesByColor(Side.BLACK);
+		if (count_fig > ENDGAME_THRESHOLD)
+			for (Side side : Side.values()) {
+				int side_sign = Side.getSideSign(side);
+				int row_1 = SquareHelper.getRowForSide(side, 1);
+				if (side == Side.WHITE)
+					score += side_sign
+							* king_positions_w[square_to_array_index[position
+									.getKingPos(side)]];
+				else
+					score += side_sign
+							* king_positions_b[square_to_array_index[position
+									.getKingPos(side)]];
+
+				// this dont work as it should... needs to be fixed (only should
+				// give penalty if during search castling is lost)
+				if (!position.canCastle(SquareHelper.getSquare(row_1, 3))
+						|| !position
+								.canCastle(SquareHelper.getSquare(row_1, 7)))
+					score += side_sign * CASTLING_LOSS;
+
+			}
+
 		return score;
 	}
 }
