@@ -182,6 +182,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 */
 	private AnalysisResult quiesce(IPosition position, int alpha, int beta) {
 
+		int side_sign = Side.getSideSign(position.getActiveColor());
+
 		// Cache lookup
 		AnalysisResult entry = ResultCache.getResult(position);
 		if (entry != null) {
@@ -191,9 +193,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 				new_entry.plys_to_seldepth += entry.plys_to_eval0;
 				return new_entry;
 			} else if (entry.flag == Flag.LOWERBOUND)
-				alpha = Math.max(alpha, entry.score);
+				alpha = Math.max(alpha, entry.score * side_sign);
 			else if (entry.flag == Flag.UPPERBOUND)
-				beta = Math.min(beta, entry.score);
+				beta = Math.min(beta, entry.score * side_sign);
 
 			if (alpha >= beta) {
 				AnalysisResult new_entry = entry.tinyCopy();
@@ -201,8 +203,6 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 				return new_entry;
 			}
 		}
-
-		int side_sign = Side.getSideSign(position.getActiveColor());
 
 		// generate moves
 		List<IMove> moves = position.getPossibleMoves();

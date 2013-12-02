@@ -87,6 +87,11 @@ public class MitziBrain implements IBrain {
 			int depth, int alpha, int beta) {
 
 		// ---------------------------------------------------------------------------------------
+		// whose move is it?
+		Side side = position.getActiveColor();
+		int side_sign = Side.getSideSign(side);
+
+		// ---------------------------------------------------------------------------------------
 		int alpha_old = alpha;
 
 		// Cache lookup
@@ -96,9 +101,9 @@ public class MitziBrain implements IBrain {
 			if (entry.flag == Flag.EXACT)
 				return entry.tinyCopy();
 			else if (entry.flag == Flag.LOWERBOUND)
-				alpha = Math.max(alpha, entry.score);
+				alpha = Math.max(alpha, entry.score * side_sign);
 			else if (entry.flag == Flag.UPPERBOUND)
-				beta = Math.min(beta, entry.score);
+				beta = Math.min(beta, entry.score * side_sign);
 
 			if (alpha >= beta)
 				return entry.tinyCopy();
@@ -110,11 +115,6 @@ public class MitziBrain implements IBrain {
 			// position is a leaf node
 			return board_analyzer.evalBoard(position, alpha, beta);
 		}
-
-		// ---------------------------------------------------------------------------------------
-		// whose move is it?
-		Side side = position.getActiveColor();
-		int side_sign = Side.getSideSign(side);
 
 		// ---------------------------------------------------------------------------------------
 		// generate moves
@@ -236,9 +236,9 @@ public class MitziBrain implements IBrain {
 
 		// ---------------------------------------------------------------------------------------
 		// Transposition Table Store; game_state is the lookup key for parent
-		if (parent.score <= alpha_old)
+		if (best_value <= alpha_old)
 			parent.flag = Flag.UPPERBOUND;
-		else if (parent.score >= beta)
+		else if (best_value >= beta)
 			parent.flag = Flag.LOWERBOUND;
 		else
 			parent.flag = Flag.EXACT;
