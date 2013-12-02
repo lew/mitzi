@@ -190,7 +190,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			// TODO table_counter++;
 			if (entry.flag == Flag.EXACT) {
 				AnalysisResult new_entry = entry.tinyCopy();
-				new_entry.plys_to_seldepth += entry.plys_to_eval0;
+				new_entry.plys_to_eval0=0;
+				new_entry.plys_to_seldepth=0;
+				//new_entry.plys_to_seldepth += entry.plys_to_eval0;
 				return new_entry;
 			} else if (entry.flag == Flag.LOWERBOUND)
 				alpha = Math.max(alpha, entry.score * side_sign);
@@ -199,7 +201,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 			if (alpha >= beta) {
 				AnalysisResult new_entry = entry.tinyCopy();
-				new_entry.plys_to_seldepth += entry.plys_to_eval0;
+				new_entry.plys_to_eval0=0;
+				new_entry.plys_to_seldepth=0;
+				//new_entry.plys_to_seldepth += entry.plys_to_eval0;
 				return new_entry;
 			}
 		}
