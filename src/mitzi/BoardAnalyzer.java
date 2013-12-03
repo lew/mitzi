@@ -682,7 +682,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		return score;
 	}
 
-	static private int evalKingPos(IPosition position) {
+	private int evalKingPos(IPosition position) {
 		int score = 0;
 		int count_fig = position.getNumberOfPiecesByColor(Side.WHITE)
 				+ position.getNumberOfPiecesByColor(Side.BLACK);
