@@ -775,8 +775,9 @@ public class Position implements IPosition {
 
 		Piece type = getPieceFromBoard(square);
 		Side opp_color = getOpponentsColor();
-		
-		ArrayList<List<Integer>> all_squares = SquareHelper.getSquaresAllDirections(square);
+
+		ArrayList<List<Integer>> all_squares = SquareHelper
+				.getSquaresAllDirections(square);
 		List<Integer> squares;
 		List<IMove> moves = new ArrayList<IMove>();
 		Move move;
@@ -798,8 +799,8 @@ public class Position implements IPosition {
 					continue;
 				} else {
 					// do stuff
-					squares = SquareHelper.getAllSquaresInDirection(all_squares,
-							direction);
+					squares = SquareHelper.getAllSquaresInDirection(
+							all_squares, direction);
 
 					for (Integer new_square : squares) {
 						Piece piece = getPieceFromBoard(new_square);
@@ -861,14 +862,16 @@ public class Position implements IPosition {
 							+ Direction.pawnDirection(active_color).offset,
 							Piece.KNIGHT);
 					moves.add(move);
-					/*
-					 * A Queen is always better then a rook or a bishop move =
-					 * new Move(square, square +
-					 * Direction.pawnDirection(active_color).offset,
-					 * Piece.ROOK); moves.add(move); move = new Move(square,
-					 * square + Direction.pawnDirection(active_color).offset,
-					 * Piece.BISHOP); moves.add(move);
-					 */
+
+					move = new Move(square, square
+							+ Direction.pawnDirection(active_color).offset,
+							Piece.ROOK);
+					moves.add(move);
+					move = new Move(square, square
+							+ Direction.pawnDirection(active_color).offset,
+							Piece.BISHOP);
+					moves.add(move);
+
 				}
 				Set<Direction> pawn_capturing_directions = Direction
 						.pawnCapturingDirections(active_color);
@@ -1012,7 +1015,8 @@ public class Position implements IPosition {
 		if (is_check == null) {
 			is_check = true;
 			int king_pos = getKingPos(active_color);
-			ArrayList<List<Integer>> all_squares = SquareHelper.getSquaresAllDirections(king_pos);
+			ArrayList<List<Integer>> all_squares = SquareHelper
+					.getSquaresAllDirections(king_pos);
 			// go in each direction
 			for (Direction direction : Direction.values()) {
 				List<Integer> line = SquareHelper.getAllSquaresInDirection(

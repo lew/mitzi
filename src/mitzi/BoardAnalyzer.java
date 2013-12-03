@@ -190,7 +190,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			// TODO table_counter++;
 			if (entry.flag == Flag.EXACT) {
 				AnalysisResult new_entry = entry.tinyCopy();
-				//new_entry.plys_to_seldepth += entry.plys_to_eval0;
+				// new_entry.plys_to_seldepth += entry.plys_to_eval0;
 				return new_entry;
 			} else if (entry.flag == Flag.LOWERBOUND)
 				alpha = Math.max(alpha, entry.score * side_sign);
@@ -199,7 +199,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 			if (alpha >= beta) {
 				AnalysisResult new_entry = entry.tinyCopy();
-				//new_entry.plys_to_seldepth += entry.plys_to_eval0;
+				// new_entry.plys_to_seldepth += entry.plys_to_eval0;
 				return new_entry;
 			}
 		}
@@ -599,49 +599,76 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 				isolated = true;
 				covered = false;
+				
 				for (int squ_2 : squares_pawn) {
+					// dont check the pawn with himself
+					if(squ_2==squ_1)
+						continue;
+					
 					col_2 = SquareHelper.getColumn(squ_2);
 					if (col == col_2)
+						//add malus for multiple pawns in the same line.
 						// TODO: maybe dont increase malus for triple,.. pawns
 						score += side_sign * MULTI_PAWN;
 					else if (col == col_2 + 1 || col == col_2 - 1) {
 						isolated = false;
 
 						if (row == SquareHelper.getRow(squ_2))
+							// add bonus for twinpawns
 							score += side_sign * twin_pawns[row_side];
 						else if (row == SquareHelper.getRow(squ_2
-								- Direction.pawnDirection(side).offset))
+								- Direction.pawnDirection(side).offset)) {
+							// add bonus for covered pawns
 							// TODO: maybe dont increase bonus for pawns covered
 							// by 2 pawns
 							covered = true;
-						score += side_sign * covered_pawns[row_side];
+							score += side_sign * covered_pawns[row_side];
+						}
 					}
 
 				}
+				
 				if (isolated == true)
 					score += side_sign * ISOLATED_PAWN;
 
+				//check if a pawn is passed 
 				passed = true;
 				for (int squ_2 : squares_pawn_opp) {
-
 					col_2 = SquareHelper.getColumn(squ_2);
-					if (col == col_2 || col == col_2 + 1 || col == col_2 - 1)
+					if (col == col_2 || col == col_2 + 1 || col == col_2 - 1){
 						passed = false;
-					else
-						for (Direction dir : Direction
-								.pawnCapturingDirections(side))
-							if (squ_1 + dir.offset == position.getKingPos(side))
-								score += side_sign
-										* passed_pawn_with_king[row_side];
-					if (squ_1 + Direction.pawnDirection(side).offset == squ_2)
-						score += side_sign * blocked_passed_pawn[row_side];
-				}
+						break;
+					}
 
+				}
 				if (passed == true) {
+					// check if a passed pawn is blocked
+					for (int squ_2 : squares_pawn_opp) {
+						if (squ_1 + Direction.pawnDirection(side).offset == squ_2){
+							score += side_sign * blocked_passed_pawn[row_side];
+							break;
+						}
+					}
+
+					// check if a passed pawn is covered by a king (the king
+					// should be in front of the pawn)
+					for (Direction dir : Direction
+							.pawnCapturingDirections(side))
+						if (squ_1 + dir.offset == position.getKingPos(side))
+							score += side_sign
+									* passed_pawn_with_king[row_side];
+
+					// add the bonus for a passed pawn
 					score += side_sign * passed_pawn[row_side];
+
+					// additional bonus for covered passed pawn
 					if (covered == true
 							&& row == SquareHelper.getRowForSide(side, 7))
 						score += side_sign * COVERED_PASSED_7TH_PAWN;
+
+					// if a rook is behind a passed pawn
+					// TODO: check if it better do add the bonus is a rook is on
+					// the same line (behind the pawn)
 					if (position.getPieceFromBoard(squ_1
 							- Direction.pawnDirection(side).offset) == Piece.ROOK
 							&& position.getSideFromBoard(squ_1
@@ -672,11 +699,11 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 							* king_positions_b[square_to_array_index[position
 									.getKingPos(side)]];
 
-				// this dont work as it should... needs to be fixed (only should
+				//TODO: this dont work as it should... needs to be fixed (only should
 				// give penalty if during search castling is lost)
 				if (!position.canCastle(SquareHelper.getSquare(row_1, 3))
 						|| !position
-								.canCastle(SquareHelper.getSquare(row_1, 7)))
+								.canCastle(SquareHelper.getSquare(row_1, 7)) )
 					score += side_sign * CASTLING_LOSS;
 
 			}
