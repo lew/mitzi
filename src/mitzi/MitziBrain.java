@@ -9,30 +9,59 @@ import java.util.TimerTask;
 import static mitzi.MateScores.*;
 import mitzi.UCIReporter.InfoType;
 
+/**
+ * This class implements the AI of Mitzi. The best move is found using the
+ * negamax algorithms with Transposition tables. The class regularly sends
+ * information about the current search, including nodes per second ("nps"), the
+ * filling of the Transposition Table ("hashfull") and the current searched move on
+ * top-level. The board evaluation is moved to a separate class BoardAnalyzer.
+ * 
+ */
 public class MitziBrain implements IBrain {
 
+	/**
+	 * the current game state
+	 */
 	private GameState game_state;
 
+	/**
+	 * counts the number of evaluated board
+	 */
 	private long eval_counter;
 
-	private long table_counter = 0;
+	/**
+	 * counts the number of found boards in the transposition table.
+	 */
+	private long table_counter;
 
+	/**
+	 * the board analyzer for board evaluation
+	 */
 	private IPositionAnalyzer board_analyzer = new BoardAnalyzer();
 
+	/**
+	 * the current time.
+	 */
 	private long start_mtime = System.currentTimeMillis();
 
 	@Override
 	public void set(GameState game_state) {
 		this.game_state = game_state;
 		this.eval_counter = 0;
+		this.table_counter =0;
 	}
 
+	/**
+	 * @return the time, which passes since start_mtime
+	 */
 	private long runTime() {
 		return System.currentTimeMillis() - start_mtime;
 	}
 
 	/**
-	 * Sends updates about evaluation status to UCI GUI.
+	 * Sends updates about evaluation status to UCI GUI, namely the number of
+	 * searched board per second and the size of the Transposition Table in
+	 * permill of the maximal size.
 	 * 
 	 */
 	class UCIUpdater extends TimerTask {
@@ -45,7 +74,7 @@ public class MitziBrain implements IBrain {
 			long mtime = System.currentTimeMillis();
 
 			long eval_span_0 = eval_counter - old_eval_counter;
-			long eval_span_sel = +BoardAnalyzer.eval_counter_seldepth
+			long eval_span_sel = BoardAnalyzer.eval_counter_seldepth
 					- old_eval_counter_seldepth;
 			long eval_span = eval_span_0 + eval_span_sel;
 
@@ -81,9 +110,10 @@ public class MitziBrain implements IBrain {
 	 *            the alpha value
 	 * @param beta
 	 *            the beta value
-	 * @return returns the result of the evaluation
+	 * @return returns the result of the evaluation, stored in the class
+	 *         AnalysisResult
 	 */
-	private AnalysisResult evalBoard(IPosition position, int total_depth,
+	private AnalysisResult negaMax(IPosition position, int total_depth,
 			int depth, int alpha, int beta) {
 
 		// ---------------------------------------------------------------------------------------
@@ -94,7 +124,7 @@ public class MitziBrain implements IBrain {
 		// ---------------------------------------------------------------------------------------
 		int alpha_old = alpha;
 
-		// Cache lookup
+		// Cache lookup (Transposition Table)
 		AnalysisResult entry = ResultCache.getResult(position);
 		if (entry != null && entry.plys_to_eval0 >= depth) {
 			table_counter++;
@@ -186,8 +216,8 @@ public class MitziBrain implements IBrain {
 			}
 
 			IPosition child_pos = position.doMove(move).new_position;
-			AnalysisResult result = evalBoard(child_pos, total_depth,
-					depth - 1, -beta, -alpha);
+			AnalysisResult result = negaMax(child_pos, total_depth, depth - 1,
+					-beta, -alpha);
 
 			int negaval = result.score * side_sign;
 
@@ -235,7 +265,7 @@ public class MitziBrain implements IBrain {
 		}
 
 		// ---------------------------------------------------------------------------------------
-		// Transposition Table Store; game_state is the lookup key for parent
+		// Transposition Table Store;
 		if (best_value <= alpha_old)
 			parent.flag = Flag.UPPERBOUND;
 		else if (best_value >= beta)
@@ -262,9 +292,6 @@ public class MitziBrain implements IBrain {
 	public IMove search(int movetime, int maxMoveTime, int searchDepth,
 			boolean infinite, List<IMove> searchMoves) {
 
-		// first of all, ignoring the timings and restriction to certain
-		// moves...
-
 		IPosition position = game_state.getPosition();
 
 		Timer timer = new Timer();
@@ -282,7 +309,8 @@ public class MitziBrain implements IBrain {
 
 		for (int current_depth = 1; current_depth <= searchDepth; current_depth++) {
 			table_counter = 0;
-			result = evalBoard(position, current_depth, current_depth, alpha,
+			BoardAnalyzer.table_counter=0;
+			result = negaMax(position, current_depth, current_depth, alpha,
 					beta);
 			position.updateAnalysisResult(result);
 
@@ -295,19 +323,19 @@ public class MitziBrain implements IBrain {
 			if (result.score <= alpha) {
 				alpha -= factor * asp_window;
 				current_depth--;
-				UCIReporter.sendInfoString("Boards found: " + table_counter);
+				UCIReporter.sendInfoString("Boards found: " + (table_counter+BoardAnalyzer.table_counter));
 				continue;
 			} else if (result.score >= beta) {
 				beta += factor * asp_window;
 				current_depth--;
-				UCIReporter.sendInfoString("Boards found: " + table_counter);
+				UCIReporter.sendInfoString("Boards found: " + (table_counter+BoardAnalyzer.table_counter));
 				continue;
 			}
 
 			alpha = result.score - asp_window;
 			beta = result.score + asp_window;
 
-			UCIReporter.sendInfoString("Boards found: " + table_counter);
+			UCIReporter.sendInfoString("Boards found: " + (table_counter+BoardAnalyzer.table_counter));
 		}
 
 		timer.cancel();

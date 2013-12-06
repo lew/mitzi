@@ -24,7 +24,9 @@ public final class UCIReporter {
 			this.string = string;
 		}
 	}
-
+	
+	private static String last_pv = "";
+	
 	private UCIReporter() {
 	};
 
@@ -44,7 +46,7 @@ public final class UCIReporter {
 	 * 
 	 * @param type
 	 *            one of UCIReporter.InfoType
-	 * @param string
+	 * @param eval_counter
 	 *            the integer value to be sent
 	 */
 	public static void sendInfoNum(InfoType type, long eval_counter) {
@@ -65,7 +67,7 @@ public final class UCIReporter {
 				+ move_number);
 	}
 
-	private static String last_pv = "";
+	
 
 	/**
 	 * The Principal variation (PV) is a sequence of moves that programs

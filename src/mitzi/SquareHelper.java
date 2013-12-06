@@ -20,22 +20,31 @@ public final class SquareHelper {
 	private static final String[] letters = { "a", "b", "c", "d", "e", "f",
 			"g", "h" };
 
+	/**
+	 * stores all squares in a certain direction for a certain source square
+	 */
+	private static ArrayList<ArrayList<List<Integer>>> squares_direction = new ArrayList<ArrayList<List<Integer>>>();
+
+	/**
+	 * stores all squares reachable for the knight from a certain source square
+	 */
+	private static ArrayList<List<Integer>> squares_direction_knight = new ArrayList<List<Integer>>();
+
 	private SquareHelper() {
 	};
 
-	private static ArrayList<ArrayList<List<Integer>>> squares_direction = new ArrayList<ArrayList<List<Integer>>>();
-	private static ArrayList<List<Integer>> squares_direction_knight = new ArrayList<List<Integer>>();
-
 	static {
-		for(int i=0;i<89;i++){
+		//initialize with null
+		for (int i = 0; i < 89; i++) {
 			squares_direction.add(null);
 			squares_direction_knight.add(null);
 		}
+		
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
 				int source_square = getSquare(i, j);
 				ArrayList<List<Integer>> dir_list = new ArrayList<List<Integer>>();
-				for(int k=0;k<9;k++)
+				for (int k = 0; k < 9; k++)
 					dir_list.add(null);
 				ArrayList<Integer> dir_list_knight = new ArrayList<Integer>();
 
@@ -119,14 +128,23 @@ public final class SquareHelper {
 		return !isWhite(square);
 	}
 
-	
-	public static ArrayList<List<Integer>> getSquaresAllDirections(int square){
+	/**
+	 * returns all squares in all possible directions for a given source square
+	 * 
+	 * @param square
+	 *            the source square
+	 * @return an ArrayList, indexed by the ordinal of the direction, containing
+	 *         a List of squares in the desired direction
+	 */
+	public static ArrayList<List<Integer>> getSquaresAllDirections(int square) {
 		return squares_direction.get(square);
 	}
-	
-	public static List<Integer> getAllSquaresInDirection(ArrayList<List<Integer>> squares, Direction direction) {
+
+	public static List<Integer> getAllSquaresInDirection(
+			ArrayList<List<Integer>> squares, Direction direction) {
 		return squares.get(direction.ordinal());
 	}
+
 	/**
 	 * Gives an ordered List of squares going in a straight line from the source
 	 * square.
@@ -222,6 +240,4 @@ public final class SquareHelper {
 			return i_th;
 	}
 
-	
-	
 }

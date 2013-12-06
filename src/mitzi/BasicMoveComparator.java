@@ -21,6 +21,9 @@ public class BasicMoveComparator implements Comparator<IMove> {
 	 */
 	private static final int[] piece_values = { 100, 500, 325, 325, 975, 000 };
 
+	/**
+	 * value of a square where a piece moves to or from.
+	 */
 	private static final int[] center_values = { -1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1, 0, 2, 4, 7, 7, 4, 3, 0, -1, -1, 1, 5, 8, 12, 12, 8,
 			5, 1, -1, -1, 3, 8, 12, 17, 17, 12, 8, 3, -1, -1, 6, 10, 15, 20,
@@ -29,6 +32,7 @@ public class BasicMoveComparator implements Comparator<IMove> {
 			2, 4, 7, 7, 4, 2, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
+	
 	public BasicMoveComparator(IPosition board) {
 		this.board = board;
 	}
@@ -38,7 +42,7 @@ public class BasicMoveComparator implements Comparator<IMove> {
 	 * 
 	 * Ignoring special situations like en passant and castling.
 	 * 
-	 * @param move
+	 * @param move the current move
 	 */
 	private void computeValue(IMove move) {
 		int value = 0;

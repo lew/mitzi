@@ -24,7 +24,7 @@ import java.util.LinkedList;
  * k = 5 : 328 bytes
  * k =10 : 568 bytes
  * 
- * lets assume that a single analysis need about  500 bytes.
+ * lets assume that a single analysis needs about 500 bytes.
  * Then a 500 MB TranspositionTable can hold about 1 Mio entries.
  * 
  * http://www.javamex.com/tutorials/memory/object_memory_usage.shtml

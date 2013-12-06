@@ -15,7 +15,9 @@ import java.util.Set;
  */
 public class BoardAnalyzer implements IPositionAnalyzer {
 
-	// the square to array index from Position.java
+	/**
+	 * the square to array index from Position.java
+	 */
 	protected static int[] square_to_array_index = { 64, 64, 64, 64, 64, 64,
 			64, 64, 64, 64, 64, 56, 48, 40, 32, 24, 16, 8, 0, 64, 64, 57, 49,
 			41, 33, 25, 17, 9, 1, 64, 64, 58, 50, 42, 34, 26, 18, 10, 2, 64,
@@ -25,112 +27,212 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 			64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
 			64, 64, 64 };
 
+	/**
+	 * the material value of a piece.
+	 */
 	static private int[] piece_values = { 100, 500, 325, 325, 975, 000 };
 
 	// The following arrays contains the value of a piece on a specific square,
 	// always in favor of white. Since the arrays are symmetric w.r.t. the
 	// columns, BLACK uses 63-i entry with opposite sign.
+	/**
+	 * value of squares for bishop and knight, in favor of white
+	 */
 	static private int[] piece_activity_b_k = { -16, -16, -8, -8, -8, -8, -16,
 			-16, -16, -16, -4, -4, -4, -4, -16, -16, -8, 2, 6, 6, 6, 6, 2, -8,
 			-8, 2, 6, 6, 6, 6, 2, -8, -8, 2, 4, 4, 4, 4, 2, -8, -8, 2, 2, 2, 2,
 			2, 2, -8, -8, -8, 0, 0, 0, 0, -8, -8, -16, -8, -8, -8, -8, -8, -8,
 			-16 };
-
+	/**
+	 * value of squares for rook, in favor of white
+	 */
 	static private int[] piece_activity_r = { 0, 0, 4, 6, 6, 4, 0, 0, 0, 0, 4,
 			6, 6, 4, 0, 0, 0, 0, 4, 6, 6, 4, 0, 0, 0, 0, 4, 6, 6, 4, 0, 0, 0,
 			0, 4, 6, 6, 4, 0, 0, 0, 0, 4, 6, 6, 4, 0, 0, 0, 0, 4, 6, 6, 4, 0,
 			0, 0, 0, 4, 6, 6, 4, 0, 0, };
 
+	/**
+	 * value of squares for queen, in favor of white
+	 */
 	static private int[] piece_activity_q = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4,
 			5, 5, 4, 0, 0, 0, 2, 4, 10, 10, 4, 2, 0, 0, 2, 10, 12, 12, 10, 2,
 			0, -10, 2, 10, 12, 12, 10, 2, -10, -10, -10, 4, 10, 10, 4, -10,
 			-10, -10, 2, 8, 8, 8, 8, 2, -10, -10, -8, 0, 0, 0, 0, -8, -10, };
 
+	/**
+	 * value of squares, which are weak/strong squares for bishop and knight
+	 */
 	static private int[] weak_positions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 8, 12, 12, 8, 0, 0, 0, 2, 12, 16, 16, 12, 2, 0,
 			0, 2, 12, 20, 20, 12, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 
+	/**
+	 * value of squares for white pawns. (not symmetric)
+	 */
 	static private int[] pawn_positions_w = { 0, 0, 0, 0, 0, 0, 0, 0, 28, 28,
 			35, 42, 45, 35, 28, 28, -9, -3, 7, 12, 15, 7, -3, -9, -10, -10, 6,
 			9, 10, 6, -11, -10, -11, -11, 4, 5, 6, 2, -11, -11, -11, -11, 0, 0,
 			1, 0, -11, -11, -6, -6, 4, 5, 5, 4, -6, -6, 0, 0, 0, 0, 0, 0, 0, 0 };
 
+	/**
+	 * value of squares for black pawns. (not symmetric)
+	 */
 	static private int[] pawn_positions_b = { 0, 0, 0, 0, 0, 0, 0, 0, -6, -6,
 			4, 5, 5, 4, -6, -6, -11, -11, 0, 0, 1, 0, -11, -11, -11, -11, 4, 5,
 			6, 2, -11, -11, -10, -10, 6, 9, 10, 6, -11, -10, -9, -3, 7, 12, 15,
 			7, -3, -9, 28, 28, 35, 42, 45, 35, 28, 28, 0, 0, 0, 0, 0, 0, 0, 0 };
 
+	/**
+	 * value of squares for white king, not valid in endgame. (not symmetric)
+	 */
 	static private int[] king_positions_w = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -10, -15,
 			-10, 0, 0, 5, 10, 18, -8, -3, -8, 23, 10 };
 
+	/**
+	 * value of squares for black king, not valid in endgame. (not symmetric)
+	 */
 	static private int[] king_positions_b = { 5, 10, 18, -8, -3, -8, 23, 10, 0,
 			0, 0, -10, -15, -10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
+	/**
+	 * value for twin pawns for different rows.
+	 */
 	static private int[] twin_pawns = { 0, 0, 1, 2, 3, 4, 7, 0 };
 
+	/**
+	 * value for covered pawns for different rows.
+	 */
 	static private int[] covered_pawns = { 0, 0, 4, 6, 8, 12, 16, 0 };
 
+	/**
+	 * value for passed pawns for different rows.
+	 */
 	static private int[] passed_pawn = { 0, 2, 10, 20, 40, 60, 70, 0 };
 
+	/**
+	 * value for passed pawns, where in front of the pawn is a king for
+	 * different rows.
+	 */
 	static private int[] passed_pawn_with_king = { 0, 0, 0, 0, 10, 50, 80, 0 };
 
+	/**
+	 * value for blocked passed pawns
+	 */
 	static private int[] blocked_passed_pawn = { 0, 0, -8, -16, -32, -45, -58,
 			0 };
 
-	// if not all Bishop and Knight has moved, moving the queen results in
-	// negative score
+	/**
+	 * if not all Bishop and Knight has moved, moving the queen results in
+	 * negative score
+	 */
 	static private int PREMATURE_QUEEN = -17;
 
-	// bonus, if the rook is on an open line (no other pawns)
+	/**
+	 * bonus, if the rook is on an open line (no other pawns)
+	 */
 	static private int ROOK_OPEN_LINE = 20;
 
-	// bonus if the rook is on an halfopen line (only opponents pawns)
+	/**
+	 * bonus if the rook is on an halfopen line (only opponents pawns)
+	 */
 	static private int ROOK_HALFOPEN_LINE = 5;
 
-	// bonus if the rook is in the 7th row and either opponents king is in the
-	// 8th or pawn in the 7th
+	/**
+	 * bonus if the rook is in the 7th row and opponents king is in the 8th or
+	 * pawn in the 7th
+	 */
 	static private int ROOK_7TH_2ND = 25;
 
-	// bonus if the previous bonus holds and the 7th row is empty. (hopefully)
+	/**
+	 * bonus if the previous bonus holds and the 7th row is empty.
+	 */
 	static private int ROOK_7TH_2ND_ABSOLUTE = 15;
 
-	// bonus if a rook covers the other rook, this replaces the
-	// ROOK_7TH_2ND and counts for each rook (both on the 7th row)
+	/**
+	 * bonus if a rook covers the other rook, this replaces the ROOK_7TH_2ND and
+	 * counts for each rook (both on the 7th row)
+	 */
 	static private int REINFORCED_ROOK_7TH_2ND = 40;
 
+	/**
+	 * bonus if a rook is behind a passed pawn
+	 */
 	static private int PASSED_ROOK_SUPPORT = 10;
+
+	/**
+	 * gives a bonus if both bishops are still available in the endgame
+	 */
 	static private int ENDGAME_BISHOP_BONUS = 10; // not yet implemented
+
+	/**
+	 * bonus/malus if the bishop is caged on he baseline (the pawn in front of
+	 * the bishop has moved and the two pawns left and right of the bisop have
+	 * not moved )
+	 */
 	static private int BISHOP_BASELINE_CAGED = -12;
 
-	// bonus if a queen is covered on the 7th row by a rook
+	/**
+	 * bonus if a queen is covered on the 7th row by a rook
+	 */
 	static private int REINFORCING_QUEEN_7TH_2ND = 20;
 
-	// The player receives a bonus if the 2 bishops are alive.
+	/**
+	 * The player receives a bonus if the 2 bishops are alive.
+	 */
 	static private int bishop_pair_value = 25;
 
+	/**
+	 * multiple pawns in a columns get a malus.
+	 */
 	static private int MULTI_PAWN = -10;
 
+	/**
+	 * a isolated pawns (no pawn on the neighboring colums) get a malus
+	 */
 	static private int ISOLATED_PAWN = -20;
 
+	/**
+	 * bonus for coverd passed pawns on the 7th row
+	 */
 	static private int COVERED_PASSED_7TH_PAWN = 90;
 
+	/**
+	 * malus if castling is loss (needs to be fixed and optimized)
+	 */
 	static private int CASTLING_LOSS = -40;
 
+	/**
+	 * the number of pieces when the endgame starts (a first draft, needs to be
+	 * optimized)
+	 */
+	static public int ENDGAME_THRESHOLD = 8;
+	
+	/**
+	 * counts the number of board evaluations in quiesce().
+	 */
 	static public long eval_counter_seldepth = 0;
 
-	// the number of pieces, when the endgame starts (a first draft, needs to be
-	// optimized)
-	static public int ENDGAME_THRESHOLD = 8;
-
+	/**
+	 * counts the number of found positions in Transposition Table
+	 */
+	static public long table_counter = 0;
+	
+	
+	
 	@Override
 	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
+		// compute all the information needed by the evaluation function once.
 		board.cacheOccupiedSquares();
+
+		// Evaluate the pieces
+		score += evalPieces(board);
+
 		// Evaluate Pawn Stucture
 		score += evalPawns(board);
 
@@ -142,9 +244,6 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 		// Evaluate weak/strong position
 		score += evalWeakPosition(board);
-
-		// Evaluate the pieces
-		score += evalPieces(board);
 
 		// Evaluate the King's position (not in endgame)
 		score += evalKingPos(board);
@@ -187,10 +286,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		// Cache lookup
 		AnalysisResult entry = ResultCache.getResult(position);
 		if (entry != null) {
-			// TODO table_counter++;
+			table_counter++;
 			if (entry.flag == Flag.EXACT) {
 				AnalysisResult new_entry = entry.tinyCopy();
-				// new_entry.plys_to_seldepth += entry.plys_to_eval0;
 				return new_entry;
 			} else if (entry.flag == Flag.LOWERBOUND)
 				alpha = Math.max(alpha, entry.score * side_sign);
@@ -199,7 +297,6 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 			if (alpha >= beta) {
 				AnalysisResult new_entry = entry.tinyCopy();
-				// new_entry.plys_to_seldepth += entry.plys_to_eval0;
 				return new_entry;
 			}
 		}
@@ -384,9 +481,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	}
 
 	/**
-	 * this function evaluates the weak position of an outpost (?), however only
-	 * for bishop and knight. If a knight is covered by pawn, the value
-	 * increases.
+	 * this function evaluates the weak position of an outpost, however only for
+	 * bishop and knight. If a knight is covered by pawn, the value increases.
 	 * 
 	 * @param board
 	 *            the board to be analyzed
@@ -410,7 +506,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 					score -= weak_positions[63 - square_to_array_index[squ]];
 
 			// Knight (value get multiplied times the number of pawn covering
-			// the knight)
+			// the knight, if no cover no bonus is added)
 			squares = board
 					.getOccupiedSquaresByColorAndType(side, Piece.BISHOP);
 			int count = 0;
@@ -599,15 +695,15 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 				isolated = true;
 				covered = false;
-				
+
 				for (int squ_2 : squares_pawn) {
 					// dont check the pawn with himself
-					if(squ_2==squ_1)
+					if (squ_2 == squ_1)
 						continue;
-					
+
 					col_2 = SquareHelper.getColumn(squ_2);
 					if (col == col_2)
-						//add malus for multiple pawns in the same line.
+						// add malus for multiple pawns in the same line.
 						// TODO: maybe dont increase malus for triple,.. pawns
 						score += side_sign * MULTI_PAWN;
 					else if (col == col_2 + 1 || col == col_2 - 1) {
@@ -627,15 +723,15 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 					}
 
 				}
-				
+
 				if (isolated == true)
 					score += side_sign * ISOLATED_PAWN;
 
-				//check if a pawn is passed 
+				// check if a pawn is passed
 				passed = true;
 				for (int squ_2 : squares_pawn_opp) {
 					col_2 = SquareHelper.getColumn(squ_2);
-					if (col == col_2 || col == col_2 + 1 || col == col_2 - 1){
+					if (col == col_2 || col == col_2 + 1 || col == col_2 - 1) {
 						passed = false;
 						break;
 					}
@@ -644,7 +740,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 				if (passed == true) {
 					// check if a passed pawn is blocked
 					for (int squ_2 : squares_pawn_opp) {
-						if (squ_1 + Direction.pawnDirection(side).offset == squ_2){
+						if (squ_1 + Direction.pawnDirection(side).offset == squ_2) {
 							score += side_sign * blocked_passed_pawn[row_side];
 							break;
 						}
@@ -699,11 +795,12 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 							* king_positions_b[square_to_array_index[position
 									.getKingPos(side)]];
 
-				//TODO: this dont work as it should... needs to be fixed (only should
+				// TODO: this dont work as it should... needs to be fixed (only
+				// should
 				// give penalty if during search castling is lost)
 				if (!position.canCastle(SquareHelper.getSquare(row_1, 3))
 						|| !position
-								.canCastle(SquareHelper.getSquare(row_1, 7)) )
+								.canCastle(SquareHelper.getSquare(row_1, 7)))
 					score += side_sign * CASTLING_LOSS;
 
 			}

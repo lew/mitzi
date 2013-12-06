@@ -1,5 +1,8 @@
 package mitzi;
 
+/**
+ * contains the scores for mate positions
+ */
 public final class MateScores {
 
 	private MateScores() {

@@ -137,11 +137,12 @@ public interface IPosition {
 	/**
 	 * returns the square, where the king for a side is positioned.
 	 * 
-	 * @param side the given side
+	 * @param side
+	 *            the given side
 	 * @return the square where the king is
 	 */
 	public int getKingPos(Side side);
-	
+
 	/**
 	 * Returns the number of occupied squares by a given side.
 	 * 
@@ -276,6 +277,10 @@ public interface IPosition {
 	 * @return a different hashvalue
 	 */
 	public long hashCode2();
-	
+
+	/**
+	 * computes all information and stores them, which is needed for fast board
+	 * evaluation.
+	 */
 	public void cacheOccupiedSquares();
 }
