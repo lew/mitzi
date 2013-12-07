@@ -203,7 +203,7 @@ public final class AnalysisResult {
 		AnalysisResult ar;
 		if (best_move != null && counter >=0) {
 			pv.add(best_move);
-			best_child = pos.doMove(best_move).new_position;
+			best_child = pos.doMove_copy(best_move).new_position;
 			ar = ResultCache.getResult(best_child);
 			counter--;
 			if (ar != null)

@@ -74,7 +74,7 @@ public class GameState {
 	 */
 	public void doMove(IMove move) {
 		if (position.isPossibleMove(move)) {
-			mitzi.IPosition.MoveApplication mova = position.doMove(move);
+			mitzi.IPosition.MoveApplication mova = position.doMove_copy(move);
 			if (mova.resets_half_move_clock) {
 				half_move_clock = 0;
 			}

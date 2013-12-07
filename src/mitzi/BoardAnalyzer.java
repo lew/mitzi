@@ -341,9 +341,11 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		int best_value = NEG_INF;
 
 		for (IMove move : ordered_captures) {
-			IPosition pos = position.doMove(move).new_position;
-			AnalysisResult result_temp = quiesce(pos, -beta, -alpha);
-
+			
+			position.doMove(move);
+			AnalysisResult result_temp = quiesce(position, -beta, -alpha);
+			position.undoMove(move);
+					
 			negaval = result_temp.score * side_sign;
 
 			// find the best result
@@ -667,6 +669,11 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		return score;
 	}
 
+	/**
+	 * evaluates the pawn structure
+	 * @param position the current position
+	 * @return the value of the pawn structure in favor of white
+	 */
 	private int evalPawns(IPosition position) {
 
 		int score = 0;

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import mitzi.IrreversibleMoveStack.MoveInfo;
+
 /**
  * The class implements the position of the figures on a chess board. The board
  * is represented as two 8*8 +1 arrays - one for the sides, one for the pieces.
@@ -149,6 +151,16 @@ public class Position implements IPosition {
 	 * caching the positions of the kings. (indexed by the ordinal of the side)
 	 */
 	private byte[] king_pos = new byte[2];
+
+	/**
+	 * saves the side, which got captured by the last tinyDoMove
+	 */
+	private Side side_capture;
+	
+	/**
+	 * saves the piece, which got captured by the last tinyDoMove
+	 */
+	private Piece piece_capture;
 
 	// -----------------------------------------------------------------------------------------
 
@@ -467,7 +479,7 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public MoveApplication doMove(IMove move) {
+	public MoveApplication doMove_copy(IMove move) {
 		MoveApplication mova = new MoveApplication();
 		Position newBoard = this.returnCopy();
 
@@ -560,6 +572,19 @@ public class Position implements IPosition {
 					newBoard.castling[2] = -1;
 			}
 		}
+		if (capture == Piece.ROOK) {
+			if (active_color == Side.BLACK) {
+				if (dest == 81)
+					castling[1] = -1;
+				else if (dest == 11)
+					castling[0] = -1;
+			} else {
+				if (dest == 88)
+					castling[3] = -1;
+				else if (dest == 18)
+					castling[2] = -1;
+			}
+		}
 
 		mova.new_position = newBoard;
 
@@ -592,7 +617,6 @@ public class Position implements IPosition {
 
 		// check for castling
 		if (!isCheckPosition()) {
-			Move move;
 			int off = 0;
 			int square = 51;
 
@@ -630,12 +654,16 @@ public class Position implements IPosition {
 
 					// Check each square if the king on it would be check
 					for (Integer squ : line) {
-						move = new Move(square, squ);
-						Position board = (Position) doMove(move).new_position;
-						board.active_color = active_color;
+						setOnBoard(squ, active_color, Piece.KING);
+						setOnBoard(square, null, null);
 
-						if (board.isCheckPosition())
+						if (isCheckPosition()) {
+							setOnBoard(square, active_color, Piece.KING);
+							setOnBoard(squ, null, null);
 							break;
+						}
+						setOnBoard(square, active_color, Piece.KING);
+						setOnBoard(squ, null, null);
 						if (squ == new_square) {
 							// If the end is reached, then stop checking.
 
@@ -883,6 +911,13 @@ public class Position implements IPosition {
 						move = new Move(square, square + direction.offset,
 								Piece.KNIGHT);
 						moves.add(move);
+
+						move = new Move(square, square + direction.offset,
+								Piece.ROOK);
+						moves.add(move);
+						move = new Move(square, square + direction.offset,
+								Piece.BISHOP);
+						moves.add(move);
 					}
 				}
 
@@ -943,29 +978,39 @@ public class Position implements IPosition {
 								.getAllSquaresInDirection(square, dir);
 
 						// Check each square if it is empty
+						int last_squ = line.get(line.size() - 1);
 						for (Integer squ : line) {
+							if (squ == last_squ)
+								break;
 							if (getSideFromBoard(squ) != null) {
 								castle_flag = 1;
 								break;
 							}
-							if (squ == new_square)
-								break;
+
 						}
 						if (castle_flag == 1)
 							continue;
 
 						// Check each square if the king on it would be check
 						for (Integer squ : line) {
-							move = new Move(square, squ);
-							Position board = (Position) doMove(move).new_position;
-							board.active_color = active_color;
-							if (board.isCheckPosition())
+
+							setOnBoard(squ, active_color, Piece.KING);
+							setOnBoard(square, null, null);
+
+							if (isCheckPosition()) {
+								setOnBoard(square, active_color, Piece.KING);
+								setOnBoard(squ, null, null);
 								break;
+							}
+							setOnBoard(square, active_color, Piece.KING);
+							setOnBoard(squ, null, null);
 							if (squ == new_square) {
 								// if everything is right, then add the move
+								move = new Move(square, squ);
 								moves.add(move);
 								break;
 							}
+
 						}
 					}
 				}
@@ -983,15 +1028,17 @@ public class Position implements IPosition {
 		}
 
 		// remove invalid positions
-		// TODO do this in a more efficient way
 		Iterator<IMove> iter = moves.iterator();
+		IMove mv;
 		while (iter.hasNext()) {
-			Position temp_board = (Position) this.doMove(iter.next()).new_position;
-			temp_board.active_color = active_color;
-			if (temp_board.isCheckPosition()) {
+			mv = iter.next();
+			tinyDoMove(mv);
+			active_color = Side.getOppositeSide(active_color);
+			if (isCheckPosition()) {
 				iter.remove();
-
 			}
+			active_color = Side.getOppositeSide(active_color);
+			tinyUndoMove(mv);
 		}
 
 		return moves;
@@ -1372,5 +1419,291 @@ public class Position implements IPosition {
 		occupied_squares_by_color_and_type.put(Side.BLACK.ordinal() * 10
 				+ Piece.QUEEN.ordinal(), b_queen);
 
+	}
+
+	@Override
+	public void doMove(IMove move) {
+
+		MoveApplication mova = new MoveApplication();
+
+		int src = move.getFromSquare();
+		int dest = move.getToSquare();
+
+		Piece piece = getPieceFromBoard(src);
+		Piece capture = getPieceFromBoard(dest);
+
+		setOnBoard(dest, active_color, piece);
+		setOnBoard(src, null, null);
+
+		// if promotion
+		if (move.getPromotion() != null) {
+			setOnBoard(dest, active_color, move.getPromotion());
+			mova.resets_half_move_clock = true;
+			num_occupied_squares_by_color_and_type[active_color.ordinal() * 10
+					+ Piece.PAWN.ordinal()]--;
+			num_occupied_squares_by_color_and_type[active_color.ordinal() * 10
+					+ move.getPromotion().ordinal()]++;
+		}
+		// If castling
+		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
+			setOnBoard((src + dest) / 2, active_color, Piece.ROOK);
+			if (SquareHelper.getColumn(dest) == 3)
+				setOnBoard(src - 40, null, null);
+			else
+				setOnBoard(src + 30, null, null);
+		}
+		// If en passant
+		else if (piece == Piece.PAWN && dest == en_passant_target) {
+			if (active_color == Side.WHITE) {
+				setOnBoard(dest - 1, null, null);
+			} else {
+				setOnBoard(dest + 1, null, null);
+			}
+			num_occupied_squares_by_color_and_type[Side.getOppositeSide(
+					active_color).ordinal()
+					* 10 + Piece.PAWN.ordinal()]--;
+			mova.resets_half_move_clock = true;
+		}
+		// Usual move
+		else {
+			if (capture != null || piece == Piece.PAWN)
+				mova.resets_half_move_clock = true;
+		}
+
+		// update counters
+		if (capture != null) {
+			num_occupied_squares_by_color_and_type[Side.getOppositeSide(
+					active_color).ordinal()
+					* 10 + capture.ordinal()]--;
+		}
+
+		IrreversibleMoveStack.addInfo(0, castling, en_passant_target, capture);
+
+		// Update en_passant
+		if (piece == Piece.PAWN && Math.abs(dest - src) == 2)
+			en_passant_target = (dest + src) / 2;
+		else
+			en_passant_target = -1;
+
+		// Update castling
+		if (piece == Piece.KING) {
+			king_pos[active_color.ordinal()] = (byte) dest;
+			if (active_color == Side.WHITE && src == 51) {
+				castling[0] = -1;
+				castling[1] = -1;
+			} else if (active_color == Side.BLACK && src == 58) {
+				castling[2] = -1;
+				castling[3] = -1;
+			}
+		} else if (piece == Piece.ROOK) {
+			if (active_color == Side.WHITE) {
+				if (src == 81)
+					castling[1] = -1;
+				else if (src == 11)
+					castling[0] = -1;
+			} else {
+				if (src == 88)
+					castling[3] = -1;
+				else if (src == 18)
+					castling[2] = -1;
+			}
+		}
+		if (capture == Piece.ROOK) {
+			if (active_color == Side.BLACK) {
+				if (dest == 81)
+					castling[1] = -1;
+				else if (dest == 11)
+					castling[0] = -1;
+			} else {
+				if (dest == 88)
+					castling[3] = -1;
+				else if (dest == 18)
+					castling[2] = -1;
+			}
+		}
+
+		// Change active_color after move
+		active_color = Side.getOppositeSide(active_color);
+
+		resetCache();
+
+	}
+
+	@Override
+	public void undoMove(IMove move) {
+
+		int src = move.getFromSquare();
+		int dest = move.getToSquare();
+
+		Piece piece = getPieceFromBoard(dest);
+
+		// Change active_color after move
+		active_color = Side.getOppositeSide(active_color);
+
+		MoveInfo inf = IrreversibleMoveStack.irr_move_info.removeLast();
+		en_passant_target = inf.en_passant_square;
+		System.arraycopy(inf.castling, 0, castling, 0, 4);
+		Piece capture = inf.capture;
+
+		setOnBoard(src, active_color, piece);
+		if (capture != null)
+			setOnBoard(dest, Side.getOppositeSide(active_color), capture);
+		else
+			setOnBoard(dest, null, null);
+
+		// if promotion
+		if (move.getPromotion() != null) {
+			setOnBoard(src, active_color, Piece.PAWN);
+			num_occupied_squares_by_color_and_type[active_color.ordinal() * 10
+					+ Piece.PAWN.ordinal()]++;
+			num_occupied_squares_by_color_and_type[active_color.ordinal() * 10
+					+ move.getPromotion().ordinal()]--;
+		}
+		// If castling
+		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
+			setOnBoard((src + dest) / 2, null, null);
+			if (SquareHelper.getColumn(dest) == 3)
+				setOnBoard(src - 40, active_color, Piece.ROOK);
+			else
+				setOnBoard(src + 30, active_color, Piece.ROOK);
+
+		}
+		// If en passant
+		else if (piece == Piece.PAWN && dest == en_passant_target) {
+			if (active_color == Side.WHITE) {
+				setOnBoard(dest - 1, Side.getOppositeSide(active_color),
+						Piece.PAWN);
+			} else {
+				setOnBoard(dest + 1, Side.getOppositeSide(active_color),
+						Piece.PAWN);
+			}
+			num_occupied_squares_by_color_and_type[Side.getOppositeSide(
+					active_color).ordinal()
+					* 10 + Piece.PAWN.ordinal()]++;
+		}
+
+		// update counters
+		if (capture != null) {
+			num_occupied_squares_by_color_and_type[Side.getOppositeSide(
+					active_color).ordinal()
+					* 10 + capture.ordinal()]++;
+		}
+
+		if (piece == Piece.KING) {
+			king_pos[active_color.ordinal()] = (byte) src;
+		}
+
+		resetCache();
+
+		is_check = false;
+		is_mate = false;
+		is_stale_mate = false;
+
+	}
+
+	/**
+	 * Performs a incomplete version of doMove. This function only sets the new
+	 * figure, deletes the captures ones (are saved in side_capture and
+	 * piece_capture) and changes the active color. Note that it is not possible
+	 * to perform tinyDoMove twice, because the captured figure of the first
+	 * application will be lost.
+	 * 
+	 * @param move
+	 *            the move to be performed, must be a legal move
+	 */
+	private void tinyDoMove(IMove move) {
+
+		int src = move.getFromSquare();
+		int dest = move.getToSquare();
+
+		Piece piece = getPieceFromBoard(src);
+		piece_capture = getPieceFromBoard(dest);
+		side_capture = getSideFromBoard(dest);
+
+		setOnBoard(dest, active_color, piece);
+		setOnBoard(src, null, null);
+
+		// if promotion
+		if (move.getPromotion() != null) {
+			setOnBoard(dest, active_color, move.getPromotion());
+		}
+		// If castling
+		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
+			setOnBoard((src + dest) / 2, active_color, Piece.ROOK);
+			if (SquareHelper.getColumn(dest) == 3)
+				setOnBoard(src - 40, null, null);
+			else
+				setOnBoard(src + 30, null, null);
+
+		}
+		// If en passant
+		else if (piece == Piece.PAWN && dest == en_passant_target) {
+			if (active_color == Side.WHITE)
+				setOnBoard(dest - 1, null, null);
+			else
+				setOnBoard(dest + 1, null, null);
+		}
+
+		// Update castling
+		if (piece == Piece.KING)
+			king_pos[active_color.ordinal()] = (byte) dest;
+
+		// Change active_color after move
+		active_color = Side.getOppositeSide(active_color);
+
+		is_check = null;
+		is_mate = null;
+		is_stale_mate = null;
+
+	}
+
+	/**
+	 * inverts the function tinyDoMove(), note that only one application can be
+	 * inverted!
+	 * 
+	 * @param move the move to be inverted.
+	 */
+	private void tinyUndoMove(IMove move) {
+
+		int src = move.getFromSquare();
+		int dest = move.getToSquare();
+
+		Piece piece = getPieceFromBoard(dest);
+
+		// Change active_color after move
+		active_color = Side.getOppositeSide(active_color);
+
+		setOnBoard(dest, side_capture, piece_capture);
+		setOnBoard(src, active_color, piece);
+		// if promotion
+		if (move.getPromotion() != null) {
+			setOnBoard(src, active_color, Piece.PAWN);
+		}
+		// If castling
+		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
+			setOnBoard((src + dest) / 2, null, null);
+			if (SquareHelper.getColumn(dest) == 3)
+				setOnBoard(src - 40, active_color, Piece.ROOK);
+			else
+				setOnBoard(src + 30, active_color, Piece.ROOK);
+
+		}
+		// If en passant
+		else if (piece == Piece.PAWN && dest == en_passant_target) {
+			if (active_color == Side.WHITE)
+				setOnBoard(dest - 1, Side.getOppositeSide(active_color),
+						Piece.PAWN);
+			else
+				setOnBoard(dest + 1, Side.getOppositeSide(active_color),
+						Piece.PAWN);
+		}
+
+		// Update king position
+		if (piece == Piece.KING)
+			king_pos[active_color.ordinal()] = (byte) src;
+
+		is_check = false;
+		is_mate = false;
+		is_stale_mate = false;
 	}
 }

@@ -210,15 +210,15 @@ public class MitziBrain implements IBrain {
 		// alpha beta search
 		for (IMove move : ordered_moves) {
 
-			if (depth == total_depth && total_depth >= 6) {
-				// output currently searched move to UCI
+			// output currently searched move to UCI
+			if (depth == total_depth && total_depth >= 6)			
 				UCIReporter.sendInfoCurrMove(move, i + 1);
-			}
 
-			IPosition child_pos = position.doMove(move).new_position;
-			AnalysisResult result = negaMax(child_pos, total_depth, depth - 1,
+			position.doMove(move);	
+			AnalysisResult result = negaMax(position, total_depth, depth - 1,
 					-beta, -alpha);
-
+			position.undoMove(move);
+			
 			int negaval = result.score * side_sign;
 
 			// better variation found

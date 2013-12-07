@@ -1,9 +1,5 @@
 package mitzi;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.List;
-
 import mitzi.IMove;
 import mitzi.RandyBrain;
 

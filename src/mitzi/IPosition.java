@@ -45,7 +45,27 @@ public interface IPosition {
 	 * @return the new board and a boolean, if the half_move_clock should be
 	 *         reseted.
 	 */
-	public MoveApplication doMove(IMove move);
+	public MoveApplication doMove_copy(IMove move);
+
+	/**
+	 * Performs the given move on the actual board. There is no check, that the
+	 * performed move is legal!
+	 * 
+	 * @param move
+	 *            the move, which should be performed. Please note, that the
+	 *            move must be valid, no checking is done.
+	 */
+	public void doMove(IMove move);
+
+	/**
+	 * Reverts the given move. In addition a stack is used to recover the whole
+	 * information. There is no check, that the performed move is legal!
+	 * 
+	 * @param move
+	 *            the move, which should be performed. Please note, that the
+	 *            move must be valid, no checking is done.
+	 */
+	public void undoMove(IMove move);
 
 	/**
 	 * Returns, which side has to move.
