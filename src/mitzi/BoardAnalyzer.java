@@ -211,7 +211,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * optimized)
 	 */
 	static public int ENDGAME_THRESHOLD = 8;
-	
+
 	/**
 	 * counts the number of board evaluations in quiesce().
 	 */
@@ -221,9 +221,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * counts the number of found positions in Transposition Table
 	 */
 	static public long table_counter = 0;
-	
-	
-	
+
 	@Override
 	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
@@ -277,7 +275,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 *            the alpha value of alpha-beta search
 	 * @param beta
 	 *            the beta value of alpha-beta search
-	 * @return the value of the board
+	 * @return the value of the board ( in favor of white)
 	 */
 	private AnalysisResult quiesce(IPosition position, int alpha, int beta) {
 
@@ -341,11 +339,11 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		int best_value = NEG_INF;
 
 		for (IMove move : ordered_captures) {
-			
+
 			position.doMove(move);
 			AnalysisResult result_temp = quiesce(position, -beta, -alpha);
 			position.undoMove(move);
-					
+
 			negaval = result_temp.score * side_sign;
 
 			// find the best result
@@ -377,7 +375,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * 
 	 * @param board
 	 *            the actual board
-	 * @return the material value
+	 * @return the material value ( in favor of white)
 	 */
 	private int evalPieces(IPosition board) {
 		int score = 0;
@@ -407,7 +405,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * 
 	 * @param board
 	 *            the board to be analyzed
-	 * @return the score for the activity of Rook, Bishop, Knight, Queen
+	 * @return the score for the activity of Rook, Bishop, Knight, Queen ( in
+	 *         favor of white)
 	 */
 	private int evalPieceActivity(IPosition board) {
 		int score = 0;
@@ -488,7 +487,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * 
 	 * @param board
 	 *            the board to be analyzed
-	 * @return the score w.r.t. weak/ strong positions
+	 * @return the score w.r.t. weak/ strong positions ( in favor of white)
 	 */
 	private int evalWeakPosition(IPosition board) {
 
@@ -536,6 +535,15 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		return score;
 	}
 
+	/**
+	 * Evaluates if rooks occupies open/halfopen lines, if they occupies the
+	 * 7-th row or are covered there and if the bishop is caged on the baseline
+	 * (the pawn in front of him has moved the the neighboring ones are here)
+	 * 
+	 * @param board
+	 *            the board to be evaluated
+	 * @return the score ( in favor of white)
+	 */
 	private int evalLinesAndDiagonals(IPosition board) {
 		int score = 0;
 
@@ -670,8 +678,11 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	}
 
 	/**
-	 * evaluates the pawn structure
-	 * @param position the current position
+	 * evaluates the pawn structure. Checks for covered pawns, passed pawns,
+	 * isolated pawns, twin pawns... value dependet of the row
+	 * 
+	 * @param position
+	 *            the current position
 	 * @return the value of the pawn structure in favor of white
 	 */
 	private int evalPawns(IPosition position) {
@@ -785,6 +796,13 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		return score;
 	}
 
+	/**
+	 * draft of king's position evaluation function.
+	 * 
+	 * @param position
+	 *            the current position
+	 * @return the score
+	 */
 	private int evalKingPos(IPosition position) {
 		int score = 0;
 		int count_fig = position.getNumberOfPiecesByColor(Side.WHITE)

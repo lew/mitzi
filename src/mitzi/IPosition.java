@@ -25,17 +25,6 @@ public interface IPosition {
 	public void setToFEN(String fen);
 
 	/**
-	 * 
-	 * This class represents the result of the doMove function and, recognizes
-	 * if the half_move_clock should be set.
-	 * 
-	 */
-	public class MoveApplication {
-		IPosition new_position;
-		boolean resets_half_move_clock = false;
-	}
-
-	/**
 	 * Performs the given move and returns a new position. There is no check,
 	 * that the performed move is legal!
 	 * 
@@ -45,7 +34,7 @@ public interface IPosition {
 	 * @return the new board and a boolean, if the half_move_clock should be
 	 *         reseted.
 	 */
-	public MoveApplication doMove_copy(IMove move);
+	public IPosition doMove_copy(IMove move);
 
 	/**
 	 * Performs the given move on the actual board. There is no check, that the
@@ -303,4 +292,8 @@ public interface IPosition {
 	 * evaluation.
 	 */
 	public void cacheOccupiedSquares();
+
+	public void setHalfMoveClock(int parseInt);
+
+	public int getHalfMoveClock();
 }

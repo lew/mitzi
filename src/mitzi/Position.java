@@ -100,6 +100,13 @@ public class Position implements IPosition {
 	 */
 	private AnalysisResult analysis_result = null;
 
+	/**
+	 * This is the number of halfmoves since the last pawn advance or capture.
+	 * This is used to determine if a draw can be claimed under the fifty-move
+	 * rule.
+	 */
+	public int half_move_clock;
+
 	// The following class members are used to prevent multiple computations
 	/**
 	 * caching of the possible moves
@@ -156,7 +163,7 @@ public class Position implements IPosition {
 	 * saves the side, which got captured by the last tinyDoMove
 	 */
 	private Side side_capture;
-	
+
 	/**
 	 * saves the piece, which got captured by the last tinyDoMove
 	 */
@@ -315,6 +322,7 @@ public class Position implements IPosition {
 		castling[2] = 38;
 		castling[3] = 78;
 
+		half_move_clock = 0;
 		en_passant_target = -1;
 		active_color = Side.WHITE;
 
@@ -479,8 +487,7 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public MoveApplication doMove_copy(IMove move) {
-		MoveApplication mova = new MoveApplication();
+	public IPosition doMove_copy(IMove move) {
 		Position newBoard = this.returnCopy();
 
 		int src = move.getFromSquare();
@@ -488,12 +495,12 @@ public class Position implements IPosition {
 
 		Piece piece = getPieceFromBoard(src);
 		Piece capture = getPieceFromBoard(dest);
-
+		boolean resets_half_move_clock = false;
 		// if promotion
 		if (move.getPromotion() != null) {
 			newBoard.setOnBoard(src, null, null);
 			newBoard.setOnBoard(dest, active_color, move.getPromotion());
-			mova.resets_half_move_clock = true;
+			resets_half_move_clock = true;
 			newBoard.num_occupied_squares_by_color_and_type[active_color
 					.ordinal() * 10 + Piece.PAWN.ordinal()]--;
 			newBoard.num_occupied_squares_by_color_and_type[active_color
@@ -521,7 +528,7 @@ public class Position implements IPosition {
 				capture = getPieceFromBoard(dest + 1);
 				newBoard.setOnBoard(dest + 1, null, null);
 			}
-			mova.resets_half_move_clock = true;
+			resets_half_move_clock = true;
 		}
 		// Usual move
 		else {
@@ -529,8 +536,11 @@ public class Position implements IPosition {
 			newBoard.setOnBoard(dest, side, piece);
 			newBoard.setOnBoard(src, null, null);
 			if (this.getSideFromBoard(dest) != null || piece == Piece.PAWN)
-				mova.resets_half_move_clock = true;
+				resets_half_move_clock = true;
 		}
+
+		if (resets_half_move_clock)
+			newBoard.half_move_clock = 0;
 
 		// update counters
 		if (capture != null) {
@@ -586,9 +596,7 @@ public class Position implements IPosition {
 			}
 		}
 
-		mova.new_position = newBoard;
-
-		return mova;
+		return newBoard;
 	}
 
 	@Override
@@ -1424,8 +1432,6 @@ public class Position implements IPosition {
 	@Override
 	public void doMove(IMove move) {
 
-		MoveApplication mova = new MoveApplication();
-
 		int src = move.getFromSquare();
 		int dest = move.getToSquare();
 
@@ -1435,10 +1441,12 @@ public class Position implements IPosition {
 		setOnBoard(dest, active_color, piece);
 		setOnBoard(src, null, null);
 
+		boolean resets_half_move_clock = false;
+
 		// if promotion
 		if (move.getPromotion() != null) {
 			setOnBoard(dest, active_color, move.getPromotion());
-			mova.resets_half_move_clock = true;
+			resets_half_move_clock = true;
 			num_occupied_squares_by_color_and_type[active_color.ordinal() * 10
 					+ Piece.PAWN.ordinal()]--;
 			num_occupied_squares_by_color_and_type[active_color.ordinal() * 10
@@ -1462,12 +1470,12 @@ public class Position implements IPosition {
 			num_occupied_squares_by_color_and_type[Side.getOppositeSide(
 					active_color).ordinal()
 					* 10 + Piece.PAWN.ordinal()]--;
-			mova.resets_half_move_clock = true;
+			resets_half_move_clock = true;
 		}
 		// Usual move
 		else {
 			if (capture != null || piece == Piece.PAWN)
-				mova.resets_half_move_clock = true;
+				resets_half_move_clock = true;
 		}
 
 		// update counters
@@ -1477,7 +1485,12 @@ public class Position implements IPosition {
 					* 10 + capture.ordinal()]--;
 		}
 
-		IrreversibleMoveStack.addInfo(0, castling, en_passant_target, capture);
+		IrreversibleMoveStack.addInfo(half_move_clock, castling,
+				en_passant_target, capture);
+
+		// reset half move clock
+		if (resets_half_move_clock)
+			half_move_clock = 0;
 
 		// Update en_passant
 		if (piece == Piece.PAWN && Math.abs(dest - src) == 2)
@@ -1540,10 +1553,13 @@ public class Position implements IPosition {
 		// Change active_color after move
 		active_color = Side.getOppositeSide(active_color);
 
+		// get the missing information
 		MoveInfo inf = IrreversibleMoveStack.irr_move_info.removeLast();
+
 		en_passant_target = inf.en_passant_square;
-		System.arraycopy(inf.castling, 0, castling, 0, 4);
 		Piece capture = inf.capture;
+		half_move_clock = inf.half_move_clock;
+		System.arraycopy(inf.castling, 0, castling, 0, 4);
 
 		setOnBoard(src, active_color, piece);
 		if (capture != null)
@@ -1661,7 +1677,8 @@ public class Position implements IPosition {
 	 * inverts the function tinyDoMove(), note that only one application can be
 	 * inverted!
 	 * 
-	 * @param move the move to be inverted.
+	 * @param move
+	 *            the move to be inverted.
 	 */
 	private void tinyUndoMove(IMove move) {
 
@@ -1705,5 +1722,16 @@ public class Position implements IPosition {
 		is_check = false;
 		is_mate = false;
 		is_stale_mate = false;
+	}
+
+	@Override
+	public void setHalfMoveClock(int parseInt) {
+		half_move_clock = parseInt;
+
+	}
+
+	@Override
+	public int getHalfMoveClock() {
+		return half_move_clock;
 	}
 }

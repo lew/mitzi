@@ -14,12 +14,6 @@ public class GameState {
 	 */
 	private ArrayList<IMove> history = new ArrayList<IMove>();
 
-	/**
-	 * This is the number of halfmoves since the last pawn advance or capture.
-	 * This is used to determine if a draw can be claimed under the fifty-move
-	 * rule.
-	 */
-	private int half_move_clock;
 
 	/**
 	 * The number of the full move. It starts at 1, and is incremented after
@@ -44,7 +38,6 @@ public class GameState {
 	 */
 	public void setToInitial() {
 		position.setToInitial();
-		half_move_clock = 0;
 		full_move_clock = 1;
 	}
 
@@ -60,7 +53,7 @@ public class GameState {
 
 		String[] fen_parts = fen.split(" ");
 		// set half move clock
-		half_move_clock = Integer.parseInt(fen_parts[4]);
+		position.setHalfMoveClock(Integer.parseInt(fen_parts[4]));
 		// set full move clock
 		full_move_clock = Integer.parseInt(fen_parts[5]);
 	}
@@ -74,15 +67,15 @@ public class GameState {
 	 */
 	public void doMove(IMove move) {
 		if (position.isPossibleMove(move)) {
-			mitzi.IPosition.MoveApplication mova = position.doMove_copy(move);
-			if (mova.resets_half_move_clock) {
+			position = position.doMove_copy(move);
+			/*if (mova.resets_half_move_clock) {
 				half_move_clock = 0;
-			}
+			}*/
 			if (position.getActiveColor() == Side.BLACK) {
 				full_move_clock++;
 			}
 			history.add(move);
-			position = mova.new_position;
+			
 		} else {
 			throw new IllegalArgumentException("INVALID MOVE");
 		}
@@ -106,7 +99,7 @@ public class GameState {
 		fen.append(" ");
 
 		// halfmove clock
-		fen.append(half_move_clock);
+		fen.append(position.getHalfMoveClock());
 		fen.append(" ");
 
 		// fullmove clock
@@ -123,7 +116,7 @@ public class GameState {
 	 * @return number of halfmoves since the last pawn advance or capture
 	 */
 	public int getHalfMoveClock() {
-		return half_move_clock;
+		return position.getHalfMoveClock();
 	}
 
 	/**
