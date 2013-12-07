@@ -1,7 +1,10 @@
 package mitzi;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * In brief, each square of the chessboard has a two-digit designation. The
@@ -30,6 +33,8 @@ public final class SquareHelper {
 	 */
 	private static ArrayList<List<Integer>> squares_direction_knight = new ArrayList<List<Integer>>();
 
+	public static LinkedList<Integer> all_squares = new LinkedList<Integer>();
+	
 	private SquareHelper() {
 	};
 
@@ -43,6 +48,7 @@ public final class SquareHelper {
 		for (int i = 1; i < 9; i++)
 			for (int j = 1; j < 9; j++) {
 				int source_square = getSquare(i, j);
+				all_squares.add(source_square);
 				ArrayList<List<Integer>> dir_list = new ArrayList<List<Integer>>();
 				for (int k = 0; k < 9; k++)
 					dir_list.add(null);

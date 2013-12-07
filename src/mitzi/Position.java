@@ -697,16 +697,11 @@ public class Position implements IPosition {
 	public Set<Integer> getOccupiedSquaresByColor(Side color) {
 
 		if (occupied_squares_by_color.containsKey(color) == false) {
-			int square;
 			Set<Integer> set = new HashSet<Integer>();
 
-			for (int i = 1; i < 9; i++)
-				for (int j = 1; j < 9; j++) {
-					square = SquareHelper.getSquare(i, j);
-					if (getSideFromBoard(square) == color)
-						set.add(square);
-
-				}
+			for (int square : SquareHelper.all_squares)
+				if (getSideFromBoard(square) == color)
+					set.add(square);
 
 			occupied_squares_by_color.put(color, set);
 			return set;
@@ -718,15 +713,11 @@ public class Position implements IPosition {
 	public Set<Integer> getOccupiedSquaresByType(Piece type) {
 
 		if (occupied_squares_by_type.containsKey(type) == false) {
-			int square;
 			Set<Integer> set = new HashSet<Integer>();
 
-			for (int i = 1; i < 9; i++)
-				for (int j = 1; j < 9; j++) {
-					square = SquareHelper.getSquare(i, j);
-					if (getPieceFromBoard(square) == type)
-						set.add(square);
-				}
+			for (int square : SquareHelper.all_squares)
+				if (getPieceFromBoard(square) == type)
+					set.add(square);
 
 			occupied_squares_by_type.put(type, set);
 			return set;
@@ -741,18 +732,14 @@ public class Position implements IPosition {
 		int value = color.ordinal() * 10 + type.ordinal();
 
 		if (occupied_squares_by_color_and_type.containsKey(value) == false) {
-			int square;
 			Set<Integer> set = new HashSet<Integer>();
 			if (type == Piece.KING)
 				set.add((int) king_pos[color.ordinal()]);
 			else {
-				for (int i = 1; i < 9; i++)
-					for (int j = 1; j < 9; j++) {
-						square = SquareHelper.getSquare(i, j);
-						if (type == getPieceFromBoard(square)
-								&& color == getSideFromBoard(square))
-							set.add(square);
-					}
+				for (int square : SquareHelper.all_squares)
+					if (type == getPieceFromBoard(square)
+							&& color == getSideFromBoard(square))
+						set.add(square);
 			}
 			occupied_squares_by_color_and_type.put(value, set);
 			return set;
@@ -792,8 +779,9 @@ public class Position implements IPosition {
 			List<IMove> total_list = new ArrayList<IMove>(40);
 
 			// loop over all squares
-			for (int square : getOccupiedSquaresByColor(active_color)) {
-				total_list.addAll(getPossibleMovesFrom(square));
+			for (int square : SquareHelper.all_squares) {
+				if (getSideFromBoard(square) == active_color)
+					total_list.addAll(getPossibleMovesFrom(square));
 			}
 
 			// cache it
@@ -1336,7 +1324,7 @@ public class Position implements IPosition {
 
 	@Override
 	public void cacheOccupiedSquares() {
-		int square;
+
 		Side s;
 		Piece p;
 		Set<Integer> w_pawn = new HashSet<Integer>();
@@ -1351,59 +1339,58 @@ public class Position implements IPosition {
 		Set<Integer> b_knight = new HashSet<Integer>();
 		Set<Integer> b_queen = new HashSet<Integer>();
 
-		for (int i = 1; i < 9; i++)
-			for (int j = 1; j < 9; j++) {
-				square = SquareHelper.getSquare(i, j);
-				s = getSideFromBoard(square);
-				if (s == null)
-					continue;
-				p = getPieceFromBoard(square);
-				switch (s) {
-				case WHITE:
-					switch (p) {
-					case PAWN:
-						w_pawn.add(square);
-						break;
-					case ROOK:
-						w_rook.add(square);
-						break;
-					case BISHOP:
-						w_bishop.add(square);
-						break;
-					case KNIGHT:
-						w_knight.add(square);
-						break;
-					case QUEEN:
-						w_queen.add(square);
-						break;
-					default:
-						break;
-					}
+		for (int square : SquareHelper.all_squares) {
+
+			s = getSideFromBoard(square);
+			if (s == null)
+				continue;
+			p = getPieceFromBoard(square);
+			switch (s) {
+			case WHITE:
+				switch (p) {
+				case PAWN:
+					w_pawn.add(square);
 					break;
-				case BLACK:
-					switch (p) {
-					case PAWN:
-						b_pawn.add(square);
-						break;
-					case ROOK:
-						b_rook.add(square);
-						break;
-					case BISHOP:
-						b_bishop.add(square);
-						break;
-					case KNIGHT:
-						b_knight.add(square);
-						break;
-					case QUEEN:
-						b_queen.add(square);
-						break;
-					default:
-						break;
-					}
+				case ROOK:
+					w_rook.add(square);
+					break;
+				case BISHOP:
+					w_bishop.add(square);
+					break;
+				case KNIGHT:
+					w_knight.add(square);
+					break;
+				case QUEEN:
+					w_queen.add(square);
+					break;
+				default:
 					break;
 				}
-
+				break;
+			case BLACK:
+				switch (p) {
+				case PAWN:
+					b_pawn.add(square);
+					break;
+				case ROOK:
+					b_rook.add(square);
+					break;
+				case BISHOP:
+					b_bishop.add(square);
+					break;
+				case KNIGHT:
+					b_knight.add(square);
+					break;
+				case QUEEN:
+					b_queen.add(square);
+					break;
+				default:
+					break;
+				}
+				break;
 			}
+
+		}
 
 		occupied_squares_by_color_and_type.put(Side.WHITE.ordinal() * 10
 				+ Piece.PAWN.ordinal(), w_pawn);
