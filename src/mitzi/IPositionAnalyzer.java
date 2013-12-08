@@ -24,7 +24,8 @@ public interface IPositionAnalyzer {
 	 *            the beta value of the alpha-beta algorithm
 	 * @return a analysisResult, containing the value in centipawns and the
 	 *         selective depth
+	 * @throws InterruptedException 
 	 */
-	public AnalysisResult evalBoard(IPosition board, int alpha, int beta);
+	public AnalysisResult evalBoard(IPosition board, int alpha, int beta) throws InterruptedException;
 
 }

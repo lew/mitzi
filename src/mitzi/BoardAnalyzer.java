@@ -252,7 +252,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	}
 
 	@Override
-	public AnalysisResult evalBoard(IPosition position, int alpha, int beta) {
+	public AnalysisResult evalBoard(IPosition position, int alpha, int beta) throws InterruptedException {
 		AnalysisResult result = quiesce(position, alpha, beta);
 
 		// The analysis result should always contain the pure value (not
@@ -276,9 +276,15 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * @param beta
 	 *            the beta value of alpha-beta search
 	 * @return the value of the board ( in favor of white)
+	 * 
+	 * @throws InterruptedException 
 	 */
-	private AnalysisResult quiesce(IPosition position, int alpha, int beta) {
+	private AnalysisResult quiesce(IPosition position, int alpha, int beta) throws InterruptedException {
 
+		if (Thread.interrupted()) {
+			throw new InterruptedException();
+		}
+		
 		int side_sign = Side.getSideSign(position.getActiveColor());
 
 		// Cache lookup

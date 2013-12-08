@@ -142,6 +142,8 @@ public class MitziBrain implements IBrain {
 	 * the current time.
 	 */
 	private long start_mtime = System.currentTimeMillis();
+	
+	private Timer timer = new Timer();
 
 	@Override
 	public void set(GameState game_state) {
@@ -211,6 +213,8 @@ public class MitziBrain implements IBrain {
 	 *            the beta value
 	 * @return returns the result of the evaluation, stored in the class
 	 *         AnalysisResult
+	 *         
+	 * @throws InterruptedException 
 	 */
 	private AnalysisResult negaMax(IPosition position, int total_depth,
 			int depth, int alpha, int beta) throws InterruptedException {
@@ -423,7 +427,6 @@ public class MitziBrain implements IBrain {
 			max_depth = searchDepth;
 		}
 
-		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
 		start_mtime = System.currentTimeMillis();
 
@@ -435,6 +438,16 @@ public class MitziBrain implements IBrain {
 
 		// execute the task
 		exe.execute(evaluator);
+
+		return wait_until();
+	}
+
+	/**
+	 * stops all active threads if mitzi is running out of time 
+	 * @return the best move
+	 */
+	public IMove wait_until() {
+
 		exe.shutdown();
 		
 		// wait for termination of execution
@@ -452,24 +465,27 @@ public class MitziBrain implements IBrain {
 
 		// shut down timers and update killer moves
 		timer.cancel();
-		UCIReporter.sendInfoPV(position, runTime());
+		UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 		KillerMoves.updateKillerMove();
 
 		// return the best move of the last completely searched tree
 		return result.best_move;
 	}
-
+	
 	@Override
 	public IMove stop() {
+		//shut down immediately
 		exe.shutdownNow();
-		try {
-			exe.awaitTermination(THREAD_TIMEOUT, THREAD_TIMEOUT_UNIT);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
+		// shut down timers and update killer moves
+		timer.cancel();
+		UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
+		KillerMoves.updateKillerMove();
+
+		// return the best move of the last completely searched tree
+		if(result == null)
+			return null; //this should never happen
+		
 		return result.best_move;
 	}
-
 }
