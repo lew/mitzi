@@ -679,7 +679,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 
 	/**
 	 * evaluates the pawn structure. Checks for covered pawns, passed pawns,
-	 * isolated pawns, twin pawns... value dependet of the row
+	 * isolated pawns, twin pawns... value dependent of the row
 	 * 
 	 * @param position
 	 *            the current position
@@ -705,6 +705,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 				for (int squ : squares_pawn)
 					score -= pawn_positions_b[square_to_array_index[squ]];
 
+			
 			for (int squ_1 : squares_pawn) {
 				row = SquareHelper.getRow(squ_1);
 				col = SquareHelper.getColumn(squ_1);

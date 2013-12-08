@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static mitzi.MateScores.*;
 import mitzi.UCIReporter.InfoType;
@@ -13,16 +16,112 @@ import mitzi.UCIReporter.InfoType;
  * This class implements the AI of Mitzi. The best move is found using the
  * negamax algorithms with Transposition tables. The class regularly sends
  * information about the current search, including nodes per second ("nps"), the
- * filling of the Transposition Table ("hashfull") and the current searched move on
- * top-level. The board evaluation is moved to a separate class BoardAnalyzer.
+ * filling of the Transposition Table ("hashfull") and the current searched move
+ * on top-level. The board evaluation is moved to a separate class
+ * BoardAnalyzer.
  * 
  */
 public class MitziBrain implements IBrain {
 
 	/**
+	 * maximal number of threads
+	 */
+	private static final int THREAD_POOL_SIZE = 1;
+
+	/**
+	 * unit for time management
+	 */
+	private static final TimeUnit THREAD_TIMEOUT_UNIT = TimeUnit.MILLISECONDS;
+
+	/**
+	 * upper limit for evaluation time
+	 */
+	private static int THREAD_TIMEOUT;
+
+	/**
+	 * the currently best result
+	 */
+	private AnalysisResult result;
+
+	/**
+	 * the executor for the tasks
+	 */
+	private ExecutorService exe = Executors
+			.newFixedThreadPool(THREAD_POOL_SIZE);
+
+	/**
 	 * the current game state
 	 */
 	private GameState game_state;
+
+	private class PositionEvaluator implements Runnable {
+
+		private final IPosition position;
+		private final int searchDepth;
+
+		public PositionEvaluator(final IPosition position, final int depth) {
+			this.position = position;
+			this.searchDepth = depth;
+		}
+
+		@Override
+		public void run() {
+
+			try {
+				// Parameters for aspiration windows
+				int alpha = NEG_INF; // initial value
+				int beta = POS_INF; // initial value
+				int asp_window = 25; // often 50 or 25 is used
+				int factor = 2; // factor for increasing if out of bounds
+
+				// iterative deepening
+				for (int current_depth = 1; current_depth <= searchDepth; current_depth++) {
+					table_counter = 0;
+					BoardAnalyzer.table_counter = 0;
+
+					result = negaMax(position, current_depth, current_depth,
+							alpha, beta);
+					position.updateAnalysisResult(result);
+
+					if (result.score == POS_INF || result.score == NEG_INF) {
+						break;
+					}
+
+					// If Value is out of bounds, redo search with larger
+					// bounds, but with the same variation tree
+					if (result.score <= alpha) {
+						alpha -= factor * asp_window;
+						current_depth--;
+						UCIReporter
+								.sendInfoString("Boards found: "
+										+ (table_counter + BoardAnalyzer.table_counter));
+						continue;
+					} else if (result.score >= beta) {
+						beta += factor * asp_window;
+						current_depth--;
+						UCIReporter
+								.sendInfoString("Boards found: "
+										+ (table_counter + BoardAnalyzer.table_counter));
+						continue;
+					}
+
+					alpha = result.score - asp_window;
+					beta = result.score + asp_window;
+
+					UCIReporter.sendInfoString("Boards found: "
+							+ (table_counter + BoardAnalyzer.table_counter));
+				}
+			} catch (InterruptedException e) {
+			}
+
+		}
+
+		@Override
+		public String toString() {
+			return position.toString();
+		}
+
+	}
 
 	/**
 	 * counts the number of evaluated board
@@ -48,7 +147,7 @@ public class MitziBrain implements IBrain {
 	public void set(GameState game_state) {
 		this.game_state = game_state;
 		this.eval_counter = 0;
-		this.table_counter =0;
+		this.table_counter = 0;
 	}
 
 	/**
@@ -114,8 +213,11 @@ public class MitziBrain implements IBrain {
 	 *         AnalysisResult
 	 */
 	private AnalysisResult negaMax(IPosition position, int total_depth,
-			int depth, int alpha, int beta) {
+			int depth, int alpha, int beta) throws InterruptedException {
 
+		if (Thread.interrupted()) {
+			throw new InterruptedException();
+		}
 		// ---------------------------------------------------------------------------------------
 		// whose move is it?
 		Side side = position.getActiveColor();
@@ -211,14 +313,14 @@ public class MitziBrain implements IBrain {
 		for (IMove move : ordered_moves) {
 
 			// output currently searched move to UCI
-			if (depth == total_depth && total_depth >= 6)			
+			if (depth == total_depth && total_depth >= 6)
 				UCIReporter.sendInfoCurrMove(move, i + 1);
 
-			position.doMove(move);	
+			position.doMove(move);
 			AnalysisResult result = negaMax(position, total_depth, depth - 1,
 					-beta, -alpha);
 			position.undoMove(move);
-			
+
 			int negaval = result.score * side_sign;
 
 			// better variation found
@@ -292,62 +394,82 @@ public class MitziBrain implements IBrain {
 	public IMove search(int movetime, int maxMoveTime, int searchDepth,
 			boolean infinite, List<IMove> searchMoves) {
 
+		// note, the variable seachMoves is currently unused, this feature is
+		// not yet implemented!
+
+		// store the actual position
 		IPosition position = game_state.getPosition();
+
+		int max_depth;
+
+		// set parameters for searchtime and searchdepth
+		if (movetime == 0 && maxMoveTime == 0) {
+			THREAD_TIMEOUT = 60 * 60 * 1000; // 1h
+			max_depth = searchDepth;
+		} else if (movetime == 0 && infinite == false) {
+			THREAD_TIMEOUT = maxMoveTime;
+			max_depth = searchDepth;
+		} else if (movetime == 0 && infinite == true) {
+			THREAD_TIMEOUT = maxMoveTime;
+			max_depth = 200;
+		} else if (maxMoveTime == 0) {
+			THREAD_TIMEOUT = movetime;
+			max_depth = 200; // this can never be reached :)
+		} else if (infinite == true) {
+			THREAD_TIMEOUT = maxMoveTime;
+			max_depth = 200; // this can never be reached :)
+		} else {
+			THREAD_TIMEOUT = Math.min(movetime, maxMoveTime);
+			max_depth = searchDepth;
+		}
 
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
 		start_mtime = System.currentTimeMillis();
 
-		// iterative deepening
-		AnalysisResult result = null;
+		// reset the result
+		result = null;
 
-		// Parameters for aspiration windows
-		int alpha = NEG_INF; // initial value
-		int beta = POS_INF; // initial value
-		int asp_window = 25; // often 50 or 25 is used
-		int factor = 2; // factor for increasing if out of bounds
+		// create a new task
+		PositionEvaluator evaluator = new PositionEvaluator(position, max_depth);
 
-		for (int current_depth = 1; current_depth <= searchDepth; current_depth++) {
-			table_counter = 0;
-			BoardAnalyzer.table_counter=0;
-			result = negaMax(position, current_depth, current_depth, alpha,
-					beta);
-			position.updateAnalysisResult(result);
-
-			if (result.score == POS_INF || result.score == NEG_INF) {
-				break;
+		// execute the task
+		exe.execute(evaluator);
+		exe.shutdown();
+		
+		// wait for termination of execution
+		try {
+			if (exe.awaitTermination(THREAD_TIMEOUT, THREAD_TIMEOUT_UNIT)) {
+				System.out.println("task completed");
+			} else {
+				System.out.println("Forcing shutdown...");
+				exe.shutdownNow();
 			}
-
-			// If Value is out of bounds, redo search with larger bounds, but
-			// with the same variation tree
-			if (result.score <= alpha) {
-				alpha -= factor * asp_window;
-				current_depth--;
-				UCIReporter.sendInfoString("Boards found: " + (table_counter+BoardAnalyzer.table_counter));
-				continue;
-			} else if (result.score >= beta) {
-				beta += factor * asp_window;
-				current_depth--;
-				UCIReporter.sendInfoString("Boards found: " + (table_counter+BoardAnalyzer.table_counter));
-				continue;
-			}
-
-			alpha = result.score - asp_window;
-			beta = result.score + asp_window;
-
-			UCIReporter.sendInfoString("Boards found: " + (table_counter+BoardAnalyzer.table_counter));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
+		// shut down timers and update killer moves
 		timer.cancel();
 		UCIReporter.sendInfoPV(position, runTime());
 		KillerMoves.updateKillerMove();
+
+		// return the best move of the last completely searched tree
 		return result.best_move;
 	}
 
 	@Override
 	public IMove stop() {
-		// TODO Auto-generated method stub
-		return null;
+		exe.shutdownNow();
+		try {
+			exe.awaitTermination(THREAD_TIMEOUT, THREAD_TIMEOUT_UNIT);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return result.best_move;
 	}
 
 }
