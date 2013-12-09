@@ -36,7 +36,7 @@ public class MitziBrain implements IBrain {
 	/**
 	 * upper limit for evaluation time
 	 */
-	private static int THREAD_TIMEOUT;
+	private int threadTimeout;
 
 	/**
 	 * the currently best result
@@ -411,22 +411,22 @@ public class MitziBrain implements IBrain {
 
 		// set parameters for searchtime and searchdepth
 		if (movetime == 0 && maxMoveTime == 0) {
-			THREAD_TIMEOUT = 60 * 60 * 1000; // 1h
+			threadTimeout = 60 * 60 * 1000; // 1h
 			max_depth = searchDepth;
 		} else if (movetime == 0 && infinite == false) {
-			THREAD_TIMEOUT = maxMoveTime;
+			threadTimeout = maxMoveTime;
 			max_depth = searchDepth;
 		} else if (movetime == 0 && infinite == true) {
-			THREAD_TIMEOUT = maxMoveTime;
+			threadTimeout = maxMoveTime;
 			max_depth = 200;
 		} else if (maxMoveTime == 0) {
-			THREAD_TIMEOUT = movetime;
+			threadTimeout = movetime;
 			max_depth = 200; // this can never be reached :)
 		} else if (infinite == true) {
-			THREAD_TIMEOUT = maxMoveTime;
+			threadTimeout = maxMoveTime;
 			max_depth = 200; // this can never be reached :)
 		} else {
-			THREAD_TIMEOUT = Math.min(movetime, maxMoveTime);
+			threadTimeout = Math.min(movetime, maxMoveTime);
 			max_depth = searchDepth;
 		}
 
@@ -456,7 +456,7 @@ public class MitziBrain implements IBrain {
 
 		// wait for termination of execution
 		try {
-			if (exe.awaitTermination(THREAD_TIMEOUT, THREAD_TIMEOUT_UNIT)) {
+			if (exe.awaitTermination(threadTimeout, THREAD_TIMEOUT_UNIT)) {
 				UCIReporter.sendInfoString("task completed");
 			} else {
 				UCIReporter.sendInfoString("forcing task shutdown");
