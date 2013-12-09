@@ -1,6 +1,5 @@
 package mitzi;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -111,7 +110,7 @@ public class Position implements IPosition {
 	/**
 	 * caching of the possible moves
 	 */
-	private SoftReference<List<IMove>> possible_moves;
+	private List<IMove> possible_moves;
 
 	/**
 	 * caching if the current position is check.
@@ -778,21 +777,16 @@ public class Position implements IPosition {
 	@Override
 	public List<IMove> getPossibleMoves() {
 		if (possible_moves == null) {
-			List<IMove> total_list = new ArrayList<IMove>(40);
+			possible_moves = new ArrayList<IMove>(40);
 
 			// loop over all squares
 			for (int square : SquareHelper.all_squares) {
 				if (getSideFromBoard(square) == active_color)
-					total_list.addAll(getPossibleMovesFrom(square));
+					possible_moves.addAll(getPossibleMovesFrom(square));
 			}
-
-			// cache it
-			possible_moves = new SoftReference<List<IMove>>(total_list);
-			return total_list;
-		} else {
-			// return from cache
-			return possible_moves.get();
 		}
+		
+		return possible_moves;
 	}
 
 	@Override
