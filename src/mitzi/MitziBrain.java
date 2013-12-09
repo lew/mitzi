@@ -453,9 +453,9 @@ public class MitziBrain implements IBrain {
 		// wait for termination of execution
 		try {
 			if (exe.awaitTermination(THREAD_TIMEOUT, THREAD_TIMEOUT_UNIT)) {
-				System.out.println("task completed");
+				UCIReporter.sendInfoString("task completed");
 			} else {
-				System.out.println("Forcing shutdown...");
+				UCIReporter.sendInfoString("forcing task shutdown");
 				exe.shutdownNow();
 			}
 		} catch (InterruptedException e) {
