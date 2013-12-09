@@ -1473,7 +1473,7 @@ public class Position implements IPosition {
 					active_color).ordinal()
 					* 10 + capture.ordinal()]--;
 		}
-
+		
 		IrreversibleMoveStack.addInfo(half_move_clock, castling,
 				en_passant_target, capture, is_check);
 
@@ -1533,7 +1533,9 @@ public class Position implements IPosition {
 
 	@Override
 	public void undoMove(IMove move) {
-
+		
+		resetCache();
+		
 		int src = move.getFromSquare();
 		int dest = move.getToSquare();
 
@@ -1549,7 +1551,7 @@ public class Position implements IPosition {
 		Piece capture = inf.capture;
 		half_move_clock = inf.half_move_clock;
 		System.arraycopy(inf.castling, 0, castling, 0, 4);
-		is_check = inf.is_check;
+		is_check = inf.is_check;		
 
 		setOnBoard(src, active_color, piece);
 		if (capture != null)
@@ -1598,8 +1600,6 @@ public class Position implements IPosition {
 		if (piece == Piece.KING) {
 			king_pos[active_color.ordinal()] = (byte) src;
 		}
-
-		resetCache();
 
 		is_mate = false;
 		is_stale_mate = false;
