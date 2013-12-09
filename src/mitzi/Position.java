@@ -587,14 +587,14 @@ public class Position implements IPosition {
 		if (capture == Piece.ROOK) {
 			if (active_color == Side.BLACK) {
 				if (dest == 81)
-					castling[1] = -1;
+					newBoard.castling[1] = -1;
 				else if (dest == 11)
-					castling[0] = -1;
+					newBoard.castling[0] = -1;
 			} else {
 				if (dest == 88)
-					castling[3] = -1;
+					newBoard.castling[3] = -1;
 				else if (dest == 18)
-					castling[2] = -1;
+					newBoard.castling[2] = -1;
 			}
 		}
 
