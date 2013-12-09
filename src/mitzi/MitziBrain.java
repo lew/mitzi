@@ -3,6 +3,7 @@ package mitzi;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -32,11 +33,16 @@ public class MitziBrain implements IBrain {
 	 * unit for time management
 	 */
 	private static final TimeUnit THREAD_TIMEOUT_UNIT = TimeUnit.MILLISECONDS;
+	
+	/**
+	 * timeout for thread shutdown
+	 */
+	private static final int THREAD_TIMEOUT = 1000;
 
 	/**
 	 * upper limit for evaluation time
 	 */
-	private int threadTimeout;
+	private int maxEvalTime;
 
 	/**
 	 * the currently best result
@@ -411,22 +417,22 @@ public class MitziBrain implements IBrain {
 
 		// set parameters for searchtime and searchdepth
 		if (movetime == 0 && maxMoveTime == 0) {
-			threadTimeout = 60 * 60 * 1000; // 1h
+			maxEvalTime = 60 * 60 * 1000; // 1h
 			max_depth = searchDepth;
 		} else if (movetime == 0 && infinite == false) {
-			threadTimeout = maxMoveTime;
+			maxEvalTime = maxMoveTime;
 			max_depth = searchDepth;
 		} else if (movetime == 0 && infinite == true) {
-			threadTimeout = maxMoveTime;
+			maxEvalTime = maxMoveTime;
 			max_depth = 200;
 		} else if (maxMoveTime == 0) {
-			threadTimeout = movetime;
+			maxEvalTime = movetime;
 			max_depth = 200; // this can never be reached :)
 		} else if (infinite == true) {
-			threadTimeout = maxMoveTime;
+			maxEvalTime = maxMoveTime;
 			max_depth = 200; // this can never be reached :)
 		} else {
-			threadTimeout = Math.min(movetime, maxMoveTime);
+			maxEvalTime = Math.min(movetime, maxMoveTime);
 			max_depth = searchDepth;
 		}
 
@@ -456,11 +462,12 @@ public class MitziBrain implements IBrain {
 
 		// wait for termination of execution
 		try {
-			if (exe.awaitTermination(threadTimeout, THREAD_TIMEOUT_UNIT)) {
+			if (exe.awaitTermination(maxEvalTime, THREAD_TIMEOUT_UNIT)) {
 				UCIReporter.sendInfoString("task completed");
 			} else {
 				UCIReporter.sendInfoString("forcing task shutdown");
 				exe.shutdownNow();
+				exe.awaitTermination(THREAD_TIMEOUT, TimeUnit.SECONDS);
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -471,6 +478,13 @@ public class MitziBrain implements IBrain {
 		timer.cancel();
 		UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 		KillerMoves.updateKillerMove();
+
+		// if no best_move has been found yet, choose any
+		if (result == null) {
+			List<IMove> possibleMoves = game_state.getPosition().getPossibleMoves();
+			int randy = new Random().nextInt(possibleMoves.size());
+			return possibleMoves.get(randy);
+		}
 
 		// return the best move of the last completely searched tree
 		return result.best_move;
