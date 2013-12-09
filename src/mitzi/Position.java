@@ -110,8 +110,13 @@ public class Position implements IPosition {
 	/**
 	 * caching of the possible moves
 	 */
-	private List<IMove> possible_moves;
+	private List<IMove> possible_moves = new ArrayList<IMove>(50);
 
+	/**
+	 * true if, the possible moves were not computed for this position.
+	 */
+	private boolean possible_moves_is_null = true;
+	
 	/**
 	 * caching if the current position is check.
 	 */
@@ -151,12 +156,12 @@ public class Position implements IPosition {
 	 * caching the number of occupied squares for each side of an piece in an
 	 * small array.
 	 */
-	private byte[] num_occupied_squares_by_color_and_type = new byte[16];
+	private int[] num_occupied_squares_by_color_and_type = new int[16];
 
 	/**
 	 * caching the positions of the kings. (indexed by the ordinal of the side)
 	 */
-	private byte[] king_pos = new byte[2];
+	private int[] king_pos = new int[2];
 
 	/**
 	 * saves the side, which got captured by the last tinyDoMove
@@ -168,6 +173,9 @@ public class Position implements IPosition {
 	 */
 	private Piece piece_capture;
 	
+	/**
+	 *  saves if the old position after tinyDoMove was check or not
+	 */
 	Boolean old_check;
 
 	// -----------------------------------------------------------------------------------------
@@ -176,7 +184,8 @@ public class Position implements IPosition {
 	 * Resets and clears the stored class members.
 	 */
 	private void resetCache() {
-		possible_moves = null;
+		possible_moves.clear();
+		possible_moves_is_null = true;
 		is_check = null;
 		is_mate = null;
 		is_stale_mate = null;
@@ -776,14 +785,14 @@ public class Position implements IPosition {
 
 	@Override
 	public List<IMove> getPossibleMoves() {
-		if (possible_moves == null) {
-			possible_moves = new ArrayList<IMove>(40);
+		if (possible_moves_is_null == true) {
 
 			// loop over all squares
 			for (int square : SquareHelper.all_squares) {
 				if (getSideFromBoard(square) == active_color)
 					possible_moves.addAll(getPossibleMovesFrom(square));
 			}
+			possible_moves_is_null = false;
 		}
 		
 		return possible_moves;
@@ -799,7 +808,7 @@ public class Position implements IPosition {
 		ArrayList<List<Integer>> all_squares = SquareHelper
 				.getSquaresAllDirections(square);
 		List<Integer> squares;
-		List<IMove> moves = new ArrayList<IMove>();
+		List<IMove> moves = new ArrayList<IMove>(35);
 		Move move;
 
 		// Types BISHOP, QUEEN, ROOK
