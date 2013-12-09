@@ -46,8 +46,7 @@ public class MitziBrain implements IBrain {
 	/**
 	 * the executor for the tasks
 	 */
-	private ExecutorService exe = Executors
-			.newFixedThreadPool(THREAD_POOL_SIZE);
+	private ExecutorService exe;
 
 	/**
 	 * the current game state
@@ -142,8 +141,8 @@ public class MitziBrain implements IBrain {
 	 * the current time.
 	 */
 	private long start_mtime = System.currentTimeMillis();
-	
-	private Timer timer = new Timer();
+
+	private Timer timer;
 
 	@Override
 	public void set(GameState game_state) {
@@ -213,8 +212,8 @@ public class MitziBrain implements IBrain {
 	 *            the beta value
 	 * @return returns the result of the evaluation, stored in the class
 	 *         AnalysisResult
-	 *         
-	 * @throws InterruptedException 
+	 * 
+	 * @throws InterruptedException
 	 */
 	private AnalysisResult negaMax(IPosition position, int total_depth,
 			int depth, int alpha, int beta) throws InterruptedException {
@@ -401,6 +400,10 @@ public class MitziBrain implements IBrain {
 		// note, the variable seachMoves is currently unused, this feature is
 		// not yet implemented!
 
+		// set up threading
+		timer = new Timer();
+		exe = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+
 		// store the actual position
 		IPosition position = game_state.getPosition();
 
@@ -443,13 +446,14 @@ public class MitziBrain implements IBrain {
 	}
 
 	/**
-	 * stops all active threads if mitzi is running out of time 
+	 * stops all active threads if mitzi is running out of time
+	 * 
 	 * @return the best move
 	 */
 	public IMove wait_until() {
 
 		exe.shutdown();
-		
+
 		// wait for termination of execution
 		try {
 			if (exe.awaitTermination(THREAD_TIMEOUT, THREAD_TIMEOUT_UNIT)) {
@@ -471,10 +475,10 @@ public class MitziBrain implements IBrain {
 		// return the best move of the last completely searched tree
 		return result.best_move;
 	}
-	
+
 	@Override
 	public IMove stop() {
-		//shut down immediately
+		// shut down immediately
 		exe.shutdownNow();
 
 		// shut down timers and update killer moves
@@ -483,9 +487,9 @@ public class MitziBrain implements IBrain {
 		KillerMoves.updateKillerMove();
 
 		// return the best move of the last completely searched tree
-		if(result == null)
-			return null; //this should never happen
-		
+		if (result == null)
+			return null; // this should never happen
+
 		return result.best_move;
 	}
 }
