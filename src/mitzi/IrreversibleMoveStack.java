@@ -17,6 +17,7 @@ public class IrreversibleMoveStack {
 		int[] castling = new int[4];
 		int en_passant_square;
 		Piece capture;
+		Boolean is_check;
 
 	}
 
@@ -41,13 +42,14 @@ public class IrreversibleMoveStack {
 	 *            the piece, which got captured (null if no capture)
 	 */
 	static public void addInfo(int half_move_clock, int[] castling,
-			int en_passant_square, Piece capture) {
+			int en_passant_square, Piece capture, Boolean is_check) {
 
 		MoveInfo inf = new MoveInfo();
 		System.arraycopy(castling, 0, inf.castling, 0, 4);
 		inf.en_passant_square = en_passant_square;
 		inf.half_move_clock = half_move_clock;
 		inf.capture = capture;
+		inf.is_check = is_check;
 
 		irr_move_info.addLast(inf);
 	}

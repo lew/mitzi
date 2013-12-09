@@ -168,6 +168,8 @@ public class Position implements IPosition {
 	 * saves the piece, which got captured by the last tinyDoMove
 	 */
 	private Piece piece_capture;
+	
+	Boolean old_check;
 
 	// -----------------------------------------------------------------------------------------
 
@@ -1473,7 +1475,7 @@ public class Position implements IPosition {
 		}
 
 		IrreversibleMoveStack.addInfo(half_move_clock, castling,
-				en_passant_target, capture);
+				en_passant_target, capture, is_check);
 
 		// reset half move clock
 		if (resets_half_move_clock)
@@ -1547,6 +1549,7 @@ public class Position implements IPosition {
 		Piece capture = inf.capture;
 		half_move_clock = inf.half_move_clock;
 		System.arraycopy(inf.castling, 0, castling, 0, 4);
+		is_check = inf.is_check;
 
 		setOnBoard(src, active_color, piece);
 		if (capture != null)
@@ -1598,7 +1601,6 @@ public class Position implements IPosition {
 
 		resetCache();
 
-		is_check = false;
 		is_mate = false;
 		is_stale_mate = false;
 
@@ -1654,6 +1656,8 @@ public class Position implements IPosition {
 		// Change active_color after move
 		active_color = Side.getOppositeSide(active_color);
 
+		old_check = is_check;
+		
 		is_check = null;
 		is_mate = null;
 		is_stale_mate = null;
@@ -1706,9 +1710,10 @@ public class Position implements IPosition {
 		if (piece == Piece.KING)
 			king_pos[active_color.ordinal()] = (byte) src;
 
-		is_check = false;
+		is_check = old_check;
 		is_mate = false;
 		is_stale_mate = false;
+		
 	}
 
 	@Override
