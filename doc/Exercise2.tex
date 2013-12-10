@@ -1,0 +1,209 @@
+\documentclass [12pt ,a4paper, english]{scrartcl}
+
+\usepackage []{inputenc}
+\usepackage [naustrian]{babel}
+\usepackage {lmodern}
+\usepackage [T1]{fontenc}
+
+\usepackage {fancyhdr}
+\usepackage {varioref}
+\usepackage[colorlinks=true,linkcolor=black]{hyperref}
+
+
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {amsthm}
+\usepackage {parskip}
+
+\usepackage{xcolor}
+\usepackage[pdftex]{graphicx}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+{
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2,
+  showspaces=false,
+  showtabs=false,
+}
+
+\DeclareMathOperator{\spn}{span}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{conj}[thm]{Vermutung}
+\newtheorem{bsp}[thm]{Beispiel}
+\newtheorem{bem}[thm]{Remark}
+
+\theoremstyle{remark}
+\newtheorem*{note}{Notiz}
+\newtheorem{case}{Case}
+
+\author{Christoph Hofer\\ 0955139 \and Stefan Lew \\ 0856722}
+
+\title{Mitzi - Exercise 2}
+\fancyhf{}
+\pagestyle {fancy}
+\lhead {\textsc {\nouppercase{\leftmark}}}
+\setlength\headheight{15pt}
+\lfoot {Christoph Hofer, Stefan Lew}
+\rfoot {Seite \thepage}
+\renewcommand{\footrulewidth}{0.5 pt}
+\renewcommand{\headheight}{29 pt}
+
+\begin{document}
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+\section{Implementation of artificial chess players}
+	As requested, we have implemented three different agents for playing. The first type is a random player, who choses randomly among all possible moves for a situation, see \verb+RandyBrain.java+ in section~\vref{sec:randybrain}. The second type is an interface for human players, who can enter their moves in long algebraic notation (e.\,g. d2d4), see \verb+HumanBrain.java+ in section~\vref{sec:humanbrain}.
+\subsection{MitziBrain}
+The heart of our program is our (somewhat) intelligent player \verb+MitziBrain.java+ in section~\vref{sec:mitzibrain}.
+
+The basic evaluation algorithm is a standard implementation of Negamax with Alpha-Beta-Pruning. On top of this we are using techniques like iterative deepening, aspiration windows, transposition tables, different approaches to move ordering, and a quiescence search.
+
+The correct procedure is to create the current \verb+GameState+, e.\,g. by applying a sequence of moves to the initial game state or by entering the current position as a FEN string. This game state is then handed over to \verb+MitziBrain+ and the command \verb+search+ starts the evaluation procedure. At the moment, search can be limited by depth and by evaluation time. The method returns one move, it considers to be best.
+
+For debugging reasons, Mitzi keeps printing some status updates, like the number of nodes searched per second (nps), the current search depth, the current principal variation (pv) and the percentage of maximum cache size currently in use.
+	
+\section{Implementation of a chess game}
+
+An example for using our engine is given in \verb+ChessGame.java+, see section~\vref{sec:chessgame}. After starting this example program, you can enter your move and, in this case, our random player will answer. As you will see: you cannot expect high quality games against this opponent.
+
+\begin{lstlisting}
+Lets play chess!
+e2e4
+rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3
+Randy plays:e7e6
+rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq -
+d2d4
+rnbqkbnr/pppp1ppp/4p3/8/3PP3/8/PPP2PPP/RNBQKBNR b KQkq d3
+Randy plays:a7a6
+rnbqkbnr/1ppp1ppp/p3p3/8/3PP3/8/PPP2PPP/RNBQKBNR w KQkq -
+g1f3
+rnbqkbnr/1ppp1ppp/p3p3/8/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq -
+Randy plays:d8g5
+rnb1kbnr/1ppp1ppp/p3p3/6q1/3PP3/5N2/PPP2PPP/RNBQKB1R w KQkq -
+\end{lstlisting}
+The game played was: 1.\,e4\,e6 2.\,d4\,a6 3.\,Nf3\,Qg5??. A more than dubious opening.~;)
+
+\subsection{UCI Protocol}
+For communication with common chess GUIs we are supporting (parts of) an open protocol called UCI.
+You can find the specification here: \url{http://wbec-ridderkerk.nl/html/UCIProtocol.html}.
+\subsection{Forsyth–Edwards Notation (FEN)}
+Representing a game situation is done in FEN: \url{https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation}.
+
+
+\section{The Code}
+
+\subsubsection*{ChessGame.java}
+\label{sec:chessgame}
+\lstinputlisting{../src/mitzi/ChessGame.java}
+
+\subsubsection*{Piece.java}
+\lstinputlisting{../src/mitzi/Piece.java}
+
+\subsubsection*{Side.java}
+\lstinputlisting{../src/mitzi/Side.java}
+
+\subsubsection*{PieceHelper.java}
+\lstinputlisting{../src/mitzi/PieceHelper.java}
+
+\subsubsection*{SquareHelper.java}
+\lstinputlisting{../src/mitzi/SquareHelper.java}
+
+\subsubsection*{IBrain.java}
+\label{sec:ibrain}
+\lstinputlisting{../src/mitzi/IBrain.java}
+
+\subsubsection*{IMove.java}
+\lstinputlisting{../src/mitzi/IMove.java}
+
+\subsubsection*{IPosition.java}
+\lstinputlisting{../src/mitzi/IPosition.java}
+
+\subsubsection*{IPositionAnalyzer.java}
+\lstinputlisting{../src/mitzi/IPositionAnalyzer.java}
+
+\subsubsection*{RandyBrain.java}
+\label{sec:randybrain}
+\lstinputlisting{../src/mitzi/RandyBrain.java}
+
+\subsubsection*{HumanBrain.java}
+\label{sec:humanbrain}
+\lstinputlisting{../src/mitzi/HumanBrain.java}
+
+\subsubsection*{Move.java}
+\lstinputlisting{../src/mitzi/Move.java}
+
+\subsubsection*{Direction.java}
+\lstinputlisting{../src/mitzi/Direction.java}
+
+\subsubsection*{Position.java}
+\lstinputlisting{../src/mitzi/Position.java}
+
+\subsubsection*{AnalysisResult.java}
+\lstinputlisting{../src/mitzi/AnalysisResult.java}
+
+\subsubsection*{BasicBoardAnalyzer.java}
+\lstinputlisting{../src/mitzi/BasicBoardAnalyzer.java}
+
+\subsubsection*{BasicMoveComparator.java}
+\lstinputlisting{../src/mitzi/BasicMoveComparator.java}
+
+\subsubsection*{BoardAnalyzer.java}
+\lstinputlisting{../src/mitzi/BoardAnalyzer.java}
+
+\subsubsection*{Flag.java}
+\lstinputlisting{../src/mitzi/Flag.java}
+
+\subsubsection*{GameState.java}
+\lstinputlisting{../src/mitzi/GameState.java}
+
+\subsubsection*{IrreversibleMoveStack.java}
+\lstinputlisting{../src/mitzi/IrreversibleMoveStack.java}
+
+\subsubsection*{KillerMoves.java}
+\lstinputlisting{../src/mitzi/KillerMoves.java}
+
+\subsubsection*{MateScores.java}
+\lstinputlisting{../src/mitzi/MateScores.java}
+
+\subsubsection*{MitziBrain.java}
+\label{sec:mitzibrain}
+\lstinputlisting{../src/mitzi/MitziBrain.java}
+
+\subsubsection*{MitziEngine.java}
+\lstinputlisting{../src/mitzi/MitziEngine.java}
+
+\subsubsection*{ResultCache.java}
+\lstinputlisting{../src/mitzi/ResultCache.java}
+
+\subsubsection*{UCIReporter.java}
+\lstinputlisting{../src/mitzi/UCIReporter.java}
+
+\end{document}
