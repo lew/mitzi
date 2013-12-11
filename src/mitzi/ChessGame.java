@@ -21,6 +21,8 @@ public class ChessGame {
 
 		RandyBrain randy = new RandyBrain();
 		HumanBrain human = new HumanBrain();
+		//MitziBrain mitzi = new MitziBrain();
+		
 		while (true) {
 			//Humans turn
 			human.set(game_state);
@@ -51,6 +53,22 @@ public class ChessGame {
 			}
 			System.out.println(game_state.getPosition());
 
+			/*
+			//Mitzis turn
+			mitzi.set(game_state);
+			move = mitzi.search(100000, 100000, 6, false, null);
+			System.out.println("Mitzi plays:" + move);
+			game_state.doMove(move);
+			if (game_state.getPosition().isMatePosition()) {
+				System.out.println("You lost!");
+				break;
+			}
+			if (game_state.getPosition().isStaleMatePosition()) {
+				System.out.println("Draw!");
+				break;
+			}
+			System.out.println(game_state.getPosition());
+			*/
 		}
 
 	}

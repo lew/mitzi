@@ -80,7 +80,7 @@
 \tableofcontents
 \newpage
 \section{Implementation of artificial chess players}
-	As requested, we have implemented three different agents for playing. The first type is a random player, who choses randomly among all possible moves for a situation, see \verb+RandyBrain.java+ in section~\vref{sec:randybrain}. The second type is an interface for human players, who can enter their moves in long algebraic notation (e.\,g. d2d4), see \verb+HumanBrain.java+ in section~\vref{sec:humanbrain}.
+	As requested, we have implemented three different agents for playing. The first type is a random player, who choses randomly among all possible moves for a situation, see \verb+RandyBrain.java+ in section~\vref{sec:randybrain}. The second type is an interface for human players, who can enter their moves in long algebraic notation (e.\,g. d2d4), see \verb+HumanBrain.java+ in section~\vref{sec:humanbrain}. 
 \subsection{MitziBrain}
 The heart of our program is our (somewhat) intelligent player \verb+MitziBrain.java+ in section~\vref{sec:mitzibrain}.
 
@@ -111,6 +111,134 @@ rnb1kbnr/1ppp1ppp/p3p3/6q1/3PP3/5N2/PPP2PPP/RNBQKB1R w KQkq -
 \end{lstlisting}
 The game played was: 1.\,e4\,e6 2.\,d4\,a6 3.\,Nf3\,Qg5??. A more than dubious opening.~;)
 
+\subsection{Game against mitzi}
+
+\begin{lstlisting}
+Lets play chess!
+d2d4
+rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3
+info score cp -2 depth 1 seldepth 1 pv b8c6 time 0
+info score cp -3 depth 1 seldepth 1 pv d7d6 time 16
+info string Boards found: 0
+info score cp 9 depth 2 seldepth 2 pv d7d6 c1f4 time 48
+info string Boards found: 0
+info score cp -5 depth 3 seldepth 5 pv d7d6 b1c3 c8f5 time 204
+info string Boards found: 0
+info score cp 27 depth 4 seldepth 6 pv d7d6 c1f4 g8f6 e2e3 time 1249
+info score cp 18 depth 4 seldepth 6 pv e7e6 g1f3 d7d5 c1f4 time 2257
+info string Boards found: 58
+info score cp 7 depth 5 seldepth 6 pv e7e6 c1f4 b7b6 b1c3 f8b4 time 2398
+info score cp 1 depth 5 seldepth 7 pv d7d6 e2e3 c8f5 f1d3 g8h6 time 2726
+info score cp -5 depth 5 seldepth 8 pv d7d5 f2f3 c8f5 g2g4 f5c8 time 4535
+info string Boards found: 414
+info currmove d7d5 currmovenumber 1
+info nps 19330
+info hashfull 12
+info score cp 27 depth 6 seldepth 12 pv d7d5 c1f4 c8f5 b1c3 e7e6 e2e3 time 6160
+info currmove d7d6 currmovenumber 2
+info currmove e7e6 currmovenumber 3
+info score cp 13 depth 6 seldepth 12 pv e7e6 c1f4 g8e7 e2e4 e7g6 f4e3 time 9452
+info currmove b8c6 currmovenumber 4
+info currmove g8f6 currmovenumber 5
+info currmove b8a6 currmovenumber 6
+info currmove g8h6 currmovenumber 7
+info currmove e7e5 currmovenumber 8
+info currmove c7c5 currmovenumber 9
+info currmove f7f5 currmovenumber 10
+info currmove b7b5 currmovenumber 11
+info currmove g7g5 currmovenumber 12
+info currmove h7h5 currmovenumber 13
+info nps 33286
+info hashfull 37
+info currmove a7a5 currmovenumber 14
+info currmove c7c6 currmovenumber 15
+info currmove f7f6 currmovenumber 16
+info currmove b7b6 currmovenumber 17
+info currmove g7g6 currmovenumber 18
+info currmove h7h6 currmovenumber 19
+info currmove a7a6 currmovenumber 20
+info string Boards found: 2861
+info string task completed
+Mitzi plays:e7e6
+rnbqkbnr/pppp1ppp/4p3/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq -
+c1f4
+rnbqkbnr/pppp1ppp/4p3/8/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq -
+info string Boards found: 1
+info string Boards found: 1
+info string Boards found: 1
+info string Boards found: 1
+info score cp 1 depth 5 seldepth 5 pv g8e7 e2e4 e7g6 f4e3 f8b4 time 329
+info string Boards found: 375
+info currmove g8e7 currmovenumber 1
+info score cp 24 depth 6 seldepth 9 pv g8e7 e2e4 b8a6 d1f3 f7f6 f3e3 time 1999
+info currmove d8f6 currmovenumber 2
+info currmove d8g5 currmovenumber 3
+info currmove d8e7 currmovenumber 4
+info currmove d8h4 currmovenumber 5
+info currmove f8c5 currmovenumber 6
+info currmove f8d6 currmovenumber 7
+info currmove b8c6 currmovenumber 8
+info currmove g8f6 currmovenumber 9
+info nps 33029
+info hashfull 62
+info score cp 16 depth 6 seldepth 10 pv g8f6 b1c3 f6h5 f4e3 d7d5 f2f3 time 9053
+info currmove f8b4 currmovenumber 10
+info currmove f8e7 currmovenumber 11
+info currmove b8a6 currmovenumber 12
+info currmove g8h6 currmovenumber 13
+info currmove f8a3 currmovenumber 14
+info currmove d7d5 currmovenumber 15
+info currmove c7c5 currmovenumber 16
+info nps 33640
+info hashfull 79
+info currmove f7f5 currmovenumber 17
+info currmove b7b5 currmovenumber 18
+info currmove g7g5 currmovenumber 19
+info currmove e6e5 currmovenumber 20
+info currmove d7d6 currmovenumber 21
+info currmove h7h5 currmovenumber 22
+info currmove a7a5 currmovenumber 23
+info currmove c7c6 currmovenumber 24
+info currmove f7f6 currmovenumber 25
+info currmove b7b6 currmovenumber 26
+info currmove g7g6 currmovenumber 27
+info currmove h7h6 currmovenumber 28
+info currmove a7a6 currmovenumber 29
+info currmove e8e7 currmovenumber 30
+info string Boards found: 4593
+info string task completed
+Mitzi plays:g8f6
+rnbqkb1r/pppp1ppp/4pn2/8/3P1B2/8/PPP1PPPP/RN1QKBNR w KQkq -
+d1d2
+rnbqkb1r/pppp1ppp/4pn2/8/3P1B2/8/PPPQPPPP/RN2KBNR b KQkq -
+info score cp -240 depth 1 seldepth 4 pv f6d5 f4e5 time 0
+info string Boards found: 31
+info string Boards found: 1
+info string Boards found: 1
+info string Boards found: 1
+info string Boards found: 1
+info string Boards found: 1
+info score cp 21 depth 2 seldepth 2 pv f6d5 f4e5 b8c6 time 0
+info score cp 16 depth 2 seldepth 4 pv f8d6 f4d6 c7d6 time 0
+info score cp 10 depth 2 seldepth 4 pv b8a6 d2d1 time 0
+info score cp 7 depth 2 seldepth 4 pv b7b5 d2d1 time 0
+info string Boards found: 34
+info score cp 9 depth 3 seldepth 3 pv f6d5 f4e5 b8c6 d2c3 time 0
+info score cp -6 depth 3 seldepth 5 pv f6e4 d2d1 f8d6 time 16
+info string Boards found: 112
+info score cp -9 depth 4 seldepth 6 pv f6d5 f4e5 b8c6 d2c3 time 80
+info string Boards found: 196
+info score cp -16 depth 5 seldepth 9 pv f6d5 d2d1 f8c5 b1d2 d8f6 time 595
+info string Boards found: 93
+info currmove f6d5 currmovenumber 1
+info score cp -9 depth 6 seldepth 12 pv f6d5 f4e5 b8c6 b2b4 d8e7 e5d6 time 2342
+info string Boards found: 581
+info string task completed
+Mitzi plays:f6d5
+rnbqkb1r/pppp1ppp/4p3/3n4/3P1B2/8/PPPQPPPP/RN2KBNR w KQkq -
+\end{lstlisting}
+The game played was 1. d2d4, 2. e7e6, 3. c1f4, 4. g8f4, 5. d1d2, 6. f6d5.
+
 \subsection{UCI Protocol}
 For communication with common chess GUIs we are supporting (parts of) an open protocol called UCI.
 You can find the specification here: \url{http://wbec-ridderkerk.nl/html/UCIProtocol.html}.
@@ -120,90 +248,84 @@ Representing a game situation is done in FEN: \url{https://en.wikipedia.org/wiki
 
 \section{The Code}
 
-\subsubsection*{ChessGame.java}
+\subsubsection{ChessGame.java}
 \label{sec:chessgame}
 \lstinputlisting{../src/mitzi/ChessGame.java}
 
-\subsubsection*{Piece.java}
+\subsubsection{Piece.java}
 \lstinputlisting{../src/mitzi/Piece.java}
 
-\subsubsection*{Side.java}
+\subsubsection{Side.java}
 \lstinputlisting{../src/mitzi/Side.java}
 
-\subsubsection*{PieceHelper.java}
+\subsubsection{PieceHelper.java}
 \lstinputlisting{../src/mitzi/PieceHelper.java}
 
-\subsubsection*{SquareHelper.java}
+\subsubsection{SquareHelper.java}
 \lstinputlisting{../src/mitzi/SquareHelper.java}
 
-\subsubsection*{IBrain.java}
+\subsubsection{IBrain.java}
 \label{sec:ibrain}
 \lstinputlisting{../src/mitzi/IBrain.java}
 
-\subsubsection*{IMove.java}
+\subsubsection{IMove.java}
 \lstinputlisting{../src/mitzi/IMove.java}
 
-\subsubsection*{IPosition.java}
+\subsubsection{IPosition.java}
 \lstinputlisting{../src/mitzi/IPosition.java}
 
-\subsubsection*{IPositionAnalyzer.java}
+\subsubsection{IPositionAnalyzer.java}
 \lstinputlisting{../src/mitzi/IPositionAnalyzer.java}
 
-\subsubsection*{RandyBrain.java}
+\subsubsection{RandyBrain.java}
 \label{sec:randybrain}
 \lstinputlisting{../src/mitzi/RandyBrain.java}
 
-\subsubsection*{HumanBrain.java}
+\subsubsection{HumanBrain.java}
 \label{sec:humanbrain}
 \lstinputlisting{../src/mitzi/HumanBrain.java}
 
-\subsubsection*{Move.java}
+\subsubsection{Move.java}
 \lstinputlisting{../src/mitzi/Move.java}
 
-\subsubsection*{Direction.java}
+\subsubsection{Direction.java}
 \lstinputlisting{../src/mitzi/Direction.java}
 
-\subsubsection*{Position.java}
+\subsubsection{Position.java}
 \lstinputlisting{../src/mitzi/Position.java}
 
-\subsubsection*{AnalysisResult.java}
+\subsubsection{AnalysisResult.java}
 \lstinputlisting{../src/mitzi/AnalysisResult.java}
 
-\subsubsection*{BasicBoardAnalyzer.java}
-\lstinputlisting{../src/mitzi/BasicBoardAnalyzer.java}
-
-\subsubsection*{BasicMoveComparator.java}
+\subsubsection{BasicMoveComparator.java}
 \lstinputlisting{../src/mitzi/BasicMoveComparator.java}
 
-\subsubsection*{BoardAnalyzer.java}
+\subsubsection{BoardAnalyzer.java}
 \lstinputlisting{../src/mitzi/BoardAnalyzer.java}
 
-\subsubsection*{Flag.java}
+\subsubsection{Flag.java}
 \lstinputlisting{../src/mitzi/Flag.java}
 
-\subsubsection*{GameState.java}
+\subsubsection{GameState.java}
 \lstinputlisting{../src/mitzi/GameState.java}
 
-\subsubsection*{IrreversibleMoveStack.java}
+\subsubsection{IrreversibleMoveStack.java}
 \lstinputlisting{../src/mitzi/IrreversibleMoveStack.java}
 
-\subsubsection*{KillerMoves.java}
+\subsubsection{KillerMoves.java}
 \lstinputlisting{../src/mitzi/KillerMoves.java}
 
-\subsubsection*{MateScores.java}
+\subsubsection{MateScores.java}
 \lstinputlisting{../src/mitzi/MateScores.java}
 
-\subsubsection*{MitziBrain.java}
+\subsubsection{MitziBrain.java}
 \label{sec:mitzibrain}
 \lstinputlisting{../src/mitzi/MitziBrain.java}
 
-\subsubsection*{MitziEngine.java}
-\lstinputlisting{../src/mitzi/MitziEngine.java}
-
-\subsubsection*{ResultCache.java}
+\subsubsection{ResultCache.java}
 \lstinputlisting{../src/mitzi/ResultCache.java}
 
-\subsubsection*{UCIReporter.java}
+\subsubsection{UCIReporter.java}
 \lstinputlisting{../src/mitzi/UCIReporter.java}
 
 \end{document}
