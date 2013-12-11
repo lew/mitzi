@@ -439,6 +439,9 @@ public class MitziBrain implements IBrain {
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
 		start_mtime = System.currentTimeMillis();
 
+		// update AnalysisResult in game state
+		game_state.getPosition().updateAnalysisResult(result);
+		
 		// reset the result
 		result = null;
 
