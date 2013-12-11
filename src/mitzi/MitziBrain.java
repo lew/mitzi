@@ -358,6 +358,7 @@ public class MitziBrain implements IBrain {
 				// boolean truly_better = negaval > best_value;
 				if (depth == total_depth) { // && truly_better) {
 					position.updateAnalysisResult(parent);
+					game_state.getPosition().updateAnalysisResult(parent);
 					UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 				}
 			}
