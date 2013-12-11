@@ -410,8 +410,8 @@ public class MitziBrain implements IBrain {
 		timer = new Timer();
 		exe = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
-		// store the actual position
-		IPosition position = game_state.getPosition();
+		// make a copy of the actual position
+		IPosition position = game_state.getPosition().returnCopy();
 
 		int max_depth;
 

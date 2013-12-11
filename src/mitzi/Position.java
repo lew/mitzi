@@ -214,7 +214,8 @@ public class Position implements IPosition {
 	 * 
 	 * @return a incomplete copy of the board.
 	 */
-	private Position returnCopy() {
+	@Override
+	public Position returnCopy() {
 		Position newBoard = new Position();
 
 		newBoard.active_color = active_color;

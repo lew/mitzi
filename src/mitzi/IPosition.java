@@ -25,6 +25,13 @@ public interface IPosition {
 	public void setToFEN(String fen);
 
 	/**
+	 * Return an independent copy of the IPosition.
+	 * 
+	 * @return the copy
+	 */
+	public IPosition returnCopy();
+
+	/**
 	 * Performs the given move and returns a new position. There is no check,
 	 * that the performed move is legal!
 	 * 
