@@ -358,6 +358,7 @@ public class MitziBrain implements IBrain {
 				// boolean truly_better = negaval > best_value;
 				if (depth == total_depth) { // && truly_better) {
 					position.updateAnalysisResult(parent);
+					game_state.getPosition().updateAnalysisResult(parent);
 					UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
 				}
 			}
@@ -410,8 +411,8 @@ public class MitziBrain implements IBrain {
 		timer = new Timer();
 		exe = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
-		// store the actual position
-		IPosition position = game_state.getPosition();
+		// make a copy of the actual position
+		IPosition position = game_state.getPosition().returnCopy();
 
 		int max_depth;
 
@@ -438,7 +439,7 @@ public class MitziBrain implements IBrain {
 
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
 		start_mtime = System.currentTimeMillis();
-
+		
 		// reset the result
 		result = null;
 
