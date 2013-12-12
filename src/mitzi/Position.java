@@ -995,17 +995,22 @@ public class Position implements IPosition {
 
 						// Check each square if the king on it would be check
 						for (Integer squ : line) {
-
+							
 							setOnBoard(squ, active_color, Piece.KING);
 							setOnBoard(square, null, null);
-
+							is_check = null;
+							king_pos[active_color.ordinal()] = squ;
 							if (isCheckPosition()) {
 								setOnBoard(square, active_color, Piece.KING);
 								setOnBoard(squ, null, null);
+								is_check = false; //king is not check in the original position
+								king_pos[active_color.ordinal()] = square;
 								break;
 							}
 							setOnBoard(square, active_color, Piece.KING);
 							setOnBoard(squ, null, null);
+							is_check = false;
+							king_pos[active_color.ordinal()] = squ;
 							if (squ == new_square) {
 								// if everything is right, then add the move
 								move = new Move(square, squ);
