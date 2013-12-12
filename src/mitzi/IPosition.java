@@ -303,4 +303,6 @@ public interface IPosition {
 	public void setHalfMoveClock(int parseInt);
 
 	public int getHalfMoveClock();
+	
+	public IMove get_smallest_attacker(int square);
 }

@@ -116,7 +116,7 @@ public class Position implements IPosition {
 	 * true if, the possible moves were not computed for this position.
 	 */
 	private boolean possible_moves_is_null = true;
-	
+
 	/**
 	 * caching if the current position is check.
 	 */
@@ -172,9 +172,9 @@ public class Position implements IPosition {
 	 * saves the piece, which got captured by the last tinyDoMove
 	 */
 	private Piece piece_capture;
-	
+
 	/**
-	 *  saves if the old position after tinyDoMove was check or not
+	 * saves if the old position after tinyDoMove was check or not
 	 */
 	Boolean old_check;
 
@@ -795,7 +795,7 @@ public class Position implements IPosition {
 			}
 			possible_moves_is_null = false;
 		}
-		
+
 		return possible_moves;
 	}
 
@@ -995,7 +995,7 @@ public class Position implements IPosition {
 
 						// Check each square if the king on it would be check
 						for (Integer squ : line) {
-							
+
 							setOnBoard(squ, active_color, Piece.KING);
 							setOnBoard(square, null, null);
 							is_check = null;
@@ -1003,7 +1003,8 @@ public class Position implements IPosition {
 							if (isCheckPosition()) {
 								setOnBoard(square, active_color, Piece.KING);
 								setOnBoard(squ, null, null);
-								is_check = false; //king is not check in the original position
+								is_check = false; // king is not check in the
+													// original position
 								king_pos[active_color.ordinal()] = square;
 								break;
 							}
@@ -1482,7 +1483,7 @@ public class Position implements IPosition {
 					active_color).ordinal()
 					* 10 + capture.ordinal()]--;
 		}
-		
+
 		IrreversibleMoveStack.addInfo(half_move_clock, castling,
 				en_passant_target, capture, is_check);
 
@@ -1542,9 +1543,9 @@ public class Position implements IPosition {
 
 	@Override
 	public void undoMove(IMove move) {
-		
+
 		resetCache();
-		
+
 		int src = move.getFromSquare();
 		int dest = move.getToSquare();
 
@@ -1560,7 +1561,7 @@ public class Position implements IPosition {
 		Piece capture = inf.capture;
 		half_move_clock = inf.half_move_clock;
 		System.arraycopy(inf.castling, 0, castling, 0, 4);
-		is_check = inf.is_check;		
+		is_check = inf.is_check;
 
 		setOnBoard(src, active_color, piece);
 		if (capture != null)
@@ -1666,7 +1667,7 @@ public class Position implements IPosition {
 		active_color = Side.getOppositeSide(active_color);
 
 		old_check = is_check;
-		
+
 		is_check = null;
 		is_mate = null;
 		is_stale_mate = null;
@@ -1722,7 +1723,7 @@ public class Position implements IPosition {
 		is_check = old_check;
 		is_mate = false;
 		is_stale_mate = false;
-		
+
 	}
 
 	@Override
@@ -1734,5 +1735,189 @@ public class Position implements IPosition {
 	@Override
 	public int getHalfMoveClock() {
 		return half_move_clock;
+	}
+
+	@Override
+	public IMove get_smallest_attacker(int square) {
+
+		Side side = getActiveColor();
+		Side opp_side = Side.getOppositeSide(side);
+		ArrayList<List<Integer>> all_squares = SquareHelper
+				.getSquaresAllDirections(square);
+		List<Integer> squares;
+		IMove move = null;
+		IMove temp_move;
+
+		for (Direction dir : Direction.pawnCapturingDirections(side))
+			if (getPieceFromBoard(square + dir.offset) == Piece.PAWN
+					&& getSideFromBoard(square + dir.offset) == opp_side) {
+				move = new Move(square + dir.offset, square);
+				tinyDoMove(move);
+				active_color = Side.getOppositeSide(active_color);
+				if (isCheckPosition()) {
+					active_color = Side.getOppositeSide(active_color);
+					tinyUndoMove(move);
+					continue;
+				}
+				active_color = Side.getOppositeSide(active_color);
+				tinyUndoMove(move);
+				return move;
+			}
+
+		// en_passant
+		if (square == getEnPassant()) {
+			if (getPieceFromBoard(square + Direction.EAST.offset) == Piece.PAWN
+					&& getSideFromBoard(square + Direction.EAST.offset) == opp_side) {
+				move = new Move(square + Direction.EAST.offset, square);
+				tinyDoMove(move);
+				active_color = Side.getOppositeSide(active_color);
+				if (isCheckPosition()) {
+					active_color = Side.getOppositeSide(active_color);
+					tinyUndoMove(move);
+				} else {
+					active_color = Side.getOppositeSide(active_color);
+					tinyUndoMove(move);
+					return move;
+				}
+
+			}
+			if (getPieceFromBoard(square + Direction.WEST.offset) == Piece.PAWN
+					&& getSideFromBoard(square + Direction.WEST.offset) == opp_side) {
+				move = new Move(square + Direction.WEST.offset, square);
+				tinyDoMove(move);
+				active_color = Side.getOppositeSide(active_color);
+				if (isCheckPosition()) {
+					active_color = Side.getOppositeSide(active_color);
+					tinyUndoMove(move);
+				} else {
+					active_color = Side.getOppositeSide(active_color);
+					tinyUndoMove(move);
+					return move;
+				}
+			}
+		}
+
+		int[] piece_values = { 100, 500, 325, 325, 975, 000 };
+		int min = 1000;
+		for (Direction dir : Direction.values()) {
+			squares = all_squares.get(dir.ordinal());
+			for (int squ : squares)
+				if (getSideFromBoard(squ) == side)
+					break;
+				else if (getSideFromBoard(squ) == opp_side) {
+					if (dir == Direction.NORTH || dir == Direction.SOUTH
+							|| dir == Direction.WEST || dir == Direction.NORTH) {
+						Piece p = getPieceFromBoard(squ);
+						if (p == Piece.QUEEN || p == Piece.ROOK) {
+
+							if (min > piece_values[p.ordinal()]) {
+								min = piece_values[p.ordinal()];
+
+								temp_move = new Move(squ, square);
+								tinyDoMove(temp_move);
+								active_color = Side
+										.getOppositeSide(active_color);
+								if (isCheckPosition()) {
+									active_color = Side
+											.getOppositeSide(active_color);
+									tinyUndoMove(temp_move);
+								} else {
+									active_color = Side
+											.getOppositeSide(active_color);
+									tinyUndoMove(temp_move);
+									move = temp_move;
+								}
+
+							}
+
+						}
+					}
+					if (dir == Direction.NORTHWEST
+							|| dir == Direction.NORTHEAST
+							|| dir == Direction.SOUTHWEST
+							|| dir == Direction.SOUTHEAST) {
+						Piece p = getPieceFromBoard(squ);
+						if (p == Piece.QUEEN || p == Piece.BISHOP) {
+							if (min > piece_values[p.ordinal()]) {
+								min = piece_values[p.ordinal()];
+								
+								temp_move = new Move(squ, square);
+								tinyDoMove(temp_move);
+								active_color = Side
+										.getOppositeSide(active_color);
+								if (isCheckPosition()) {
+									active_color = Side
+											.getOppositeSide(active_color);
+									tinyUndoMove(temp_move);
+								} else {
+									active_color = Side
+											.getOppositeSide(active_color);
+									tinyUndoMove(temp_move);
+									move = temp_move;
+								}
+								
+								if (p == Piece.BISHOP)
+									return move;
+							}
+
+						}
+					}
+
+					break;
+				}
+		}
+
+		squares = SquareHelper.getAllSquaresByKnightStep(square);
+		for (int squ : squares) {
+			if (getPieceFromBoard(squ) == Piece.KNIGHT
+					&& getSideFromBoard(squ) == opp_side) {
+				if (min > piece_values[Piece.KNIGHT.ordinal()]) {
+					min = piece_values[Piece.KNIGHT.ordinal()];
+					
+					temp_move = new Move(squ, square);
+					tinyDoMove(temp_move);
+					active_color = Side
+							.getOppositeSide(active_color);
+					if (isCheckPosition()) {
+						active_color = Side
+								.getOppositeSide(active_color);
+						tinyUndoMove(temp_move);
+					} else {
+						active_color = Side
+								.getOppositeSide(active_color);
+						tinyUndoMove(temp_move);
+						move = temp_move;
+					}
+					
+					return move;
+
+				}
+
+			}
+		}
+
+		if(min == 1000){
+			for(Direction dir : Direction.values())
+			{
+				if(getPieceFromBoard(square+ dir.offset)== Piece.KING && getSideFromBoard(square+ dir.offset)== opp_side){
+					temp_move = new Move(square+ dir.offset, square);
+					tinyDoMove(temp_move);
+					active_color = Side
+							.getOppositeSide(active_color);
+					if (isCheckPosition()) {
+						active_color = Side
+								.getOppositeSide(active_color);
+						tinyUndoMove(temp_move);
+					} else {
+						active_color = Side
+								.getOppositeSide(active_color);
+						tinyUndoMove(temp_move);
+						return temp_move;
+					}
+				}
+			}
+		}
+		
+		return move;
 	}
 }

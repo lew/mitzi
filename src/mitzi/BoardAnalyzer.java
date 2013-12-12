@@ -252,7 +252,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	}
 
 	@Override
-	public AnalysisResult evalBoard(IPosition position, int alpha, int beta) throws InterruptedException {
+	public AnalysisResult evalBoard(IPosition position, int alpha, int beta)
+			throws InterruptedException {
 		AnalysisResult result = quiesce(position, alpha, beta);
 
 		// The analysis result should always contain the pure value (not
@@ -277,14 +278,15 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 *            the beta value of alpha-beta search
 	 * @return the value of the board ( in favor of white)
 	 * 
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
-	private AnalysisResult quiesce(IPosition position, int alpha, int beta) throws InterruptedException {
+	private AnalysisResult quiesce(IPosition position, int alpha, int beta)
+			throws InterruptedException {
 
 		if (Thread.interrupted()) {
 			throw new InterruptedException();
 		}
-		
+
 		int side_sign = Side.getSideSign(position.getActiveColor());
 
 		// Cache lookup
@@ -331,20 +333,20 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		alpha = Math.max(alpha, negaval);
 
 		// Generate possible Captures
-		List<IMove> caputures = position.generateCaptures();
+		List<IMove> captures = position.generateCaptures();
+		if (captures.size()>1) {
+			// Generate MoveComperator
+			//BasicMoveComparator move_comparator = new BasicMoveComparator(position);			
+			CaptureComperator move_comparator = new CaptureComperator(position);
 
-		// Generate MoveComperator
-		BasicMoveComparator move_comparator = new BasicMoveComparator(position);
-
-		// no previous computation given, use basic heuristic
-		ArrayList<IMove> ordered_captures = new ArrayList<IMove>(caputures);
-		Collections.sort(ordered_captures,
-				Collections.reverseOrder(move_comparator));
+			Collections.sort(captures,
+					Collections.reverseOrder(move_comparator));
+		}
 
 		AnalysisResult result = null;
 		int best_value = NEG_INF;
 
-		for (IMove move : ordered_captures) {
+		for (IMove move : captures) {
 
 			position.doMove(move);
 			AnalysisResult result_temp = quiesce(position, -beta, -alpha);
@@ -711,7 +713,6 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 				for (int squ : squares_pawn)
 					score -= pawn_positions_b[square_to_array_index[squ]];
 
-			
 			for (int squ_1 : squares_pawn) {
 				row = SquareHelper.getRow(squ_1);
 				col = SquareHelper.getColumn(squ_1);
