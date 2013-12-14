@@ -305,4 +305,10 @@ public interface IPosition {
 	public int getHalfMoveClock();
 	
 	public IMove get_smallest_attacker(int square);
+
+	boolean isCheckAfterMove(IMove move);
+
+	List<IMove> getPossibleMovesTo(int square, Piece attacking_dir);
+
+	void getPossibleMovesTo(int square, Piece attacking_dir, List<IMove> result);
 }
