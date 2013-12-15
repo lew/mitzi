@@ -46,7 +46,7 @@ public class CaptureComparator implements Comparator<IMove> {
 			attackers.add(null);
 		}
 
-		List<IMove> captures = board.getPotentialAttackersTo(square);
+		List<IMove> captures = board.getPotentialAttackersTo(square);	
 		captures.remove(m);
 		attackers.set(side.ordinal(), captures);
 
@@ -57,7 +57,6 @@ public class CaptureComparator implements Comparator<IMove> {
 		board.undoMove(m);
 
 		attackers.clear();
-
 		move_values.put(m, value);
 		return value;
 	}
@@ -67,7 +66,7 @@ public class CaptureComparator implements Comparator<IMove> {
 		int value = 0;
 		Side side = board.getActiveColor();
 		update_attackers(square, m);
-		IMove move = get_smallest_attacker(Side.getOppositeSide(side));
+		IMove move = get_smallest_attacker(side);
 		/* skip if the square isn't attacked anymore by this side */
 		if (move != null) {
 			Piece piece = board.getPieceFromBoard(move.getToSquare());

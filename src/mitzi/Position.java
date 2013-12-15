@@ -1290,40 +1290,16 @@ public class Position implements IPosition {
 
 	@Override
 	public boolean isCheckAfterMove(IMove move) {
+		
 		boolean is_check = false;
-		int src = move.getFromSquare();
-		int dest = move.getToSquare();
 
-		if (getSideFromBoard(dest) != active_color) {
-			tinyDoMove(move);
-			active_color = Side.getOppositeSide(active_color);
-			if (isCheckPosition())
-				is_check = true;
-			active_color = Side.getOppositeSide(active_color);
-			tinyUndoMove(move);
-		} else {
-			Piece p = getPieceFromBoard(src);
-			if (p != Piece.KING) {
-				Boolean check = this.is_check;
-				setOnBoard(src, null, null);
-				this.is_check = null;
-				if (isCheckPosition())
-					is_check = true;
-				this.is_check = check;
-				setOnBoard(src, active_color, p);
-			} else {
-				// TODO needs to be verified.
-				Boolean check = this.is_check;
-				setOnBoard(src, null, null);
-				king_pos[active_color.ordinal()] = dest;
-				this.is_check = null;
-				if (isCheckPosition())
-					is_check = true;
-				this.is_check = check;
-				king_pos[active_color.ordinal()] = src;
-				setOnBoard(src, active_color, p);
-			}
-		}
+		tinyDoMove(move);
+		active_color = Side.getOppositeSide(active_color);
+		if (isCheckPosition())
+			is_check = true;
+		active_color = Side.getOppositeSide(active_color);
+		tinyUndoMove(move);
+		
 		return is_check;
 
 	}
@@ -1895,19 +1871,20 @@ public class Position implements IPosition {
 		int dest = move.getToSquare();
 
 		Piece piece = getPieceFromBoard(src);
+		Side s_piece = getSideFromBoard(src);
 		piece_capture = getPieceFromBoard(dest);
 		side_capture = getSideFromBoard(dest);
 
-		setOnBoard(dest, active_color, piece);
+		setOnBoard(dest, s_piece, piece);
 		setOnBoard(src, null, null);
 
 		// if promotion
 		if (move.getPromotion() != null) {
-			setOnBoard(dest, active_color, move.getPromotion());
+			setOnBoard(dest, s_piece, move.getPromotion());
 		}
 		// If castling
 		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
-			setOnBoard((src + dest) / 2, active_color, Piece.ROOK);
+			setOnBoard((src + dest) / 2, s_piece, Piece.ROOK);
 			if (SquareHelper.getColumn(dest) == 3)
 				setOnBoard(src - 40, null, null);
 			else
@@ -1924,7 +1901,7 @@ public class Position implements IPosition {
 
 		// Update castling
 		if (piece == Piece.KING)
-			king_pos[active_color.ordinal()] = (byte) dest;
+			king_pos[s_piece.ordinal()] = dest;
 
 		// Change active_color after move
 		active_color = Side.getOppositeSide(active_color);
@@ -1950,38 +1927,39 @@ public class Position implements IPosition {
 		int dest = move.getToSquare();
 
 		Piece piece = getPieceFromBoard(dest);
+		Side s_piece = getSideFromBoard(dest);
 
 		// Change active_color after move
 		active_color = Side.getOppositeSide(active_color);
 
 		setOnBoard(dest, side_capture, piece_capture);
-		setOnBoard(src, active_color, piece);
+		setOnBoard(src, s_piece, piece);
 		// if promotion
 		if (move.getPromotion() != null) {
-			setOnBoard(src, active_color, Piece.PAWN);
+			setOnBoard(src, s_piece, Piece.PAWN);
 		}
 		// If castling
 		else if (piece == Piece.KING && Math.abs((src - dest)) == 20) {
 			setOnBoard((src + dest) / 2, null, null);
 			if (SquareHelper.getColumn(dest) == 3)
-				setOnBoard(src - 40, active_color, Piece.ROOK);
+				setOnBoard(src - 40, s_piece, Piece.ROOK);
 			else
-				setOnBoard(src + 30, active_color, Piece.ROOK);
+				setOnBoard(src + 30, s_piece, Piece.ROOK);
 
 		}
 		// If en passant
 		else if (piece == Piece.PAWN && dest == en_passant_target) {
-			if (active_color == Side.WHITE)
-				setOnBoard(dest - 1, Side.getOppositeSide(active_color),
+			if (s_piece == Side.WHITE)
+				setOnBoard(dest - 1, Side.getOppositeSide(s_piece),
 						Piece.PAWN);
 			else
-				setOnBoard(dest + 1, Side.getOppositeSide(active_color),
+				setOnBoard(dest + 1, Side.getOppositeSide(s_piece),
 						Piece.PAWN);
 		}
 
 		// Update king position
 		if (piece == Piece.KING)
-			king_pos[active_color.ordinal()] = (byte) src;
+			king_pos[s_piece.ordinal()] = src;
 
 		is_check = old_check;
 		is_mate = false;
