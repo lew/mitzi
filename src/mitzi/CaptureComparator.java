@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class CaptureComperator implements Comparator<IMove> {
+public class CaptureComparator implements Comparator<IMove> {
 
 	/**
 	 * saves the actual board, where the moves should be compared
@@ -24,7 +24,7 @@ public class CaptureComperator implements Comparator<IMove> {
 
 	private ArrayList<List<IMove>> attackers = new ArrayList<List<IMove>>(2);
 
-	public CaptureComperator(IPosition board) {
+	public CaptureComparator(IPosition board) {
 		this.board = board.returnCopy();
 	}
 
