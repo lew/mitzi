@@ -1049,30 +1049,50 @@ public class Position implements IPosition {
 	}
 
 	@Override
+	public List<IMove> getPotentialAttackersTo(int square) {
+		List<IMove> result = new ArrayList<IMove>();
+
+		for (Piece p : Piece.values())
+			getPotentialAttackersTo(square, p, result);
+
+		// TODO: en passant
+
+		return result;
+	}
+
+	@Override
 	public List<IMove> getPossibleMovesTo(int square) {
 
 		List<IMove> result = new ArrayList<IMove>();
+		Side s = getSideFromBoard(square);
+		if (s == active_color)
+			return result;
 
 		Side side = active_color;
 		Side opp_side = Side.getOppositeSide(side);
+
 		IMove move;
 
+		EnumSet<Piece> dirs = EnumSet.of(Piece.BISHOP, Piece.ROOK,
+				Piece.KNIGHT, Piece.KING);
+		if (s == opp_side)
+			getPotentialAttackersTo(square, Piece.PAWN, result);
+
+		for (Piece p : dirs)
+			getPotentialAttackersTo(square, p, result);
+
 		// en passant
-		EnumSet<Direction> dirs = EnumSet.of(Direction.EAST, Direction.WEST);
-		if (square == getEnPassant()) {
-			for (Direction dir : dirs) {
-				if (getPieceFromBoard(square + dir.offset) == Piece.PAWN
-						&& getSideFromBoard(square + dir.offset) == opp_side) {
-					move = new Move(square + dir.offset, square);
+		if (s == null
+				&& (square + Direction.pawnDirection(opp_side).offset == en_passant_target)) {
+			for (Direction dir : Direction.pawnCapturingDirections(opp_side)) {
+				int squ = square + dir.offset;
+				if (getPieceFromBoard(squ) == Piece.PAWN
+						&& getSideFromBoard(squ) == active_color) {
+					move = new Move(squ, square);
 					if (!isCheckAfterMove(move))
 						result.add(move);
 				}
 			}
-		}
-
-		// Pawn captures and queen, bishop, rook moves
-		for (Piece p : Piece.values()) {
-			getPossibleMovesTo(square, p, result);
 		}
 
 		// Castling moves
@@ -1137,18 +1157,33 @@ public class Position implements IPosition {
 		}
 		// usual pawn move (1 square)
 		int new_square = square + Direction.pawnDirection(opp_side).offset;
-		if (getSideFromBoard(square) == null
-				&& getPieceFromBoard(new_square) == Piece.PAWN
+		if (s == null && getPieceFromBoard(new_square) == Piece.PAWN
 				&& getSideFromBoard(new_square) == active_color) {
-			move = new Move(new_square, square);
-			if (!isCheckAfterMove(move))
-				result.add(move);
+			if (SquareHelper.getRow(square) == SquareHelper.getRowForSide(
+					active_color, 8)) {
+				// promotion
+				move = new Move(new_square, square);
+				if (!isCheckAfterMove(move)) {
+					move = new Move(new_square, square, Piece.QUEEN);
+					result.add(move);
+					move = new Move(new_square, square, Piece.KNIGHT);
+					result.add(move);
+					move = new Move(new_square, square, Piece.BISHOP);
+					result.add(move);
+					move = new Move(new_square, square, Piece.ROOK);
+					result.add(move);
+				}
+			} else {
+				// usual move
+				move = new Move(new_square, square);
+				if (!isCheckAfterMove(move))
+					result.add(move);
+			}
 		}
 		// usual pawn move (2 squares)
 		new_square += Direction.pawnDirection(opp_side).offset;
 		if (SquareHelper.getRow(square) == SquareHelper.getRowForSide(side, 4)
-				&& getSideFromBoard(square) == null
-				&& getPieceFromBoard(new_square) == Piece.PAWN
+				&& s == null && getPieceFromBoard(new_square) == Piece.PAWN
 				&& getSideFromBoard(new_square) == active_color) {
 			move = new Move(new_square, square);
 			if (!isCheckAfterMove(move))
@@ -1159,15 +1194,15 @@ public class Position implements IPosition {
 	}
 
 	@Override
-	public List<IMove> getPossibleMovesTo(int square, Piece attacking_dir) {
+	public List<IMove> getPotentialAttackersTo(int square, Piece attacking_dir) {
 		List<IMove> result = new ArrayList<IMove>();
-		getPossibleMovesTo(square, attacking_dir, result);
+		getPotentialAttackersTo(square, attacking_dir, result);
 		return result;
 
 	}
 
 	@Override
-	public void getPossibleMovesTo(int square, Piece attacking_dir,
+	public void getPotentialAttackersTo(int square, Piece attacking_dir,
 			List<IMove> result) {
 
 		Side side = active_color;
@@ -1176,20 +1211,34 @@ public class Position implements IPosition {
 		IMove move;
 
 		if (attacking_dir == Piece.PAWN) {
+			for (Direction dir : Direction.pawnCapturingDirections(opp_side)) {
+				int new_square = square + dir.offset;
+				if (getPieceFromBoard(new_square) == Piece.PAWN
+						&& getSideFromBoard(new_square) == side) {
 
-			for (Direction dir : Direction.pawnCapturingDirections(side))
-				if (getPieceFromBoard(square + dir.offset) == Piece.PAWN
-						&& getSideFromBoard(square + dir.offset) == opp_side) {
-					move = new Move(square + dir.offset, square);
-					if (!isCheckAfterMove(move))
+					move = new Move(new_square, square);
+					if (SquareHelper.getRow(square) == SquareHelper
+							.getRowForSide(side, 8)) {
+						// promotion
+						if (!isCheckAfterMove(move)) {
+							move = new Move(new_square, square, Piece.QUEEN);
+							result.add(move);
+							move = new Move(new_square, square, Piece.KNIGHT);
+							result.add(move);
+							move = new Move(new_square, square, Piece.BISHOP);
+							result.add(move);
+							move = new Move(new_square, square, Piece.ROOK);
+							result.add(move);
+						}
+					} else if (!isCheckAfterMove(move))
 						result.add(move);
 				}
-
+			}
 		} else if (attacking_dir == Piece.KNIGHT) {
 			squares = SquareHelper.getAllSquaresByKnightStep(square);
 			for (int squ : squares) {
 				if (getPieceFromBoard(squ) == Piece.KNIGHT
-						&& getSideFromBoard(squ) == opp_side) {
+						&& getSideFromBoard(squ) == side) {
 					move = new Move(squ, square);
 					if (!isCheckAfterMove(move))
 						result.add(move);
@@ -1198,7 +1247,7 @@ public class Position implements IPosition {
 		} else if (attacking_dir == Piece.KING) {
 			for (Direction dir : Direction.values()) {
 				if (getPieceFromBoard(square + dir.offset) == Piece.KING
-						&& getSideFromBoard(square + dir.offset) == opp_side) {
+						&& getSideFromBoard(square + dir.offset) == side) {
 					move = new Move(square + dir.offset, square);
 					if (!isCheckAfterMove(move)) {
 						result.add(move);
@@ -1221,9 +1270,9 @@ public class Position implements IPosition {
 			for (Direction dir : dirs) {
 				squares = all_squares.get(dir.ordinal());
 				for (int squ : squares)
-					if (getSideFromBoard(squ) == side)
+					if (getSideFromBoard(squ) == opp_side)
 						break;
-					else if (getSideFromBoard(squ) == opp_side) {
+					else if (getSideFromBoard(squ) == side) {
 
 						Piece p = getPieceFromBoard(squ);
 						if (p == Piece.QUEEN || p == attacking_dir) {
@@ -1242,13 +1291,39 @@ public class Position implements IPosition {
 	@Override
 	public boolean isCheckAfterMove(IMove move) {
 		boolean is_check = false;
-		tinyDoMove(move);
-		active_color = Side.getOppositeSide(active_color);
-		if (isCheckPosition())
-			is_check = true;
-		active_color = Side.getOppositeSide(active_color);
-		tinyUndoMove(move);
+		int src = move.getFromSquare();
+		int dest = move.getToSquare();
 
+		if (getSideFromBoard(dest) != active_color) {
+			tinyDoMove(move);
+			active_color = Side.getOppositeSide(active_color);
+			if (isCheckPosition())
+				is_check = true;
+			active_color = Side.getOppositeSide(active_color);
+			tinyUndoMove(move);
+		} else {
+			Piece p = getPieceFromBoard(src);
+			if (p != Piece.KING) {
+				Boolean check = this.is_check;
+				setOnBoard(src, null, null);
+				this.is_check = null;
+				if (isCheckPosition())
+					is_check = true;
+				this.is_check = check;
+				setOnBoard(src, active_color, p);
+			} else {
+				// TODO needs to be verified.
+				Boolean check = this.is_check;
+				setOnBoard(src, null, null);
+				king_pos[active_color.ordinal()] = dest;
+				this.is_check = null;
+				if (isCheckPosition())
+					is_check = true;
+				this.is_check = check;
+				king_pos[active_color.ordinal()] = src;
+				setOnBoard(src, active_color, p);
+			}
+		}
 		return is_check;
 
 	}
@@ -1925,181 +2000,4 @@ public class Position implements IPosition {
 		return half_move_clock;
 	}
 
-	@Override
-	public IMove get_smallest_attacker(int square) {
-
-		Side side = getActiveColor();
-		Side opp_side = Side.getOppositeSide(side);
-		ArrayList<List<Integer>> all_squares = SquareHelper
-				.getSquaresAllDirections(square);
-		List<Integer> squares;
-		IMove move = null;
-		IMove temp_move;
-
-		for (Direction dir : Direction.pawnCapturingDirections(side))
-			if (getPieceFromBoard(square + dir.offset) == Piece.PAWN
-					&& getSideFromBoard(square + dir.offset) == opp_side) {
-				move = new Move(square + dir.offset, square);
-				tinyDoMove(move);
-				active_color = Side.getOppositeSide(active_color);
-				if (isCheckPosition()) {
-					active_color = Side.getOppositeSide(active_color);
-					tinyUndoMove(move);
-					continue;
-				}
-				active_color = Side.getOppositeSide(active_color);
-				tinyUndoMove(move);
-				return move;
-			}
-
-		// en_passant
-		if (square == getEnPassant()) {
-			if (getPieceFromBoard(square + Direction.EAST.offset) == Piece.PAWN
-					&& getSideFromBoard(square + Direction.EAST.offset) == opp_side) {
-				move = new Move(square + Direction.EAST.offset, square);
-				tinyDoMove(move);
-				active_color = Side.getOppositeSide(active_color);
-				if (isCheckPosition()) {
-					active_color = Side.getOppositeSide(active_color);
-					tinyUndoMove(move);
-				} else {
-					active_color = Side.getOppositeSide(active_color);
-					tinyUndoMove(move);
-					return move;
-				}
-
-			}
-			if (getPieceFromBoard(square + Direction.WEST.offset) == Piece.PAWN
-					&& getSideFromBoard(square + Direction.WEST.offset) == opp_side) {
-				move = new Move(square + Direction.WEST.offset, square);
-				tinyDoMove(move);
-				active_color = Side.getOppositeSide(active_color);
-				if (isCheckPosition()) {
-					active_color = Side.getOppositeSide(active_color);
-					tinyUndoMove(move);
-				} else {
-					active_color = Side.getOppositeSide(active_color);
-					tinyUndoMove(move);
-					return move;
-				}
-			}
-		}
-
-		int[] piece_values = { 100, 500, 325, 325, 975, 000 };
-		int min = 1000;
-		for (Direction dir : Direction.values()) {
-			squares = all_squares.get(dir.ordinal());
-			for (int squ : squares)
-				if (getSideFromBoard(squ) == side)
-					break;
-				else if (getSideFromBoard(squ) == opp_side) {
-					if (dir == Direction.NORTH || dir == Direction.SOUTH
-							|| dir == Direction.WEST || dir == Direction.NORTH) {
-						Piece p = getPieceFromBoard(squ);
-						if (p == Piece.QUEEN || p == Piece.ROOK) {
-
-							if (min > piece_values[p.ordinal()]) {
-								min = piece_values[p.ordinal()];
-
-								temp_move = new Move(squ, square);
-								tinyDoMove(temp_move);
-								active_color = Side
-										.getOppositeSide(active_color);
-								if (isCheckPosition()) {
-									active_color = Side
-											.getOppositeSide(active_color);
-									tinyUndoMove(temp_move);
-								} else {
-									active_color = Side
-											.getOppositeSide(active_color);
-									tinyUndoMove(temp_move);
-									move = temp_move;
-								}
-
-							}
-
-						}
-					}
-					if (dir == Direction.NORTHWEST
-							|| dir == Direction.NORTHEAST
-							|| dir == Direction.SOUTHWEST
-							|| dir == Direction.SOUTHEAST) {
-						Piece p = getPieceFromBoard(squ);
-						if (p == Piece.QUEEN || p == Piece.BISHOP) {
-							if (min > piece_values[p.ordinal()]) {
-								min = piece_values[p.ordinal()];
-
-								temp_move = new Move(squ, square);
-								tinyDoMove(temp_move);
-								active_color = Side
-										.getOppositeSide(active_color);
-								if (isCheckPosition()) {
-									active_color = Side
-											.getOppositeSide(active_color);
-									tinyUndoMove(temp_move);
-								} else {
-									active_color = Side
-											.getOppositeSide(active_color);
-									tinyUndoMove(temp_move);
-									move = temp_move;
-								}
-
-								if (p == Piece.BISHOP)
-									return move;
-							}
-
-						}
-					}
-
-					break;
-				}
-		}
-
-		squares = SquareHelper.getAllSquaresByKnightStep(square);
-		for (int squ : squares) {
-			if (getPieceFromBoard(squ) == Piece.KNIGHT
-					&& getSideFromBoard(squ) == opp_side) {
-				if (min > piece_values[Piece.KNIGHT.ordinal()]) {
-					min = piece_values[Piece.KNIGHT.ordinal()];
-
-					temp_move = new Move(squ, square);
-					tinyDoMove(temp_move);
-					active_color = Side.getOppositeSide(active_color);
-					if (isCheckPosition()) {
-						active_color = Side.getOppositeSide(active_color);
-						tinyUndoMove(temp_move);
-					} else {
-						active_color = Side.getOppositeSide(active_color);
-						tinyUndoMove(temp_move);
-						move = temp_move;
-					}
-
-					return move;
-
-				}
-
-			}
-		}
-
-		if (min == 1000) {
-			for (Direction dir : Direction.values()) {
-				if (getPieceFromBoard(square + dir.offset) == Piece.KING
-						&& getSideFromBoard(square + dir.offset) == opp_side) {
-					temp_move = new Move(square + dir.offset, square);
-					tinyDoMove(temp_move);
-					active_color = Side.getOppositeSide(active_color);
-					if (isCheckPosition()) {
-						active_color = Side.getOppositeSide(active_color);
-						tinyUndoMove(temp_move);
-					} else {
-						active_color = Side.getOppositeSide(active_color);
-						tinyUndoMove(temp_move);
-						return temp_move;
-					}
-				}
-			}
-		}
-
-		return move;
-	}
 }

@@ -336,9 +336,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		List<IMove> captures = position.generateCaptures();
 		if (captures.size()>1) {
 			// Generate MoveComperator
-			//BasicMoveComparator move_comparator = new BasicMoveComparator(position);			
-			CaptureComperator move_comparator = new CaptureComperator(position);
-
+			BasicMoveComparator move_comparator = new BasicMoveComparator(position);			
+			//CaptureComperator move_comparator = new CaptureComperator(position);
 			Collections.sort(captures,
 					Collections.reverseOrder(move_comparator));
 		}

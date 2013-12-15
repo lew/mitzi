@@ -303,12 +303,13 @@ public interface IPosition {
 	public void setHalfMoveClock(int parseInt);
 
 	public int getHalfMoveClock();
-	
-	public IMove get_smallest_attacker(int square);
 
 	boolean isCheckAfterMove(IMove move);
 
-	List<IMove> getPossibleMovesTo(int square, Piece attacking_dir);
+	void getPotentialAttackersTo(int square, Piece attacking_dir,
+			List<IMove> result);
 
-	void getPossibleMovesTo(int square, Piece attacking_dir, List<IMove> result);
+	List<IMove> getPotentialAttackersTo(int square, Piece attacking_dir);
+
+	List<IMove> getPotentialAttackersTo(int square);
 }
