@@ -1385,9 +1385,9 @@ public class Position implements IPosition {
 					.getAllSquaresByKnightStep(king_pos);
 			for (int square : knight_squares) {
 				Piece piece = getPieceFromBoard(square);
-				if (piece != null) {
+				if (piece== Piece.KNIGHT) {
 					Side side = getSideFromBoard(square);
-					if (side != active_color && piece == Piece.KNIGHT) {
+					if (side != active_color) {
 						return true;
 					}
 				}
