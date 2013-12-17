@@ -99,11 +99,12 @@ public class CaptureComparator implements Comparator<IMove> {
 		IMove best_move = null;
 		List<IMove> captures = attackers.get(side.ordinal());
 
+		if(captures.isEmpty())
+			return null;
+		
 		piece_values[Piece.KING.ordinal()] = 1000;
 		for (IMove move : captures) {
 			p = board.getPieceFromBoard(move.getFromSquare());
-			if (p == null)
-				System.out.println("STOP");
 			if (piece_values[p.ordinal()] < val) {
 				best_move = move;
 				val = piece_values[p.ordinal()];
@@ -125,8 +126,10 @@ public class CaptureComparator implements Comparator<IMove> {
 
 		Side just_computed_side = null;
 		if(attackers.get(board.getActiveColor().ordinal())==null){
-			List<IMove> captures2 = board.getPotentialAttackersTo(square);
+			List<IMove> captures2 = board.getPotentialAttackersTo(square);		
 			attackers.set(board.getActiveColor().ordinal(), captures2);
+			if(captures2.isEmpty())
+				return;
 			just_computed_side = board.getActiveColor();
 		}
 		

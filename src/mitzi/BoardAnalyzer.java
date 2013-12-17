@@ -210,7 +210,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * the number of pieces when the endgame starts (a first draft, needs to be
 	 * optimized)
 	 */
-	static public int ENDGAME_THRESHOLD = 8;
+	static public int ENDGAME_THRESHOLD = 12;
 
 	/**
 	 * counts the number of board evaluations in quiesce().
@@ -336,9 +336,9 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		List<IMove> captures = position.generateCaptures();
 		if (captures.size()>1) {
 			// Generate MoveComperator
-			//BasicMoveComparator move_comparator = new BasicMoveComparator(position);	
+			BasicMoveComparator move_comparator = new BasicMoveComparator(position);	
 			
-			CaptureComparator move_comparator = new CaptureComparator(position);
+			//CaptureComparator move_comparator = new CaptureComparator(position);
 			Collections.sort(captures,
 					Collections.reverseOrder(move_comparator));
 		}
