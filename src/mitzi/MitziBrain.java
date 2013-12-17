@@ -417,10 +417,12 @@ public class MitziBrain implements IBrain {
 		// set up threading
 		timer = new Timer();
 		exe = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-
+		
 		// make a copy of the actual position
 		IPosition position = game_state.getPosition().returnCopy();
 
+		board_analyzer.setCastling(position);
+		
 		int max_depth;
 
 		// set parameters for searchtime and searchdepth

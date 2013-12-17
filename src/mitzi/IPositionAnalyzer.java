@@ -28,4 +28,10 @@ public interface IPositionAnalyzer {
 	 */
 	public AnalysisResult evalBoard(IPosition board, int alpha, int beta) throws InterruptedException;
 
+	/**
+	 * stores the castling rights
+	 * @param position the actual position
+	 */
+	public void setCastling(IPosition position);
+
 }

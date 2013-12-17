@@ -205,7 +205,7 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 * malus if castling is loss (needs to be fixed and optimized)
 	 */
 	static private int CASTLING_LOSS = -40;
-
+	
 	/**
 	 * the number of pieces when the endgame starts (a first draft, needs to be
 	 * optimized)
@@ -222,6 +222,8 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 	 */
 	static public long table_counter = 0;
 
+	private int[] start_castling = new int[4];
+	
 	@Override
 	public AnalysisResult eval0(IPosition board) {
 		int score = 0;
@@ -828,16 +830,25 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 							* king_positions_b[square_to_array_index[position
 									.getKingPos(side)]];
 
-				// TODO: this dont work as it should... needs to be fixed (only
-				// should
 				// give penalty if during search castling is lost)
-				if (!position.canCastle(SquareHelper.getSquare(row_1, 3))
-						|| !position
-								.canCastle(SquareHelper.getSquare(row_1, 7)))
+				int off=2;
+				if(side == Side.BLACK)
+					off=2;
+				
+				if ((start_castling[off]!=-1 && !position.canCastle(SquareHelper.getSquare(row_1, 3))
+						)&& (start_castling[off+1]!=-1 && !position
+								.canCastle(SquareHelper.getSquare(row_1, 7))))
 					score += side_sign * CASTLING_LOSS;
 
 			}
 
 		return score;
+	}
+	
+	public void setCastling(IPosition position){
+		start_castling[0] = position.canCastle(31) ? 31 : -1;
+		start_castling[1] = position.canCastle(71) ? 71 : -1;
+		start_castling[2] = position.canCastle(38) ? 38 : -1;
+		start_castling[3] = position.canCastle(78) ? 78 : -1;
 	}
 }
