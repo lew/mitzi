@@ -314,7 +314,7 @@ public class MitziBrain implements IBrain {
 		// alpha beta search
 		for (IMove move : ordered_moves) {
 
-			if(i<number_legal_movs_TT && position.isCheckAfterMove(move)){
+			if(i>=number_legal_movs_TT && position.isCheckAfterMove(move)){
 				illegal_move_counter++;
 				continue;
 			}
