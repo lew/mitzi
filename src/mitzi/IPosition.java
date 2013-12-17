@@ -204,7 +204,7 @@ public interface IPosition {
 	 *            the given square
 	 * @return a set of all valid and possible moves from the given square.
 	 */
-	public List<IMove> getPossibleMovesFrom(int square);
+	public List<IMove> getPossibleMovesFrom(int square, boolean pseudolegal);
 
 	/**
 	 * Computes all possible moves for the active side to a specific square.
@@ -312,4 +312,6 @@ public interface IPosition {
 	List<IMove> getPotentialAttackersTo(int square, Piece attacking_dir);
 
 	List<IMove> getPotentialAttackersTo(int square);
+	
+	List<IMove> getPossibleMoves(boolean pseudolegal);
 }

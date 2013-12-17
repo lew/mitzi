@@ -179,6 +179,8 @@ public class Position implements IPosition {
 	 */
 	Boolean old_check;
 
+	private Boolean pseudolegal_moves;
+
 	// -----------------------------------------------------------------------------------------
 
 	/**
@@ -187,6 +189,7 @@ public class Position implements IPosition {
 	private void resetCache() {
 		possible_moves.clear();
 		possible_moves_is_null = true;
+		pseudolegal_moves = null;
 		is_check = null;
 		is_mate = null;
 		is_stale_mate = null;
@@ -787,21 +790,41 @@ public class Position implements IPosition {
 
 	@Override
 	public List<IMove> getPossibleMoves() {
-		if (possible_moves_is_null == true) {
-
-			// loop over all squares
-			for (int square : SquareHelper.all_squares) {
-				if (getSideFromBoard(square) == active_color)
-					possible_moves.addAll(getPossibleMovesFrom(square));
-			}
-			possible_moves_is_null = false;
-		}
-
-		return possible_moves;
+		return getPossibleMoves(false);
 	}
 
 	@Override
-	public List<IMove> getPossibleMovesFrom(int square) {
+	public List<IMove> getPossibleMoves(boolean pseudolegal) {
+
+		if (possible_moves_is_null == true ) {
+				
+			// loop over all squares
+			for (int square : SquareHelper.all_squares) {
+				if (getSideFromBoard(square) == active_color)
+					possible_moves.addAll(getPossibleMovesFrom(square,
+							pseudolegal));
+			}
+			pseudolegal_moves = pseudolegal;
+			possible_moves_is_null = false;
+		} 
+		else if(!pseudolegal && pseudolegal_moves)
+		{
+			Iterator<IMove> iter = possible_moves.iterator();
+			while(iter.hasNext())
+			{
+				IMove m = iter.next();
+				if(isCheckAfterMove(m))
+					iter.remove();
+			}
+			pseudolegal_moves = false;
+		}
+			
+		return possible_moves;
+
+	}
+
+	@Override
+	public List<IMove> getPossibleMovesFrom(int square, boolean pseudolegal) {
 		// The case, that the destination is the opponents king cannot happen.
 
 		Piece type = getPieceFromBoard(square);
@@ -1036,15 +1059,16 @@ public class Position implements IPosition {
 			}
 		}
 
-		// remove invalid positions
-		Iterator<IMove> iter = moves.iterator();
-		IMove mv;
-		while (iter.hasNext()) {
-			mv = iter.next();
-			if (isCheckAfterMove(mv))
-				iter.remove();
+		if (!pseudolegal) {
+			// remove invalid positions
+			Iterator<IMove> iter = moves.iterator();
+			IMove mv;
+			while (iter.hasNext()) {
+				mv = iter.next();
+				if (isCheckAfterMove(mv))
+					iter.remove();
+			}
 		}
-
 		return moves;
 	}
 
@@ -1290,7 +1314,7 @@ public class Position implements IPosition {
 
 	@Override
 	public boolean isCheckAfterMove(IMove move) {
-		
+
 		boolean is_check = false;
 
 		tinyDoMove(move);
@@ -1299,7 +1323,7 @@ public class Position implements IPosition {
 			is_check = true;
 		active_color = Side.getOppositeSide(active_color);
 		tinyUndoMove(move);
-		
+
 		return is_check;
 
 	}
@@ -1950,11 +1974,9 @@ public class Position implements IPosition {
 		// If en passant
 		else if (piece == Piece.PAWN && dest == en_passant_target) {
 			if (s_piece == Side.WHITE)
-				setOnBoard(dest - 1, Side.getOppositeSide(s_piece),
-						Piece.PAWN);
+				setOnBoard(dest - 1, Side.getOppositeSide(s_piece), Piece.PAWN);
 			else
-				setOnBoard(dest + 1, Side.getOppositeSide(s_piece),
-						Piece.PAWN);
+				setOnBoard(dest + 1, Side.getOppositeSide(s_piece), Piece.PAWN);
 		}
 
 		// Update king position

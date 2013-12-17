@@ -33,7 +33,7 @@ public class MitziBrain implements IBrain {
 	 * unit for time management
 	 */
 	private static final TimeUnit THREAD_TIMEOUT_UNIT = TimeUnit.MILLISECONDS;
-	
+
 	/**
 	 * timeout for thread shutdown
 	 */
@@ -259,18 +259,8 @@ public class MitziBrain implements IBrain {
 
 		// ---------------------------------------------------------------------------------------
 		// generate moves
-		List<IMove> moves = position.getPossibleMoves();
+		List<IMove> moves = position.getPossibleMoves(true);
 
-		// check for mate and stalemate
-		if (moves.isEmpty()) {
-			eval_counter++;
-			if (position.isCheckPosition()) {
-				return new AnalysisResult(NEG_INF * side_sign, false, false, 0,
-						0, Flag.EXACT);
-			} else {
-				return new AnalysisResult(0, true, false, 0, 0, Flag.EXACT);
-			}
-		}
 		// ---------------------------------------------------------------------------------------
 		// Sort the moves:
 		ArrayList<IMove> ordered_moves = new ArrayList<IMove>(40);
@@ -283,18 +273,20 @@ public class MitziBrain implements IBrain {
 
 		// if possible use the moves from Position cache as the moves with
 		// highest priority
+		int number_legal_movs_TT =0;
 		if (entry != null) {
 			ordered_moves.addAll(entry.best_moves);
+			number_legal_movs_TT = ordered_moves.size();
 
 			for (IMove k_move : killer_moves)
-				if (position.isPossibleMove(k_move)
+				if (moves.contains(k_move)
 						&& !ordered_moves.contains(k_move))
 					ordered_moves.add(k_move);
 
 		} else {
 			// Killer_moves have highest priority
 			for (IMove k_move : killer_moves)
-				if (position.isPossibleMove(k_move))
+				if (moves.contains(k_move))
 					ordered_moves.add(k_move);
 		}
 		// add the remaining moves and sort them using a basic heuristic
@@ -318,9 +310,15 @@ public class MitziBrain implements IBrain {
 		int best_value = NEG_INF; // this starts always at negative!
 
 		int i = 0;
+		int illegal_move_counter =0;
 		// alpha beta search
 		for (IMove move : ordered_moves) {
 
+			if(i<number_legal_movs_TT && position.isCheckAfterMove(move)){
+				illegal_move_counter++;
+				continue;
+			}
+			
 			// output currently searched move to UCI
 			if (depth == total_depth && total_depth >= 6)
 				UCIReporter.sendInfoCurrMove(move, i + 1);
@@ -355,8 +353,7 @@ public class MitziBrain implements IBrain {
 				}
 
 				// output to UCI
-				// boolean truly_better = negaval > best_value;
-				if (depth == total_depth) { // && truly_better) {
+				if (depth == total_depth) {
 					position.updateAnalysisResult(parent);
 					game_state.getPosition().updateAnalysisResult(parent);
 					UCIReporter.sendInfoPV(game_state.getPosition(), runTime());
@@ -374,6 +371,16 @@ public class MitziBrain implements IBrain {
 			}
 
 			i++;
+		}
+		// check for mate and stalemate
+		if (illegal_move_counter == ordered_moves.size()) {
+			eval_counter++;
+			if (position.isCheckPosition()) {
+				return new AnalysisResult(NEG_INF * side_sign, false, false, 0,
+						0, Flag.EXACT);
+			} else {
+				return new AnalysisResult(0, true, false, 0, 0, Flag.EXACT);
+			}
 		}
 
 		// ---------------------------------------------------------------------------------------
@@ -439,7 +446,7 @@ public class MitziBrain implements IBrain {
 
 		timer.scheduleAtFixedRate(new UCIUpdater(), 1000, 5000);
 		start_mtime = System.currentTimeMillis();
-		
+
 		// reset the result
 		result = null;
 
@@ -482,7 +489,8 @@ public class MitziBrain implements IBrain {
 
 		// if no best_move has been found yet, choose any
 		if (result == null) {
-			List<IMove> possibleMoves = game_state.getPosition().getPossibleMoves();
+			List<IMove> possibleMoves = game_state.getPosition()
+					.getPossibleMoves();
 			int randy = new Random().nextInt(possibleMoves.size());
 			return possibleMoves.get(randy);
 		}
