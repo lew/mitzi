@@ -181,7 +181,9 @@ public class CaptureComparator implements Comparator<IMove> {
 				Direction.SOUTHWEST, Direction.NORTHEAST, Direction.NORTHWEST);
 		while (SquareHelper.isValidSquare(new_square)) {
 			Side s = board.getSideFromBoard(new_square);
-			if (s != null && s != just_computed_side) {
+			if (s != null) {
+				if(s==just_computed_side)
+					return;
 				p = board.getPieceFromBoard(new_square);
 				if (p == Piece.QUEEN) {
 					move = new Move(new_square, square);
