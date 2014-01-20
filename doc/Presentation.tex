@@ -1,0 +1,174 @@
+\documentclass [12pt ,a4paper, british]{beamer}
+
+\usepackage [latin1]{inputenc}
+\usepackage [british]{babel}
+\usepackage {lmodern}
+\usepackage [T1]{fontenc}
+
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {amsthm}
+\usepackage {parskip}
+
+\usepackage{graphicx}
+
+\usepackage{color}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{float}
+
+\DeclareMathOperator{\spn}{span}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{bem}[thm]{Remark}
+
+\author{Christoph Hofer \\ Stefan Lew}
+\title{Mitzi - Chess Engine}
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Outline}
+    \small
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\begin{document}
+	\begin{frame}
+		\maketitle
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Outline}
+    \small
+    \tableofcontents
+	\end{frame}
+
+	\section{Representation of Chess Board}
+	\begin{frame}
+		\frametitle{Chess Board}
+		\begin{itemize}
+			\item Pieces and Sides are represented as Enums
+			\item Value for a piece for a certain side is
+				\begin{center}
+					10$\cdot$side.ordinal$()$ + piece.ordinal$()$
+				\end{center}
+			\item Arrays of length 65 for Sides and Pieces 
+			\item Last element is an empty dummy position for pieces outside the board.
+			\item Application of move via DoMove/UndoMove (no copies)
+		\end{itemize}
+	\end{frame}
+	
+	\section{Board Evaluation}
+	\begin{frame}
+		\frametitle{Board Evaluation}
+		Value is computed in cp (\emph{centipawns}), i.e. a pawns has a value of 100 cp
+		\begin{itemize}
+			\item Material value of pieces
+			\item Position of pieces on the board. (Higher values in the center)
+			\item Weak and Strong squares. (pieces covered by pawns get an higher value)
+			\item Additional boni for rooks on a open/halfopen line and covering other pieces.
+			\item Pawn structure: Multipawns, Twinpawns, Passed pawns, Isolated Pawns
+			\item Bonus for castling
+		\end{itemize}
+	\end{frame}
+	\section{Finding optimal ply}
+	\begin{frame}
+	\frametitle{Basic NegaMax algorithm with $\alpha-\beta-$ pruning}
+	\small{
+	\begin{algorithmic}[1]
+			\IF{depth = 0}
+				\RETURN evalBoard()
+			\ENDIF
+			\STATE value = $-\inf$
+			\STATE moves = generateOrderedMoves()
+			\FOR{move $\in$ moves}
+				\STATE doMove(move)
+				\STATE val = sign$\cdot$NegaMax(depth - 1, $-\beta$, $-\alpha$)
+				\STATE undoMove(move)
+				\STATE bestValue = max( bestValue, val )
+       			\STATE $\alpha$ = max( $\alpha$, val )
+       			\IF{$\alpha\geq\beta$}
+       				\STATE break
+       			\ENDIF
+			\ENDFOR		
+			\RETURN sign*bestValue
+	\end{algorithmic}
+	}
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Transposition Tables Lookup}
+	\small{
+	\begin{algorithmic}[1]
+		\STATE entry = TranspositionTableLookup()
+        \IF{entry $\neq$ null and entry.depth $\geq$ depth}
+      		\IF{entry.flag = EXACT}
+            	\RETURN entry.value
+        	\ELSIF{entry.flag = LOWERBOUND}
+            	$\alpha$ = max($\alpha$, entry.value)
+        	\ELSIF{entry.flag = UPPERBOUND}
+            	$\beta$ = min($\beta$, entry.value)
+        	\ENDIF
+        	\IF{$\alpha\geq\beta$}
+            	\RETURN entry.value
+    		\ENDIF
+    	\ENDIF
+		\STATE proceed with NegaMax	
+	\end{algorithmic}
+	}
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Transposition Tables Storage}
+	\small{
+	\begin{algorithmic}[1]
+    \STATE entry.Value = bestValue
+    \IF{bestValue $\leq  \alpha_{old}$}
+        \STATE entry.Flag := UPPERBOUND
+    \ELSIF{bestValue $\geq \beta$}
+        \STATE entry.Flag := LOWERBOUND
+    \ELSE
+        \STATE entry.Flag := EXACT
+    \ENDIF
+    \STATE entry.depth = depth 
+    \STATE TranspositionTableStore(entry)
+    \RETURN bestValue
+    
+	\end{algorithmic}
+	}
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Move Ordering}
+	\begin{itemize}
+		\item If the position was found in the transposition table (but value could not used) use the saved and ordered moves. We only saved moves, which improved the best value in NegaMax.
+		\item Rule of thumb: Most Valuable Victim - Least Valuable Aggressor.
+		\item Killer moves: Moves, which produced a cutoff in the same depth, needs a check for legality. Usually only 2 are stored.
+		\item Move order:
+		\begin{enumerate}
+			\item from Transposition Table
+			\item Killer Moves
+			\item remaining moves (ordered by rule of thumb)
+		\end{enumerate}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+	\frametitle{Further Improvements}
+		\begin{description}
+			\item[Iterative Deepening] Sequentially find the best move for depth $=1,\ldots,n$.  
+			\item[Quiescence Search] If base case is reached continue with NegaMax using all capture moves and promotions until either no capture or promotion is possible.
+			\item[Aspiration Windows] Instead of starting in each search depth with $\alpha = -\infty$ and $\beta = \infty$ use instead $\alpha = val-\epsilon$ and $\beta = val+\epsilon$.
+		\end{description}
+	\end{frame}
+	
+	
+\end{document}
