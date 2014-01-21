@@ -22,12 +22,16 @@ public class MitziGUI extends JFrame implements MouseListener,
 	int end_square;
 
 	private GameState state = new GameState();
-
+	Dimension boardSize = new Dimension(800, 800);
 	public MitziGUI() {
-		Dimension boardSize = new Dimension(800, 800);
+		redraw();
+	}
+
+	private void redraw(){
+
 		// Use a Layered Pane for this this application
 		layeredPane = new JLayeredPane();
-		getContentPane().add(layeredPane);
+
 		layeredPane.setPreferredSize(boardSize);
 		layeredPane.addMouseListener(this);
 		layeredPane.addMouseMotionListener(this);
@@ -50,8 +54,10 @@ public class MitziGUI extends JFrame implements MouseListener,
 			square.setBackground((i + i / 8) % 2 == 0 ? white : black);
 		}
 
+		getContentPane().removeAll();
+		getContentPane().add(layeredPane);
 	}
-
+	
 	private int getSquare(int x, int y) {
 		System.out.println(x + " " + y);
 		x = x / 100 + 1;
@@ -69,8 +75,11 @@ public class MitziGUI extends JFrame implements MouseListener,
 	}
 
 	public void setToFEN(String fen) {
-		JPanel panel = (JPanel) chessBoard.getComponent(0);
-
+		
+		redraw();
+		
+		JPanel panel;
+		
 		String[] fen_parts = fen.split(" ");
 
 		// populate the squares
@@ -80,7 +89,7 @@ public class MitziGUI extends JFrame implements MouseListener,
 			int offset = 0;
 			for (int column = 0; column + offset < 8; column++) {
 				pieces = fen_rows[row].toCharArray();
-				int square = (row + offset) * 8 + column;
+				int square = row * 8 + column + offset;
 				JLabel piece;
 				switch (pieces[column]) {
 				case 'P':
@@ -129,8 +138,7 @@ public class MitziGUI extends JFrame implements MouseListener,
 				panel.add(piece);
 			}
 		}
-		
-		chessBoard.revalidate();
+		chessBoard.updateUI();
 	}
 
 	public void mousePressed(MouseEvent e) {
@@ -165,26 +173,20 @@ public class MitziGUI extends JFrame implements MouseListener,
 		Component c = chessBoard.findComponentAt(e.getX(), e.getY());
 		end_square = getSquare(e.getX(), e.getY());
 		IMove move = new Move(start_square, end_square);
-		System.out.println(start_square + " " + end_square);
 		try {
 			state.doMove(move);
 		} catch (IllegalArgumentException ex) {
-			System.out.println(move);
 			Container parent = (Container) squareToComponent(start_square);
 			parent.add(chessPiece);
 			chessPiece.setVisible(true);
 			return;
 		}
-
-		if (c instanceof JLabel) {
-			Container parent = c.getParent();
-			parent.remove(0);
-			parent.add(chessPiece);
-		} else {
-			Container parent = (Container) c;
-			parent.add(chessPiece);
-		}
-		chessPiece.setVisible(true);
+		
+		
+		IPosition position = state.getPosition();
+		setToFEN(position.toFEN());
+		
+		//chessPiece.setVisible(false);
 	}
 
 	public void mouseClicked(MouseEvent e) {
