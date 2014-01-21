@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.junit.runner.RunWith;
 
-@RunWith(Parameterized.class)
+@RWith(Parameterized.class)
 public class SilentButDeadlyTest {
 
 	private GameState game_state = new GameState();

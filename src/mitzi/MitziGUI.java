@@ -17,7 +17,12 @@ public class MitziGUI extends JFrame implements MouseListener,
 	JLabel chessPiece;
 	int xAdjustment;
 	int yAdjustment;
+	
+	int start_square;
+	int end_square;
 
+	private GameState state = new GameState();
+	
 	public MitziGUI() {
 		Dimension boardSize = new Dimension(800, 800);
 		// Use a Layered Pane for this this application
@@ -47,6 +52,29 @@ public class MitziGUI extends JFrame implements MouseListener,
 
 	}
 
+	private int getSquare(Component c)
+	{	
+		int x=(c.getX()+100)/10;
+		int y=(800-c.getY())/100;
+		return x+y;
+	}
+	
+	private int getSquare(Point p)
+	{	
+		int x=(p.x+100)/10;
+		int y=(800-p.y)/100;
+		return x+y;
+	}
+	
+	private Component squareToComponent(int squ){
+		
+		int row = 8-squ%10;
+		int col = ((int)squ/10) -1;
+		
+		Component c = chessBoard.getComponent(row*8 +col);
+		return c;
+	}
+	
 	public void setToFEN(String fen) {
 		JPanel panel = (JPanel) chessBoard.getComponent(0);
 
@@ -113,17 +141,20 @@ public class MitziGUI extends JFrame implements MouseListener,
 	public void mousePressed(MouseEvent e) {
 		chessPiece = null;
 		Component c = chessBoard.findComponentAt(e.getX(), e.getY());
+
+
 		if (c instanceof JPanel)
-			return;
+			return;	
 		Point parentLocation = c.getParent().getLocation();
 		xAdjustment = parentLocation.x - e.getX();
 		yAdjustment = parentLocation.y - e.getY();
+		start_square = getSquare(parentLocation);
 		chessPiece = (JLabel) c;
 		chessPiece.setLocation(e.getX() + xAdjustment, e.getY() + yAdjustment);
 		chessPiece.setSize(chessPiece.getWidth(), chessPiece.getHeight());
 		layeredPane.add(chessPiece, JLayeredPane.DRAG_LAYER);
 	}
-
+	
 	// Move the chess piece around
 	public void mouseDragged(MouseEvent me) {
 		if (chessPiece == null)
@@ -138,6 +169,21 @@ public class MitziGUI extends JFrame implements MouseListener,
 			return;
 		chessPiece.setVisible(false);
 		Component c = chessBoard.findComponentAt(e.getX(), e.getY());
+		end_square=getSquare(c);
+		IMove move = new Move(start_square,end_square);
+		System.out.println(start_square + " " + end_square);
+		try{
+			state.doMove(move);
+		}
+		catch(IllegalArgumentException ex)
+		{
+			System.out.println(move);
+			Container parent = (Container) squareToComponent(start_square);
+			parent.add(chessPiece);
+			chessPiece.setVisible(true);
+			return;
+		}
+		
 		if (c instanceof JLabel) {
 			Container parent = c.getParent();
 			parent.remove(0);
@@ -173,5 +219,6 @@ public class MitziGUI extends JFrame implements MouseListener,
 		MitziGUI gui = (MitziGUI) frame;
 		String initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		gui.setToFEN(initialFEN);
+		
 	}
 }
