@@ -23,11 +23,12 @@ public class MitziGUI extends JFrame implements MouseListener,
 
 	private GameState state = new GameState();
 	Dimension boardSize = new Dimension(800, 800);
+
 	public MitziGUI() {
 		redraw();
 	}
 
-	private void redraw(){
+	private void redraw() {
 
 		// Use a Layered Pane for this this application
 		layeredPane = new JLayeredPane();
@@ -57,7 +58,7 @@ public class MitziGUI extends JFrame implements MouseListener,
 		getContentPane().removeAll();
 		getContentPane().add(layeredPane);
 	}
-	
+
 	private int getSquare(int x, int y) {
 		System.out.println(x + " " + y);
 		x = x / 100 + 1;
@@ -75,11 +76,11 @@ public class MitziGUI extends JFrame implements MouseListener,
 	}
 
 	public void setToFEN(String fen) {
-		
+
 		redraw();
-		
+
 		JPanel panel;
-		
+
 		String[] fen_parts = fen.split(" ");
 
 		// populate the squares
@@ -181,12 +182,11 @@ public class MitziGUI extends JFrame implements MouseListener,
 			chessPiece.setVisible(true);
 			return;
 		}
-		
-		
+
 		IPosition position = state.getPosition();
 		setToFEN(position.toFEN());
-		
-		//chessPiece.setVisible(false);
+
+		// chessPiece.setVisible(false);
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -216,13 +216,6 @@ public class MitziGUI extends JFrame implements MouseListener,
 		} else {
 			return Piece.KNIGHT;
 		}
-	}
-
-	private Boolean askNewGame() {
-		int n = JOptionPane.showConfirmDialog(this, "Start a new game?",
-				"Restart game", JOptionPane.YES_NO_OPTION);
-		System.out.println(n);
-		return n == 0;
 	}
 
 	public static void main(String[] args) {
