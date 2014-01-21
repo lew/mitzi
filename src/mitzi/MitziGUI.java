@@ -197,7 +197,7 @@ public class MitziGUI extends JFrame implements MouseListener,
 	public void mouseExited(MouseEvent e) {
 	}
 
-	public Piece askPromotion() {
+	private Piece askPromotion() {
 		Object[] options = { "Queen", "Rook", "Bishop", "Knight" };
 		int n = JOptionPane.showOptionDialog(this,
 				"Which piece do you want to promote to?", "Pawn Promotion",
@@ -214,6 +214,13 @@ public class MitziGUI extends JFrame implements MouseListener,
 		}
 	}
 
+	private Boolean askNewGame() {
+		int n = JOptionPane.showConfirmDialog(this, "Start a new game?",
+				"Restart game", JOptionPane.YES_NO_OPTION);
+		System.out.println(n);
+		return n == 0;
+	}
+
 	public static void main(String[] args) {
 		JFrame frame = new MitziGUI();
 		frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -226,6 +233,5 @@ public class MitziGUI extends JFrame implements MouseListener,
 		MitziGUI gui = (MitziGUI) frame;
 		String initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		gui.setToFEN(initialFEN);
-
 	}
 }
