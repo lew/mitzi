@@ -129,6 +129,8 @@ public class MitziGUI extends JFrame implements MouseListener,
 				panel.add(piece);
 			}
 		}
+		
+		chessBoard.revalidate();
 	}
 
 	public void mousePressed(MouseEvent e) {
