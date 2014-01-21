@@ -197,6 +197,23 @@ public class MitziGUI extends JFrame implements MouseListener,
 	public void mouseExited(MouseEvent e) {
 	}
 
+	public Piece askPromotion() {
+		Object[] options = { "Queen", "Rook", "Bishop", "Knight" };
+		int n = JOptionPane.showOptionDialog(this,
+				"Which piece do you want to promote to?", "Pawn Promotion",
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				options, options[0]);
+		if (n == 0) {
+			return Piece.QUEEN;
+		} else if (n == 1) {
+			return Piece.ROOK;
+		} else if (n == 2) {
+			return Piece.BISHOP;
+		} else {
+			return Piece.KNIGHT;
+		}
+	}
+
 	public static void main(String[] args) {
 		JFrame frame = new MitziGUI();
 		frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
