@@ -52,18 +52,6 @@ public class MitziGUI extends JFrame implements MouseListener,
 
 	}
 
-	private int getSquare(Component c) {
-		int x = (c.getX()) / 10 + 10;
-		int y = (800 - c.getY()) / 100 + 1;
-		return x + y;
-	}
-
-	private int getSquare(Point p) {
-		int x = (p.x) / 10 + 10;
-		int y = (800 - p.y) / 100;
-		return x + y;
-	}
-
 	private int getSquare(int x, int y) {
 		System.out.println(x + " " + y);
 		x = x / 100 + 1;
@@ -152,7 +140,7 @@ public class MitziGUI extends JFrame implements MouseListener,
 		Point parentLocation = c.getParent().getLocation();
 		xAdjustment = parentLocation.x - e.getX();
 		yAdjustment = parentLocation.y - e.getY();
-		start_square = getSquare(parentLocation);
+		start_square = getSquare(e.getX(), e.getY());
 		chessPiece = (JLabel) c;
 		chessPiece.setLocation(e.getX() + xAdjustment, e.getY() + yAdjustment);
 		chessPiece.setSize(chessPiece.getWidth(), chessPiece.getHeight());
