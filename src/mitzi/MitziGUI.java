@@ -7,6 +7,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import com.sun.xml.internal.ws.api.model.wsdl.WSDLBoundOperation.ANONYMOUS;
+
 public class MitziGUI extends JFrame implements MouseListener,
 		MouseMotionListener {
 
@@ -173,7 +175,17 @@ public class MitziGUI extends JFrame implements MouseListener,
 		chessPiece.setVisible(false);
 		Component c = chessBoard.findComponentAt(e.getX(), e.getY());
 		end_square = getSquare(e.getX(), e.getY());
-		IMove move = new Move(start_square, end_square);
+
+		// check for promotion
+		IMove move;
+		if (state.getPosition().getPieceFromBoard(start_square) == Piece.PAWN
+				&& (SquareHelper.getRow(end_square) == 8 || SquareHelper
+						.getRow(end_square) == 1)) {
+			move = new Move(start_square, end_square, askPromotion());
+		} else {
+			move = new Move(start_square, end_square);
+		}
+
 		try {
 			state.doMove(move);
 		} catch (IllegalArgumentException ex) {
