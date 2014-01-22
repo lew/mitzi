@@ -820,7 +820,6 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 		if (count_fig > ENDGAME_THRESHOLD)
 			for (Side side : Side.values()) {
 				int side_sign = Side.getSideSign(side);
-				int row_1 = SquareHelper.getRowForSide(side, 1);
 				if (side == Side.WHITE)
 					score += side_sign
 							* king_positions_w[square_to_array_index[position
@@ -829,17 +828,6 @@ public class BoardAnalyzer implements IPositionAnalyzer {
 					score += side_sign
 							* king_positions_b[square_to_array_index[position
 									.getKingPos(side)]];
-
-				// give penalty if during search castling is lost)
-				int off=2;
-				if(side == Side.BLACK)
-					off=2;
-				
-				if ((start_castling[off]!=-1 && !position.canCastle(SquareHelper.getSquare(row_1, 3))
-						)&& (start_castling[off+1]!=-1 && !position
-								.canCastle(SquareHelper.getSquare(row_1, 7))))
-					score += side_sign * CASTLING_LOSS;
-
 			}
 
 		return score;
