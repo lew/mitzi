@@ -30,6 +30,8 @@ public class MitziGUI extends JFrame implements MouseListener,
 	
 	Dimension boardSize = new Dimension(800, 800);
 
+	public Object[] options = { "ok" };
+	
 	public MitziGUI() {
 		redraw();
 	}
@@ -207,10 +209,7 @@ public class MitziGUI extends JFrame implements MouseListener,
 			return;
 		}
 		
-		//nobody has moved, set the side for mitzi.
-		if(mitzis_side==null)
-			mitzis_side = state.getPosition().getActiveColor();
-		Object[] options = { "ok" };
+
 		IPosition position = state.getPosition();
 		setToFEN(position.toFEN());
 		if (state.getPosition().isMatePosition()) {
@@ -270,12 +269,28 @@ public class MitziGUI extends JFrame implements MouseListener,
 		frame.setTitle("Mitzi GUI");
 
 		MitziGUI gui = (MitziGUI) frame;
+		Object[] choice = { "You", "Mitzi" };
+		
 		String initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+		state.setToFEN(initialFEN);
 		gui.setToFEN(initialFEN);
+		int n = JOptionPane.showOptionDialog(frame,
+				"Who should start","Question",
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				choice, choice[0]);
+		
+		if(n==0)
+		{
+			mitzis_turn = false;
+			mitzis_side = Side.BLACK;
+		}
+		else
+		{
+			mitzis_turn = true;
+			mitzis_side = Side.WHITE;
+		}
 		IBrain mitzi = new MitziBrain();
 		IMove move;
-
-		mitzis_turn = false;
 		while (true) {
 			System.out.print("");
 			if(mitzis_turn) {
@@ -286,19 +301,18 @@ public class MitziGUI extends JFrame implements MouseListener,
 				state.doMove(move);
 				
 				gui.setToFEN(state.getPosition().toFEN());
-				Object[] options = { "ok" };
 				if (state.getPosition().isMatePosition()) {
 					JOptionPane.showOptionDialog(frame,
 							"Mitzi Won!","Information",
 							JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-							options, options[0]);
+							gui.options, gui.options[0]);
 					return;
 				}
 				if (state.getPosition().isStaleMatePosition()) {
 					JOptionPane.showOptionDialog(frame,
 							"Draw!","Information",
 							JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-							options, options[0]);
+							gui.options, gui.options[0]);
 					return;
 				}
 				mitzis_turn=false;
