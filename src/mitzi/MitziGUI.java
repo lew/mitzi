@@ -229,7 +229,7 @@ public class MitziGUI extends JFrame implements MouseListener,
 		
 		mitzis_turn = true;
 	}
-
+	
 	public void mouseClicked(MouseEvent e) {
 	}
 
