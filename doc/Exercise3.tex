@@ -80,10 +80,24 @@
 \tableofcontents
 \newpage
 
+\section{Output of GUI}
+The GIU uses the Java swing library. A 8$\times$8 grid is created and on every square a label represents the piece. When the program is started you can choose who should start, you or mitzi.
+\begin{figure}[h!]
+\includegraphics[scale=0.6]{out1.png}
+\caption{Windows when you start the program}
+\end{figure}
+
+If its mitzis turn you are not able to move any piece and its checked that you can do only possible moves. After a move the whole board is redrawn using the fen string of the new position.
+
+\begin{figure}[h!]
+\includegraphics[scale=0.3]{out2.png}
+\caption{Board after a view plys; you see in the background that mitzi is calculating.}
+\end{figure}
+
 \section{Our Final Code}
 
-\subsection{ChessGame.java}
-\lstinputlisting{../src/mitzi/ChessGame.java}
+%\subsection{ChessGame.java}
+%\lstinputlisting{../src/mitzi/ChessGame.java}
 
 \subsection{Piece.java}
 \lstinputlisting{../src/mitzi/Piece.java}
@@ -108,12 +122,12 @@
 
 \subsection{IPositionAnalyzer.java}
 \lstinputlisting{../src/mitzi/IPositionAnalyzer.java}
-
-\subsection{RandyBrain.java}
-\lstinputlisting{../src/mitzi/RandyBrain.java}
-
-\subsection{HumanBrain.java}
-\lstinputlisting{../src/mitzi/HumanBrain.java}
+%
+%\subsection{RandyBrain.java}
+%\lstinputlisting{../src/mitzi/RandyBrain.java}
+%
+%\subsection{HumanBrain.java}
+%\lstinputlisting{../src/mitzi/HumanBrain.java}
 
 \subsection{Move.java}
 \lstinputlisting{../src/mitzi/Move.java}
@@ -132,9 +146,9 @@
 
 \subsection{CaptureComparator.java}
 \lstinputlisting{../src/mitzi/CaptureComparator.java}
-
-\subsection{BasicBoardAnalyzer.java}
-\lstinputlisting{../src/mitzi/BasicBoardAnalyzer.java}
+%
+%\subsection{BasicBoardAnalyzer.java}
+%\lstinputlisting{../src/mitzi/BasicBoardAnalyzer.java}
 
 \subsection{BoardAnalyzer.java}
 \lstinputlisting{../src/mitzi/BoardAnalyzer.java}
