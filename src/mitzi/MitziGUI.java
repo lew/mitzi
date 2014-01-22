@@ -7,7 +7,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLBoundOperation.ANONYMOUS;
 
 public class MitziGUI extends JFrame implements MouseListener,
 		MouseMotionListener {
@@ -177,7 +176,6 @@ public class MitziGUI extends JFrame implements MouseListener,
 		if (chessPiece == null)
 			return;
 		chessPiece.setVisible(false);
-		Component c = chessBoard.findComponentAt(e.getX(), e.getY());
 		end_square = getSquare(e.getX(), e.getY());
 
 		// check for promotion
