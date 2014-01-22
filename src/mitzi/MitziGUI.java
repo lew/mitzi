@@ -23,7 +23,12 @@ public class MitziGUI extends JFrame implements MouseListener,
 	int start_square;
 	int end_square;
 
-	private GameState state = new GameState();
+	private static GameState state = new GameState();
+
+	private static boolean mitzis_turn;
+	
+	private static Side mitzis_side =null;
+	
 	Dimension boardSize = new Dimension(800, 800);
 
 	public MitziGUI() {
@@ -62,7 +67,6 @@ public class MitziGUI extends JFrame implements MouseListener,
 	}
 
 	private int getSquare(int x, int y) {
-		System.out.println(x + " " + y);
 		x = x / 100 + 1;
 		y = (800 - y) / 100 + 1;
 		return x * 10 + y;
@@ -185,7 +189,17 @@ public class MitziGUI extends JFrame implements MouseListener,
 		} else {
 			move = new Move(start_square, end_square);
 		}
-
+		
+		//if its not your turn, you are not allowed to do anything.
+		if(mitzis_side == state.getPosition().getActiveColor())
+		{
+			Container parent = (Container) squareToComponent(start_square);
+			parent.add(chessPiece);
+			chessPiece.setVisible(true);
+			return;
+		}
+		
+		//try to do move
 		try {
 			state.doMove(move);
 		} catch (IllegalArgumentException ex) {
@@ -194,11 +208,29 @@ public class MitziGUI extends JFrame implements MouseListener,
 			chessPiece.setVisible(true);
 			return;
 		}
-
+		
+		//nobody has moved, set the side for mitzi.
+		if(mitzis_side==null)
+			mitzis_side = state.getPosition().getActiveColor();
+		Object[] options = { "ok" };
 		IPosition position = state.getPosition();
 		setToFEN(position.toFEN());
-
-		// chessPiece.setVisible(false);
+		if (state.getPosition().isMatePosition()) {
+			JOptionPane.showOptionDialog(this,
+					"You Won!","Information",
+					JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					options, options[0]);
+			return;
+		}
+		if (state.getPosition().isStaleMatePosition()) {
+			JOptionPane.showOptionDialog(this,
+					"Draw","Information",
+					JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					options, options[0]);
+			return;
+		}
+		
+		mitzis_turn = true;
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -242,5 +274,37 @@ public class MitziGUI extends JFrame implements MouseListener,
 		MitziGUI gui = (MitziGUI) frame;
 		String initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		gui.setToFEN(initialFEN);
+		IBrain mitzi = new MitziBrain();
+		IMove move;
+
+		mitzis_turn = false;
+		while (true) {
+			System.out.print("");
+			if(mitzis_turn) {
+				// Mitzis turn
+				
+				mitzi.set(state);
+				move = mitzi.search(5000, 5000, 6, true, null);
+				state.doMove(move);
+				
+				gui.setToFEN(state.getPosition().toFEN());
+				Object[] options = { "ok" };
+				if (state.getPosition().isMatePosition()) {
+					JOptionPane.showOptionDialog(frame,
+							"Mitzi Won!","Information",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+							options, options[0]);
+					return;
+				}
+				if (state.getPosition().isStaleMatePosition()) {
+					JOptionPane.showOptionDialog(frame,
+							"Draw!","Information",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+							options, options[0]);
+					return;
+				}
+				mitzis_turn=false;
+			}
+		}
 	}
 }
